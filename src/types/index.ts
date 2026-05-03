@@ -1,0 +1,133 @@
+// Enums from Prisma schema
+export enum Role {
+  USER = 'USER',
+  DRIVER = 'DRIVER',
+  SUPPLIER = 'SUPPLIER',
+  ADMIN = 'ADMIN',
+}
+
+export enum UserStatus {
+  ACTIVE = 'ACTIVE',
+  SUSPENDED = 'SUSPENDED',
+  DELETED = 'DELETED',
+}
+
+export enum DriverStatus {
+  PENDING_APPROVAL = 'PENDING_APPROVAL',
+  ACTIVE = 'ACTIVE',
+  SUSPENDED = 'SUSPENDED',
+  INACTIVE = 'INACTIVE',
+}
+
+export enum SupplierStatus {
+  PENDING_VERIFICATION = 'PENDING_VERIFICATION',
+  ACTIVE = 'ACTIVE',
+  SUSPENDED = 'SUSPENDED',
+  REJECTED = 'REJECTED',
+}
+
+export enum RideStatus {
+  SCHEDULED = 'SCHEDULED',
+  REQUESTED = 'REQUESTED',
+  ACCEPTED = 'ACCEPTED',
+  DRIVER_EN_ROUTE = 'DRIVER_EN_ROUTE',
+  DRIVER_ARRIVED = 'DRIVER_ARRIVED',
+  IN_PROGRESS = 'IN_PROGRESS',
+  COMPLETED = 'COMPLETED',
+  CANCELLED = 'CANCELLED',
+  NO_DRIVERS = 'NO_DRIVERS',
+  NO_SHOW_USER = 'NO_SHOW_USER',
+  NO_SHOW_DRIVER = 'NO_SHOW_DRIVER',
+}
+
+export enum VehicleType {
+  ECONOMY = 'ECONOMY',
+  STANDARD = 'STANDARD',
+  PREMIUM = 'PREMIUM',
+  XL = 'XL',
+  ELECTRIC = 'ELECTRIC',
+}
+
+export enum VehicleStatus {
+  PENDING_APPROVAL = 'PENDING_APPROVAL',
+  ACTIVE = 'ACTIVE',
+  SUSPENDED = 'SUSPENDED',
+  MAINTENANCE = 'MAINTENANCE',
+  DECOMMISSIONED = 'DECOMMISSIONED',
+}
+
+export enum FuelType {
+  PETROL = 'PETROL',
+  DIESEL = 'DIESEL',
+  ELECTRIC = 'ELECTRIC',
+  HYBRID = 'HYBRID',
+  LPG = 'LPG',
+}
+
+export enum DocumentStatus {
+  PENDING = 'PENDING',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+  EXPIRED = 'EXPIRED',
+}
+
+export enum PaymentStatus {
+  PENDING = 'PENDING',
+  AUTHORIZED = 'AUTHORIZED',
+  COMPLETED = 'COMPLETED',
+  FAILED = 'FAILED',
+  REFUNDED = 'REFUNDED',
+  PARTIALLY_REFUNDED = 'PARTIALLY_REFUNDED',
+}
+
+export enum PaymentMethod {
+  CARD = 'CARD',
+  CASH = 'CASH',
+  WALLET = 'WALLET',
+}
+
+export enum SubscriptionTier {
+  STARTER = 'STARTER',
+  PROFESSIONAL = 'PROFESSIONAL',
+  ENTERPRISE = 'ENTERPRISE',
+}
+
+export enum DocumentType {
+  DRIVING_LICENSE = 'DRIVING_LICENSE',
+  VEHICLE_REGISTRATION = 'VEHICLE_REGISTRATION',
+  INSURANCE = 'INSURANCE',
+  ROADWORTHINESS = 'ROADWORTHINESS',
+  POLICE_CLEARANCE = 'POLICE_CLEARANCE',
+  MEDICAL_CERTIFICATE = 'MEDICAL_CERTIFICATE',
+  TAXI_LICENSE = 'TAXI_LICENSE',
+  OPERATOR_LICENSE = 'OPERATOR_LICENSE',
+  COMPANY_REGISTRATION = 'COMPANY_REGISTRATION',
+  VAT_CERTIFICATE = 'VAT_CERTIFICATE',
+  VEHICLE_PHOTO_FRONT = 'VEHICLE_PHOTO_FRONT',
+  VEHICLE_PHOTO_BACK = 'VEHICLE_PHOTO_BACK',
+  VEHICLE_PHOTO_SIDE = 'VEHICLE_PHOTO_SIDE',
+  VEHICLE_PHOTO_INTERIOR = 'VEHICLE_PHOTO_INTERIOR',
+  PROFILE_PHOTO = 'PROFILE_PHOTO',
+  ID_CARD = 'ID_CARD',
+}
+
+// Shared pagination types
+export interface PaginatedMeta {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  meta: PaginatedMeta;
+}
+
+export interface PaginatedQuery {
+  page?: number;
+  limit?: number;
+  sortBy?: string;
+  order?: 'asc' | 'desc';
+  search?: string;
+}
