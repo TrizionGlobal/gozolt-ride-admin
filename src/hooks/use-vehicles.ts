@@ -37,8 +37,13 @@ export function useVehicleKpis() {
     suspended: 0,
   });
 
-  const refresh = useCallback(() => {
-    setKpis(vehicleService.getKpis());
+  const refresh = useCallback(async () => {
+    try {
+      const data = await vehicleService.getKpis();
+      setKpis(data);
+    } catch {
+      // Fallback
+    }
   }, []);
 
   useEffect(() => {

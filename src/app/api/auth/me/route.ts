@@ -17,9 +17,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       user: {
         id: payload.sub,
-        email: payload.email,
-        firstName: payload.firstName,
-        lastName: payload.lastName,
+        email: payload.email || 'admin@gozolt.in',
+        firstName: payload.firstName || 'System',
+        lastName: payload.lastName || 'Admin',
         role: payload.role,
       },
     });

@@ -3,7 +3,7 @@ import { AUTH_COOKIE_NAME } from '@/lib/constants';
 
 const DEV_BYPASS = process.env.NEXT_PUBLIC_DEV_BYPASS === 'true';
 
-const publicPaths = ['/login', '/verify-2fa', '/forgot-password', '/api/auth'];
+const publicPaths = ['/login', '/verify-2fa', '/forgot-password', '/api/auth', '/api/proxy/auth'];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;

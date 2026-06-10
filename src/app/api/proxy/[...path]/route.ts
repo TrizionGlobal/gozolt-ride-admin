@@ -15,8 +15,11 @@ async function handler(
   const token = request.cookies.get(AUTH_COOKIE_NAME)?.value;
   const devAuthenticated = request.cookies.get(DEV_COOKIE_NAME)?.value;
 
+  // Allow unauthenticated requests for specific paths like login/register
+  const isPublicRoute = backendPath.startsWith('auth/admin/login') || backendPath.startsWith('auth/refresh');
+
   // Require authentication (allow dev bypass)
-  if (!token && !devAuthenticated) {
+  if (!isPublicRoute && !token && !devAuthenticated) {
     return NextResponse.json(
       { error: 'Unauthorized' },
       { status: 401 }

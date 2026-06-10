@@ -62,7 +62,7 @@ export default function ForgotPasswordPage() {
       <div className="rounded-lg border border-[#2A2A2A] bg-[#141414] p-8 shadow-2xl">
         {/* Logo */}
         <div className="flex justify-center mb-6">
-          <Image src="/gozolt-logo.png" alt="Gozolt" width={160} height={48} priority />
+          <Image src="/gozolt-logo.png" alt="Gozolt" width={160} height={48} className="w-auto h-auto" priority />
         </div>
 
         {/* Title */}

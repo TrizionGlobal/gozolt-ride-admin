@@ -69,8 +69,9 @@ export function useDocumentKpis() {
     expiringSoon: 0,
   });
 
-  const refresh = useCallback(() => {
-    setKpis(documentService.getKpis());
+  const refresh = useCallback(async () => {
+    const data = await documentService.getKpis();
+    setKpis(data);
   }, []);
 
   useEffect(() => {

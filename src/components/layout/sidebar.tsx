@@ -16,7 +16,7 @@ export function Sidebar() {
   const user = useAuthStore((s) => s.user);
   const { logout } = useAuth();
 
-  const initials = user
+  const initials = user && user.firstName && user.lastName
     ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`
     : 'SA';
 
@@ -34,7 +34,7 @@ export function Sidebar() {
             <span className="text-sm font-bold text-[#FACC15]">G</span>
           </div>
         ) : (
-          <Image src="/gozolt-logo.png" alt="Gozolt" width={130} height={40} priority />
+          <Image src="/gozolt-logo.png" alt="Gozolt" width={130} height={40} className="w-auto h-auto" priority />
         )}
       </div>
 

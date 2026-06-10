@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { paymentService } from '@/services/admin/payment.service';
-import { mockSupplierList } from '@/services/admin/payment.mock';
+import { useSuppliers } from '@/hooks/use-suppliers';
 import { toast } from 'sonner';
 
 interface ProcessPayoutsModalProps {
@@ -31,7 +31,10 @@ export function ProcessPayoutsModal({
   const [periodEnd, setPeriodEnd] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  const selectedSupplier = mockSupplierList.find((s) => s.id === supplierId);
+  const { data: supplierData, loading: loadingSuppliers } = useSuppliers({ limit: 100 });
+  const suppliers = supplierData?.data ?? [];
+
+  const selectedSupplier = suppliers.find((s) => s.id === supplierId);
   const numAmount = parseFloat(amount) || 0;
   const canSubmit = supplierId && numAmount > 0 && !submitting;
 
@@ -90,9 +93,9 @@ export function ProcessPayoutsModal({
               className="w-full h-10 rounded-md border border-[#2A2A2A] bg-[#141414] px-3 text-sm text-white focus:border-[#FACC15] focus:outline-none focus:ring-1 focus:ring-[#FACC15]/20 appearance-none"
             >
               <option value="" className="bg-[#141414]">
-                Select supplier...
+                {loadingSuppliers ? 'Loading...' : 'Select supplier...'}
               </option>
-              {mockSupplierList.map((s) => (
+              {suppliers.map((s) => (
                 <option key={s.id} value={s.id} className="bg-[#141414]">
                   {s.companyName}
                 </option>

@@ -32,8 +32,13 @@ export function useDrivers(params: DriverFilterParams) {
 export function useDriverKpis() {
   const [kpis, setKpis] = useState<DriverKpis>({ activeDrivers: 0, onlineNow: 0, pendingApproval: 0, suspended: 0 });
 
-  const refresh = useCallback(() => {
-    setKpis(driverService.getKpis());
+  const refresh = useCallback(async () => {
+    try {
+      const result = await driverService.getKpis();
+      setKpis(result);
+    } catch (err) {
+      console.error('Failed to load KPIs:', err);
+    }
   }, []);
 
   useEffect(() => {

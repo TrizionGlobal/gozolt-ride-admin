@@ -37,8 +37,13 @@ export function useUserKpis() {
     inactiveUsers: 0,
   });
 
-  const refresh = useCallback(() => {
-    setKpis(userService.getKpis());
+  const refresh = useCallback(async () => {
+    try {
+      const data = await userService.getKpis();
+      setKpis(data);
+    } catch {
+      // Fallback already handled in service, but we can catch if we want
+    }
   }, []);
 
   useEffect(() => {

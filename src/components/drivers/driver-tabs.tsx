@@ -1,7 +1,10 @@
 'use client';
 
-import { Search, SlidersHorizontal } from 'lucide-react';
+import { useMemo } from 'react';
+import { Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useSuppliers } from '@/hooks/use-suppliers';
 
 export type DriverTab = 'all' | 'online' | 'pending' | 'suspended' | 'inactive';
 
@@ -11,7 +14,8 @@ interface DriverTabsProps {
   pendingCount: number;
   search: string;
   onSearchChange: (value: string) => void;
-  onFiltersClick: () => void;
+  supplierId: string;
+  onSupplierIdChange: (value: string) => void;
 }
 
 const tabs: { key: DriverTab; label: string }[] = [
@@ -28,12 +32,26 @@ export function DriverTabs({
   pendingCount,
   search,
   onSearchChange,
-  onFiltersClick,
+  supplierId,
+  onSupplierIdChange,
 }: DriverTabsProps) {
+  const supplierParams = useMemo(() => ({ limit: 100 }), []);
+  const { data: suppliersData } = useSuppliers(supplierParams);
+  
+  const supplierOptions = useMemo(() => {
+    const options = [{ value: 'all', label: 'All Suppliers' }];
+    if (suppliersData?.data) {
+      suppliersData.data.forEach(s => {
+        options.push({ value: s.id, label: s.companyName });
+      });
+    }
+    return options;
+  }, [suppliersData]);
+
   return (
     <div className="flex items-center justify-between gap-4">
       {/* Pill tabs */}
-      <div className="flex items-center gap-1 rounded-lg bg-[#141414] border border-[#2A2A2A] p-1">
+      <div className="flex items-center gap-1 rounded-lg bg-[#141414] border border-[#2A2A2A] p-1 overflow-x-auto">
         {tabs.map((tab) => (
           <button
             key={tab.key}
@@ -76,13 +94,22 @@ export function DriverTabs({
             className="h-9 w-64 rounded-md border border-[#2A2A2A] bg-[#141414] pl-9 pr-3 text-sm text-white placeholder:text-[#6B7280] focus:border-[#FACC15] focus:outline-none focus:ring-1 focus:ring-[#FACC15]/20"
           />
         </div>
-        <button
-          onClick={onFiltersClick}
-          className="flex items-center gap-2 rounded-md border border-[#2A2A2A] bg-[#141414] px-3 h-9 text-sm text-[#9CA3AF] hover:text-white hover:border-[#3A3A3A] transition-colors"
+        
+        <Select 
+          value={supplierId || 'all'} 
+          onValueChange={(val) => onSupplierIdChange(val === 'all' ? '' : val)}
         >
-          <SlidersHorizontal className="h-4 w-4" />
-          Filters
-        </button>
+          <SelectTrigger className="w-48 h-9 rounded-md border border-[#2A2A2A] bg-[#141414] px-3 text-sm text-white focus:ring-1 focus:ring-[#FACC15]/20 focus:border-[#FACC15]">
+            <SelectValue placeholder="All Suppliers" />
+          </SelectTrigger>
+          <SelectContent className="bg-[#1A1A1A] border-[#2A2A2A] text-white">
+            {supplierOptions.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value || 'all'} className="focus:bg-[#2A2A2A] focus:text-white cursor-pointer">
+                {opt.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
     </div>
   );
