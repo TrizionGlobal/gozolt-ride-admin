@@ -20,12 +20,11 @@ import type { VehicleListItem } from '@/services/admin/vehicle.types';
 const TAB_STATUS_MAP: Record<VehicleTab, { status?: VehicleStatus }> = {
   all: {},
   active: { status: VehicleStatus.ACTIVE },
-  pending: { status: VehicleStatus.PENDING_APPROVAL },
   suspended: { status: VehicleStatus.SUSPENDED },
   inactive: { status: VehicleStatus.DECOMMISSIONED },
 };
 
-const VALID_TABS: VehicleTab[] = ['all', 'active', 'pending', 'suspended', 'inactive'];
+const VALID_TABS: VehicleTab[] = ['all', 'active', 'suspended', 'inactive'];
 
 export default function VehicleManagementPage() {
   const router = useRouter();
@@ -67,16 +66,8 @@ export default function VehicleManagementPage() {
     [activeTab, search, supplierId, vehicleType, page, tabConfig],
   );
 
-  // Fetch pending count separately for the tab badge
-  const pendingParams: VehicleFilterParams = useMemo(
-    () => ({ status: VehicleStatus.PENDING_APPROVAL, page: 1, limit: 100 }),
-    [],
-  );
-
   const { data, loading, refetch } = useVehicles(params);
-  const { data: pendingData } = useVehicles(pendingParams);
   const { kpis, refresh: refreshKpis } = useVehicleKpis();
-  const pendingCount = pendingData?.meta.total ?? 0;
 
   const handleTabChange = useCallback(
     (tab: VehicleTab) => {
@@ -147,7 +138,6 @@ export default function VehicleManagementPage() {
         <VehicleTabs
           activeTab={activeTab}
           onTabChange={handleTabChange}
-          pendingCount={pendingCount}
           search={search}
           onSearchChange={handleSearchChange}
           onFiltersClick={() => setFiltersOpen(!filtersOpen)}

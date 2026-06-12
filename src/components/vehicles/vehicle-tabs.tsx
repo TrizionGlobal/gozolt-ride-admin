@@ -3,21 +3,19 @@
 import { Search, SlidersHorizontal } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export type VehicleTab = 'all' | 'active' | 'pending' | 'suspended' | 'inactive';
+export type VehicleTab = 'all' | 'active' | 'suspended' | 'inactive';
 
 interface VehicleTabsProps {
   activeTab: VehicleTab;
   onTabChange: (tab: VehicleTab) => void;
-  pendingCount: number;
   search: string;
   onSearchChange: (value: string) => void;
   onFiltersClick: () => void;
 }
 
 const tabs: { key: VehicleTab; label: string }[] = [
-  { key: 'all', label: 'All drivers' },
+  { key: 'all', label: 'All vehicles' },
   { key: 'active', label: 'Active' },
-  { key: 'pending', label: 'Pending Inspection' },
   { key: 'suspended', label: 'Suspended' },
   { key: 'inactive', label: 'Inactive' },
 ];
@@ -25,7 +23,6 @@ const tabs: { key: VehicleTab; label: string }[] = [
 export function VehicleTabs({
   activeTab,
   onTabChange,
-  pendingCount,
   search,
   onSearchChange,
   onFiltersClick,
@@ -47,18 +44,6 @@ export function VehicleTabs({
           >
             <span className="flex items-center gap-1.5">
               {tab.label}
-              {tab.key === 'pending' && pendingCount > 0 && (
-                <span
-                  className={cn(
-                    'inline-flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-[10px] font-bold',
-                    activeTab === 'pending'
-                      ? 'bg-black/20 text-black'
-                      : 'bg-[#FACC15] text-black',
-                  )}
-                >
-                  {pendingCount}
-                </span>
-              )}
             </span>
           </button>
         ))}

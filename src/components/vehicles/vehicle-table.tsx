@@ -67,7 +67,6 @@ export function VehicleTable({
             <TableHead className="text-[#9CA3AF] text-xs font-medium">Supplier</TableHead>
             <TableHead className="text-[#9CA3AF] text-xs font-medium">Status</TableHead>
             <TableHead className="text-[#9CA3AF] text-xs font-medium">Fuel</TableHead>
-            <TableHead className="text-[#9CA3AF] text-xs font-medium">Inspection</TableHead>
             <TableHead className="text-[#9CA3AF] text-xs font-medium">Actions</TableHead>
           </TableRow>
         </TableHeader>

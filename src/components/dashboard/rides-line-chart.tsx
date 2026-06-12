@@ -36,7 +36,7 @@ export function RidesLineChart({ data, isLoading }: RidesLineChartProps) {
     <div className="rounded-lg border border-[#2A2A2A] bg-[#141414] p-4">
       <h3 className="text-sm font-semibold text-white mb-4">Line</h3>
       <div className="h-[200px]">
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="99%" height="100%" minWidth={0}>
           <LineChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#2A2A2A" />
             <XAxis

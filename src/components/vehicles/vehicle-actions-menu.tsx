@@ -44,8 +44,8 @@ export function VehicleActionsMenu({
       await vehicleService.approveVehicle(vehicleId);
       toast.success(`${vehicleName} (${plateNumber}) approved successfully`);
       onRefetch();
-    } catch {
-      toast.error('Failed to approve vehicle');
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || err.message || 'Failed to approve vehicle');
     }
   };
 
@@ -54,8 +54,8 @@ export function VehicleActionsMenu({
       await vehicleService.activateVehicle(vehicleId);
       toast.success(`${vehicleName} (${plateNumber}) reactivated successfully`);
       onRefetch();
-    } catch {
-      toast.error('Failed to reactivate vehicle');
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || err.message || 'Failed to reactivate vehicle');
     }
   };
 

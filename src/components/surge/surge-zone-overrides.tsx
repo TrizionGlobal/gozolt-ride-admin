@@ -2,11 +2,10 @@
 
 import { useState } from 'react';
 import { Switch } from '@/components/ui/switch';
-import { mockZoneOverrides } from '@/services/admin/surge.mock';
 import type { ZoneOverride } from '@/services/admin/surge.types';
 
 export function SurgeZoneOverrides() {
-  const [overrides, setOverrides] = useState<ZoneOverride[]>([...mockZoneOverrides]);
+  const [overrides, setOverrides] = useState<ZoneOverride[]>([]);
 
   const toggleOverride = (id: string) => {
     setOverrides((prev) =>

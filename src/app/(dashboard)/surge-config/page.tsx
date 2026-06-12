@@ -14,7 +14,6 @@ import { SurgeZoneOverrides } from '@/components/surge/surge-zone-overrides';
 import { SurgeAddZoneModal } from '@/components/surge/surge-add-zone-modal';
 import { SurgeDeleteZoneModal } from '@/components/surge/surge-delete-zone-modal';
 import { useSurgeZones, useSurgeHistory } from '@/hooks/use-surge';
-import { mockGlobalRules } from '@/services/admin/surge.mock';
 import type { SurgeZoneType } from '@/services/admin/surge.types';
 
 export default function SurgeConfigPage() {
@@ -140,7 +139,7 @@ export default function SurgeConfigPage() {
       {/* Row 4: Service map + Global rules */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <SurgeServiceMap zones={zones} />
-        <SurgeGlobalRules initialRules={mockGlobalRules} />
+        <SurgeGlobalRules initialRules={{ calculationFrequency: 5, maxSurgeCap: 3.0, thresholds: [] }} />
       </div>
 
       {/* Row 5: Zone list + Overrides */}

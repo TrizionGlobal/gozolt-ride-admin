@@ -7,10 +7,11 @@ import { cn } from '@/lib/utils';
 interface DriverStatusBadgeProps {
   status: DriverStatus;
   isOnline: boolean;
+  hasVehicle?: boolean;
 }
 
-export function DriverStatusBadge({ status, isOnline }: DriverStatusBadgeProps) {
-  const display = getDriverStatusDisplay(status, isOnline);
+export function DriverStatusBadge({ status, isOnline, hasVehicle }: DriverStatusBadgeProps) {
+  const display = getDriverStatusDisplay(status, isOnline, hasVehicle);
 
   return (
     <span

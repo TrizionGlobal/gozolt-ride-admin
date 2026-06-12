@@ -19,7 +19,9 @@ interface DriverTableProps {
   data: DriverListResponse | null;
   loading: boolean;
   page: number;
+  limit: number;
   onPageChange: (page: number) => void;
+  onLimitChange: (limit: number) => void;
   onSuspend: (id: string) => void;
   onRefetch: () => void;
 }
@@ -28,7 +30,9 @@ export function DriverTable({
   data,
   loading,
   page,
+  limit,
   onPageChange,
+  onLimitChange,
   onSuspend,
   onRefetch,
 }: DriverTableProps) {
@@ -50,7 +54,10 @@ export function DriverTable({
     );
   }
 
-  if (!data || data.data.length === 0) {
+  const driversList = data?.data || [];
+  const meta = data?.meta || { page: 1, limit: 20, total: 0, totalPages: 0 };
+
+  if (driversList.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
         <p className="text-sm text-[#6B7280]">No drivers found</p>
@@ -59,7 +66,6 @@ export function DriverTable({
     );
   }
 
-  const { meta } = data;
   const start = (meta.page - 1) * meta.limit + 1;
   const end = Math.min(meta.page * meta.limit, meta.total);
 
@@ -68,20 +74,20 @@ export function DriverTable({
       <Table>
         <TableHeader>
           <TableRow className="border-b border-[#2A2A2A] hover:bg-transparent">
-            <TableHead className="text-[#9CA3AF] text-xs font-medium">ID</TableHead>
             <TableHead className="text-[#9CA3AF] text-xs font-medium">Driver</TableHead>
             <TableHead className="text-[#9CA3AF] text-xs font-medium">Supplier</TableHead>
-            <TableHead className="text-[#9CA3AF] text-xs font-medium">Status</TableHead>
+            <TableHead className="text-[#9CA3AF] text-xs font-medium">Driver Status</TableHead>
             <TableHead className="text-[#9CA3AF] text-xs font-medium">Rating</TableHead>
             <TableHead className="text-[#9CA3AF] text-xs font-medium">Rides</TableHead>
             <TableHead className="text-[#9CA3AF] text-xs font-medium">Earnings</TableHead>
             <TableHead className="text-[#9CA3AF] text-xs font-medium">Vehicle</TableHead>
-            <TableHead className="text-[#9CA3AF] text-xs font-medium">Docs</TableHead>
+            <TableHead className="text-[#9CA3AF] text-xs font-medium text-center">Supplier Status</TableHead>
+            <TableHead className="text-[#9CA3AF] text-xs font-medium text-center">Admin Status</TableHead>
             <TableHead className="text-[#9CA3AF] text-xs font-medium">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {data.data.map((driver) => (
+          {driversList.map((driver) => (
             <DriverTableRow
               key={driver.id}
               driver={driver}
@@ -94,11 +100,30 @@ export function DriverTable({
       </Table>
 
       {/* Pagination */}
-      {meta.totalPages > 1 && (
+      {meta.total > 0 && (
         <div className="flex items-center justify-between border-t border-[#2A2A2A] px-4 py-3 mt-2">
-          <p className="text-xs text-[#6B7280]">
-            Showing {start}-{end} of {meta.total} drivers
-          </p>
+          <div className="flex items-center gap-4">
+            <p className="text-xs text-[#6B7280]">
+              Showing {start}-{end} of {meta.total} drivers
+            </p>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-[#6B7280]">Rows per page:</span>
+              <select
+                value={limit}
+                onChange={(e) => {
+                  onLimitChange(Number(e.target.value));
+                  onPageChange(1);
+                }}
+                className="appearance-none rounded-md border border-[#3F3F46] bg-[#0A0A0A] py-1 pl-2 pr-6 text-xs text-white focus:border-[#FACC15] focus:outline-none"
+              >
+                <option value={20} className="bg-[#111111] text-white">20</option>
+                <option value={50} className="bg-[#111111] text-white">50</option>
+                <option value={100} className="bg-[#111111] text-white">100</option>
+                <option value={200} className="bg-[#111111] text-white">200</option>
+                <option value={500} className="bg-[#111111] text-white">500</option>
+              </select>
+            </div>
+          </div>
           <div className="flex items-center gap-2">
             <Button
               variant="ghost"

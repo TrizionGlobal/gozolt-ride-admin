@@ -1,6 +1,6 @@
 'use client';
 
-import { MoreHorizontal, Eye, FileText, Ban, CheckCircle2, Link } from 'lucide-react';
+import { MoreHorizontal, Eye, Ban, CheckCircle2 } from 'lucide-react';
 import { DriverStatus } from '@/types';
 import {
   DropdownMenu,
@@ -20,6 +20,7 @@ interface DriverActionsMenuProps {
   supplierName: string;
   onSuspend: () => void;
   onRefetch: () => void;
+  onViewDetail?: () => void;
 }
 
 export function DriverActionsMenu({
@@ -29,6 +30,7 @@ export function DriverActionsMenu({
   supplierName,
   onSuspend,
   onRefetch,
+  onViewDetail,
 }: DriverActionsMenuProps) {
   const handleApprove = async () => {
     try {
@@ -66,67 +68,80 @@ export function DriverActionsMenu({
         className="w-48 bg-[#1A1A1A] border-[#2A2A2A] text-white"
       >
         <DropdownMenuItem
-          onClick={() => toast.info(`View details for ${driverName}`)}
+          onClick={(e) => { e.stopPropagation(); onViewDetail?.(); }}
           className="text-[#9CA3AF] hover:text-white hover:bg-[#2A2A2A] cursor-pointer"
         >
-          <Eye className="mr-2 h-4 w-4" />
-          View Details
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={() => toast.info(`View documents for ${driverName}`)}
-          className="text-[#9CA3AF] hover:text-white hover:bg-[#2A2A2A] cursor-pointer"
-        >
-          <FileText className="mr-2 h-4 w-4" />
-          View Documents
+          <Eye className="h-4 w-4" />
+          <span>Show Driver Details</span>
         </DropdownMenuItem>
 
-        {status === DriverStatus.ACTIVE && (
+        {/* NEW_DRIVER: explicitly show disabled actions for clarity */}
+        {status === DriverStatus.NEW_DRIVER && (
           <>
             <DropdownMenuSeparator className="bg-[#2A2A2A]" />
             <DropdownMenuItem
-              onClick={onSuspend}
+              disabled
+              className="text-gray-500 cursor-not-allowed opacity-50 hover:bg-transparent"
+            >
+              <CheckCircle2 className="h-4 w-4 text-gray-600" />
+              <span>Approve Documents</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              disabled
+              className="text-gray-500 cursor-not-allowed opacity-50 hover:bg-transparent"
+            >
+              <Ban className="h-4 w-4 text-gray-600" />
+              <span>Suspend Driver</span>
+            </DropdownMenuItem>
+          </>
+        )}
+
+        {(status === DriverStatus.ACTIVE || status === DriverStatus.VEHICLE_ASSIGNED || status === DriverStatus.ADMIN_APPROVED) && (
+          <>
+            <DropdownMenuSeparator className="bg-[#2A2A2A]" />
+            <DropdownMenuItem
+              onClick={(e) => { e.stopPropagation(); onSuspend(); }}
               className="text-red-400 hover:text-red-300 hover:bg-[#2A2A2A] cursor-pointer"
             >
-              <Ban className="mr-2 h-4 w-4" />
-              Suspend Driver
+              <Ban className="h-4 w-4" />
+              <span>Suspend Driver</span>
             </DropdownMenuItem>
           </>
         )}
 
-        {status === DriverStatus.PENDING_APPROVAL && (
+        {status === DriverStatus.SUPPLIER_APPROVED && (
           <>
             <DropdownMenuSeparator className="bg-[#2A2A2A]" />
             <DropdownMenuItem
-              onClick={handleApprove}
+              onClick={(e) => { e.stopPropagation(); handleApprove(); }}
               className="text-green-400 hover:text-green-300 hover:bg-[#2A2A2A] cursor-pointer"
             >
-              <CheckCircle2 className="mr-2 h-4 w-4" />
-              Approve Driver
+              <CheckCircle2 className="h-4 w-4" />
+              <span>Approve Documents</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={(e) => { e.stopPropagation(); onSuspend(); }}
+              className="text-red-400 hover:text-red-300 hover:bg-[#2A2A2A] cursor-pointer"
+            >
+              <Ban className="h-4 w-4" />
+              <span>Suspend Driver</span>
             </DropdownMenuItem>
           </>
         )}
 
-        {(status === DriverStatus.SUSPENDED || status === DriverStatus.INACTIVE) && (
+        {(status === DriverStatus.SUSPENDED || status === DriverStatus.ADMIN_SUSPENDED || status === DriverStatus.SUPPLIER_SUSPENDED) && (
           <>
             <DropdownMenuSeparator className="bg-[#2A2A2A]" />
             <DropdownMenuItem
-              onClick={handleActivate}
+              onClick={(e) => { e.stopPropagation(); handleActivate(); }}
               className="text-green-400 hover:text-green-300 hover:bg-[#2A2A2A] cursor-pointer"
             >
-              <CheckCircle2 className="mr-2 h-4 w-4" />
-              Activate Driver
+              <CheckCircle2 className="h-4 w-4" />
+              <span>Activate Driver</span>
             </DropdownMenuItem>
           </>
         )}
 
-        <DropdownMenuSeparator className="bg-[#2A2A2A]" />
-        <DropdownMenuItem
-          onClick={() => toast.info(`Navigate to supplier: ${supplierName}`)}
-          className="text-[#9CA3AF] hover:text-white hover:bg-[#2A2A2A] cursor-pointer"
-        >
-          <Link className="mr-2 h-4 w-4" />
-          View Supplier
-        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

@@ -11,7 +11,6 @@ import { RideTable } from '@/components/rides/ride-table';
 import { RideRefundModal } from '@/components/rides/ride-refund-modal';
 import { RideDisputeModal } from '@/components/rides/ride-dispute-modal';
 import type { RideFilterParams, RideListItem } from '@/services/admin/ride.types';
-import { mockActiveRides, mockAllRides } from '@/services/admin/ride.mock';
 
 const VALID_TABS: RideTab[] = ['active', 'all', 'cancelled', 'disputed'];
 
@@ -72,14 +71,9 @@ export default function RideManagementPage() {
     setPage(1);
   }, []);
 
-  // Find ride data for modals
   const findRide = useCallback(
     (id: string): RideListItem | undefined => {
-      return (
-        mockActiveRides.find((r) => r.id === id) ??
-        mockAllRides.find((r) => r.id === id) ??
-        data?.data.find((r) => r.id === id)
-      );
+      return data?.data.find((r) => r.id === id);
     },
     [data],
   );

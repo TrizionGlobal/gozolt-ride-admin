@@ -33,6 +33,7 @@ export interface SupplierListItem {
     drivers: number;
     vehicles: number;
   };
+  totalRevenue?: number;
 }
 
 // --- Supplier detail (from GET /admin/suppliers/:id) ---

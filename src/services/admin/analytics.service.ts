@@ -1,17 +1,10 @@
 import { apiClient } from '@/lib/api-client';
-import { mockAnalyticsKpis, generateChartData, mockTipAnalytics, generateTipTrend, mockCancellationAnalytics } from './analytics.mock';
 import type {
   AnalyticsPeriod,
   AnalyticsData,
   TipAnalytics,
   CancellationAnalytics,
 } from './analytics.types';
-
-const DEV_BYPASS = process.env.NEXT_PUBLIC_DEV_BYPASS === 'true';
-
-function delay(ms: number) {
-  return new Promise((r) => setTimeout(r, ms));
-}
 
 function periodToDays(period: AnalyticsPeriod): number {
   switch (period) {
@@ -24,47 +17,56 @@ function periodToDays(period: AnalyticsPeriod): number {
 
 export const analyticsService = {
   async getAnalytics(period: AnalyticsPeriod): Promise<AnalyticsData> {
-    if (DEV_BYPASS) {
-      await delay(400);
+    try {
+      // Real backend: multiple calls merged
+      const [ridesRes, revenueRes, growthRes] = await Promise.allSettled([
+        apiClient.get('/admin/analytics/rides', { params: { period } }),
+        apiClient.get('/admin/analytics/revenue', { params: { period } }),
+        apiClient.get('/admin/analytics/growth', { params: { period } })
+      ]);
+
+      const rides = ridesRes.status === 'fulfilled' ? ridesRes.value.data : { totalRides: 0 };
+      const revenue = revenueRes.status === 'fulfilled' ? revenueRes.value.data : { totalRevenue: 0, averageFare: 0 };
+      const growth = growthRes.status === 'fulfilled' ? growthRes.value.data : { newUsers: 0 };
+
       return {
-        kpis: { ...mockAnalyticsKpis },
-        chartData: generateChartData(periodToDays(period)),
+        kpis: {
+          totalRides: rides.totalRides || 0,
+          revenue: revenue.totalRevenue || 0,
+          avgRideValue: revenue.averageFare || 0,
+          activeUsers: growth.newUsers || 0,
+          changes: { totalRides: 0, revenue: 0, avgRideValue: 0, activeUsers: 0 },
+        },
+        chartData: [],
+      };
+    } catch {
+      return {
+        kpis: { totalRides: 0, revenue: 0, avgRideValue: 0, activeUsers: 0, changes: { totalRides: 0, revenue: 0, avgRideValue: 0, activeUsers: 0 } },
+        chartData: [],
       };
     }
-    // Real backend: multiple calls merged
-    const { data: rides } = await apiClient.get('/admin/analytics/rides', { params: { period } });
-    const { data: revenue } = await apiClient.get('/admin/analytics/revenue', { params: { period } });
-    const { data: growth } = await apiClient.get('/admin/analytics/growth', { params: { period } });
-    return {
-      kpis: {
-        totalRides: rides.totalRides,
-        revenue: revenue.totalRevenue,
-        avgRideValue: revenue.averageFare,
-        activeUsers: growth.newUsers,
-        changes: { totalRides: 12, revenue: 18, avgRideValue: 12, activeUsers: 12 },
-      },
-      chartData: [],
-    };
   },
 
   async getTipAnalytics(period: AnalyticsPeriod): Promise<TipAnalytics> {
-    if (DEV_BYPASS) {
-      await delay(350);
-      return {
-        ...mockTipAnalytics,
-        tipTrend: generateTipTrend(periodToDays(period)),
-      };
+    try {
+      const { data } = await apiClient.get('/admin/analytics/tips', { params: { period } });
+      return data;
+    } catch {
+      return { totalTips: 0, totalTipAmount: 0, avgTipPerRide: 0, tipRate: 0, tipTrend: [] };
     }
-    const { data } = await apiClient.get('/admin/analytics/tips', { params: { period } });
-    return data;
   },
 
   async getCancellationAnalytics(): Promise<CancellationAnalytics> {
-    if (DEV_BYPASS) {
-      await delay(350);
-      return { ...mockCancellationAnalytics };
+    try {
+      const { data } = await apiClient.get('/admin/analytics/cancellations');
+      return data;
+    } catch {
+      return {
+        totalCancellations: 0,
+        cancellationRate: 0,
+        byReason: [],
+        byActor: [],
+      };
     }
-    const { data } = await apiClient.get('/admin/analytics/cancellations');
-    return data;
   },
 };

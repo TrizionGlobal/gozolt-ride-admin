@@ -15,7 +15,5 @@ export function sanitizeInput(input: string): string {
  */
 export function sanitizeSearchQuery(query: string): string {
   return query
-    .replace(/<[^>]*>/g, '') // Strip HTML tags
-    .replace(/[.*+?^${}()|[\]\\]/g, '') // Strip special regex characters
-    .trim();
+    .replace(/<[^>]*>/g, ''); // Strip HTML tags
 }

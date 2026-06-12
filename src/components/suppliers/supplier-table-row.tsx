@@ -29,7 +29,7 @@ export function SupplierTableRow({
   onViewDetail,
 }: SupplierTableRowProps) {
   const tier = supplier.subscription?.tier;
-  const revenue = supplierService.getRevenue(supplier.id);
+  const revenue = supplier.totalRevenue ?? 0;
 
   const handleView = () => {
     onViewDetail?.(supplier.id);

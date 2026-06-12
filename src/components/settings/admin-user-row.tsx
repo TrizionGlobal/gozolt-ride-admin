@@ -12,7 +12,9 @@ interface AdminUserRowProps {
 }
 
 function getInitials(firstName: string, lastName: string): string {
-  return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+  const f = firstName ? firstName.charAt(0) : '';
+  const l = lastName ? lastName.charAt(0) : '';
+  return `${f}${l}`.toUpperCase() || 'SA';
 }
 
 function formatDate(dateStr: string | null): string {

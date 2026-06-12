@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { getDashboardKPIs, getRideTrends, getRevenueTrends } from '@/services/admin/dashboard.service';
-import { dashboardMockData } from '@/services/admin/dashboard.mock';
 import type { DashboardKpi, RideTrends, RevenueTrendPoint } from '@/services/admin/dashboard.types';
 
 export function useDashboard() {
@@ -38,9 +37,9 @@ export function useDashboard() {
     kpis,
     rideTrends,
     revenueTrends,
-    vehicleTypeBreakdown: dashboardMockData.vehicleTypeBreakdown,
-    actionRequired: dashboardMockData.actionRequired,
-    liveActivity: dashboardMockData.liveActivity,
+    vehicleTypeBreakdown: [],
+    actionRequired: [],
+    liveActivity: [],
     isLoading,
     error,
   };

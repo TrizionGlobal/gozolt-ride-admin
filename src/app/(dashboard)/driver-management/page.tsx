@@ -9,16 +9,16 @@ import { DriverKpiCards } from '@/components/drivers/driver-kpi-cards';
 import { DriverTabs, type DriverTab } from '@/components/drivers/driver-tabs';
 import { DriverTable } from '@/components/drivers/driver-table';
 import { DriverSuspendModal } from '@/components/drivers/driver-suspend-modal';
-import { DriverFiltersPopover } from '@/components/drivers/driver-filters-popover';
+import { useDebounce } from '@/hooks/use-debounce';
 import type { DriverFilterParams } from '@/services/admin/driver.types';
 import type { DriverListItem } from '@/services/admin/driver.types';
 
 const TAB_STATUS_MAP: Record<DriverTab, { status?: DriverStatus; onlineOnly?: boolean }> = {
   all: {},
   online: { onlineOnly: true },
-  pending: { status: DriverStatus.PENDING_APPROVAL },
+  pending: { status: DriverStatus.SUPPLIER_APPROVED },
   suspended: { status: DriverStatus.SUSPENDED },
-  inactive: { status: DriverStatus.INACTIVE },
+  inactive: { status: DriverStatus.ADMIN_SUSPENDED },
 };
 
 export default function DriverManagementPage() {
@@ -32,9 +32,10 @@ export default function DriverManagementPage() {
     : 'all') as DriverTab;
 
   const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(20);
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 500);
   const [supplierId, setSupplierId] = useState('');
-  const [filtersOpen, setFiltersOpen] = useState(false);
 
   // Modal state
   const [suspendModal, setSuspendModal] = useState<{ open: boolean; driver: DriverListItem | null }>({
@@ -47,24 +48,24 @@ export default function DriverManagementPage() {
   const params: DriverFilterParams = useMemo(
     () => ({
       ...tabConfig,
-      search: search || undefined,
+      search: debouncedSearch || undefined,
       supplierId: supplierId || undefined,
       page,
-      limit: 20,
+      limit,
     }),
-    [activeTab, search, supplierId, page, tabConfig],
+    [activeTab, debouncedSearch, supplierId, page, limit, tabConfig],
   );
 
   // Fetch pending count separately for the tab badge
   const pendingParams: DriverFilterParams = useMemo(
-    () => ({ status: DriverStatus.PENDING_APPROVAL, page: 1, limit: 100 }),
+    () => ({ status: DriverStatus.SUPPLIER_APPROVED, page: 1, limit: 100 }),
     [],
   );
 
   const { data, loading, refetch } = useDrivers(params);
   const { data: pendingData } = useDrivers(pendingParams);
   const { kpis, refresh: refreshKpis } = useDriverKpis();
-  const pendingCount = pendingData?.meta.total ?? 0;
+  const pendingCount = pendingData?.meta?.total ?? 0;
 
   const handleTabChange = useCallback(
     (tab: DriverTab) => {
@@ -121,11 +122,6 @@ export default function DriverManagementPage() {
           pendingCount={pendingCount}
           search={search}
           onSearchChange={handleSearchChange}
-          onFiltersClick={() => setFiltersOpen(!filtersOpen)}
-        />
-        <DriverFiltersPopover
-          open={filtersOpen}
-          onOpenChange={setFiltersOpen}
           supplierId={supplierId}
           onSupplierIdChange={(v) => {
             setSupplierId(v);
@@ -139,7 +135,9 @@ export default function DriverManagementPage() {
         data={data}
         loading={loading}
         page={page}
+        limit={limit}
         onPageChange={setPage}
+        onLimitChange={setLimit}
         onSuspend={handleSuspend}
         onRefetch={handleMutationSuccess}
       />
