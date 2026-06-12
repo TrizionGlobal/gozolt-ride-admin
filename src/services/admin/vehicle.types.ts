@@ -88,8 +88,8 @@ export interface VehicleKpis {
 export function getVehicleStatusDisplay(status: VehicleStatus) {
   const map: Record<string, { label: string; className: string }> = {
     ACTIVE: { label: 'Active', className: 'bg-green-500/20 text-green-400 border-green-500/30' },
-    PENDING_APPROVAL: { label: 'pending', className: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' },
-    SUSPENDED: { label: 'Suspend', className: 'bg-red-500/20 text-red-400 border-red-500/30' },
+    PENDING_APPROVAL: { label: 'Pending', className: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' },
+    SUSPENDED: { label: 'Suspended', className: 'bg-red-500/20 text-red-400 border-red-500/30' },
     MAINTENANCE: { label: 'Maintenance', className: 'bg-orange-500/20 text-orange-400 border-orange-500/30' },
     DECOMMISSIONED: { label: 'Inactive', className: 'bg-gray-500/20 text-gray-400 border-gray-500/30' },
   };

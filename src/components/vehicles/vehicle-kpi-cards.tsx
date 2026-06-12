@@ -14,22 +14,22 @@ export function VehicleKpiCards({ kpis, isLoading }: VehicleKpiCardsProps) {
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <KpiCard
         label="Total Vehicles"
-        value={kpis.totalVehicles.toLocaleString()}
+        value={kpis?.totalVehicles?.toLocaleString() ?? '0'}
         change={12}
         icon={Car}
         isLoading={isLoading}
       />
       <KpiCard
         label="Active on Road"
-        value={kpis.activeOnRoad.toLocaleString()}
+        value={kpis?.activeOnRoad?.toLocaleString() ?? '0'}
         change={12}
         icon={CheckCircle2}
         isLoading={isLoading}
       />
-      <div className={kpis.pendingInspection > 0 ? 'rounded-lg border border-yellow-500/50' : ''}>
+      <div className={kpis?.pendingInspection > 0 ? 'rounded-lg border border-yellow-500/50' : ''}>
         <KpiCard
           label="Pending Inspection"
-          value={kpis.pendingInspection.toLocaleString()}
+          value={kpis?.pendingInspection?.toLocaleString() ?? '0'}
           change={12}
           icon={Clock}
           isLoading={isLoading}
@@ -37,7 +37,7 @@ export function VehicleKpiCards({ kpis, isLoading }: VehicleKpiCardsProps) {
       </div>
       <KpiCard
         label="Suspended"
-        value={kpis.suspended.toLocaleString()}
+        value={kpis?.suspended?.toLocaleString() ?? '0'}
         change={-12}
         icon={Ban}
         isLoading={isLoading}

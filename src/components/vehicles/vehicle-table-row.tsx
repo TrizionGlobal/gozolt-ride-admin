@@ -53,7 +53,13 @@ export function VehicleTableRow({ vehicle, onSuspend, onReject, onRefetch }: Veh
 
       {/* Driver */}
       <TableCell className="text-sm text-white">
-        {driverName ?? '—'}
+        {driverName ? (
+          driverName
+        ) : (
+          <span className="inline-flex items-center rounded-full bg-blue-500/20 px-2 py-0.5 text-[11px] font-medium text-blue-400 border border-blue-500/30">
+            Not Assigned
+          </span>
+        )}
       </TableCell>
 
       {/* Supplier */}
@@ -69,11 +75,6 @@ export function VehicleTableRow({ vehicle, onSuspend, onReject, onRefetch }: Veh
       {/* Fuel */}
       <TableCell className="text-sm text-[#9CA3AF]">
         {FUEL_TYPE_DISPLAY[vehicle.fuelType] ?? vehicle.fuelType}
-      </TableCell>
-
-      {/* Inspection */}
-      <TableCell className="text-sm text-[#9CA3AF]">
-        {inspectionDate}
       </TableCell>
 
       {/* Actions */}

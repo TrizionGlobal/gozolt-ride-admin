@@ -79,7 +79,7 @@ export function DriverTableRow({ driver, onSuspend, onRefetch, onViewDetail }: D
             'inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium',
             driver.supplierStatus === 'Pending' || driver.supplierStatus === 'Waiting'
               ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30'
-              : driver.supplierStatus === 'Rejected'
+              : driver.supplierStatus === 'Rejected' || driver.supplierStatus === 'Suspended'
               ? 'bg-red-500/20 text-red-400 border-red-500/30'
               : 'bg-green-500/20 text-green-400 border-green-500/30'
           )}
@@ -95,7 +95,7 @@ export function DriverTableRow({ driver, onSuspend, onRefetch, onViewDetail }: D
             'inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium',
             driver.adminStatus === 'Pending' || driver.adminStatus === 'Waiting'
               ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30'
-              : driver.adminStatus === 'Rejected'
+              : driver.adminStatus === 'Rejected' || driver.adminStatus === 'Suspended'
               ? 'bg-red-500/20 text-red-400 border-red-500/30'
               : 'bg-green-500/20 text-green-400 border-green-500/30'
           )}
