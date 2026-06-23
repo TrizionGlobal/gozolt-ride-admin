@@ -38,8 +38,12 @@ apiClient.interceptors.response.use(
         return apiClient(originalRequest);
       } catch (refreshError: any) {
         // Refresh token is expired/invalid — force logout
-        if (typeof window !== 'undefined') {
-          window.location.href = '/login';
+        const refreshStatus = refreshError.response?.status;
+        if (refreshStatus === 401 || refreshStatus === 403) {
+          if (typeof window !== 'undefined') {
+            const currentPath = window.location.pathname + window.location.search;
+            window.location.href = `/login?redirect=${encodeURIComponent(currentPath)}`;
+          }
         }
         return Promise.reject(refreshError);
       }

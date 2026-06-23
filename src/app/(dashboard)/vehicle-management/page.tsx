@@ -121,7 +121,7 @@ export default function VehicleManagementPage() {
             className="bg-[#FACC15] text-black hover:bg-[#EAB308] font-medium"
           >
             <Plus className="mr-2 h-4 w-4" />
-            Add Driver
+            Add Vehicle
           </Button>
           <div className="flex items-center gap-2 rounded-full bg-[#22C55E]/10 px-3 py-1.5">
             <span className="h-2 w-2 rounded-full bg-[#22C55E] animate-pulse" />

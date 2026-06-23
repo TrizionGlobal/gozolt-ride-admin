@@ -2,7 +2,7 @@
 
 import { cn } from '@/lib/utils';
 
-export type SupplierTab = 'all' | 'pending' | 'approved' | 'suspended';
+export type SupplierTab = 'all' | 'pending' | 'approved' | 'suspended' | 'rejected';
 
 interface SupplierTabsProps {
   activeTab: SupplierTab;
@@ -15,6 +15,7 @@ const tabs: { key: SupplierTab; label: string }[] = [
   { key: 'pending', label: 'Pending Approval' },
   { key: 'approved', label: 'Approved' },
   { key: 'suspended', label: 'Suspended' },
+  { key: 'rejected', label: 'Rejected' },
 ];
 
 export function SupplierTabs({ activeTab, onTabChange, pendingCount }: SupplierTabsProps) {
@@ -33,6 +34,11 @@ export function SupplierTabs({ activeTab, onTabChange, pendingCount }: SupplierT
         >
           <span className="flex items-center gap-2">
             {tab.label}
+            {tab.key === 'pending' && pendingCount > 0 && (
+              <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] rounded-full bg-[#FACC15] text-black text-[10px] font-bold px-1">
+                {pendingCount > 99 ? '99+' : pendingCount}
+              </span>
+            )}
           </span>
           {/* Active underline */}
           {activeTab === tab.key && (

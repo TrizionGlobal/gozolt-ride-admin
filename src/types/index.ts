@@ -45,11 +45,14 @@ export enum RideStatus {
 }
 
 export enum VehicleType {
-  ECONOMY = 'ECONOMY',
+  GO = 'GO',
   STANDARD = 'STANDARD',
-  PREMIUM = 'PREMIUM',
-  XL = 'XL',
-  ELECTRIC = 'ELECTRIC',
+  COMFORT = 'COMFORT',
+  GREEN = 'GREEN',
+  PRIME = 'PRIME',
+  PREMIUM_XL = 'PREMIUM_XL',
+  VAN = 'VAN',
+  CHAUFFEUR = 'CHAUFFEUR',
 }
 
 export enum VehicleStatus {

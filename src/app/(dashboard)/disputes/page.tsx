@@ -5,7 +5,7 @@ import { sanitizeSearchQuery } from '@/lib/sanitize';
 import { DisputeKpiCards } from '@/components/disputes/dispute-kpi-cards';
 import { DisputeTabs } from '@/components/disputes/dispute-tabs';
 import { DisputeCardList } from '@/components/disputes/dispute-card-list';
-import { useDisputes, useDisputeKPIs, useDisputeTabCounts } from '@/hooks/use-disputes';
+import { useDisputes, useDisputeKPIs } from '@/hooks/use-disputes';
 import type { DisputeTab } from '@/services/admin/dispute.types';
 
 export default function DisputesPage() {
@@ -14,7 +14,11 @@ export default function DisputesPage() {
 
   const { disputes, loading, updateStatus, addReply } = useDisputes(activeTab, search);
   const { kpis, loading: kpiLoading } = useDisputeKPIs();
-  const counts = useDisputeTabCounts();
+  
+  const counts = {
+    open: kpis?.open ?? 0,
+    escalated: kpis?.escalated ?? 0,
+  };
 
   return (
     <div className="space-y-6">

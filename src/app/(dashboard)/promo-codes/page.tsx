@@ -41,7 +41,7 @@ export default function PromoCodesPage() {
         <div>
           <h1 className="text-2xl font-bold text-white">Promo Codes</h1>
           <p className="text-sm text-[#6B7280] mt-1">
-            Configure loyalty points and membership tiers
+            Create and manage promotional discounts for riders
           </p>
         </div>
         <div className="flex items-center gap-2 rounded-full bg-[#22C55E]/10 px-3 py-1.5">
@@ -49,9 +49,6 @@ export default function PromoCodesPage() {
           <span className="text-xs font-medium text-[#22C55E]">System Online</span>
         </div>
       </div>
-
-      {/* Reward Config Cards (reused from Rewards page) */}
-      <PromoConfigSection />
 
       {/* Promo Codes Table Section */}
       <div className="rounded-lg border border-[#2A2A2A] bg-[#141414]">

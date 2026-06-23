@@ -68,16 +68,9 @@ export default function DocumentReviewPage() {
     [activeTab, search, sortBy, page, tabConfig, entityType],
   );
 
-  // Fetch pending count separately for tab badge
-  const pendingParams: DocumentFilterParams = useMemo(
-    () => ({ status: DocumentStatus.PENDING, entityType, page: 1, limit: 100 }),
-    [entityType],
-  );
-
   const { data, loading, refetch } = useDocuments(params);
-  const { data: pendingData } = useDocuments(pendingParams);
   const { kpis, loading: kpisLoading, refresh: refreshKpis } = useDocumentKpis(entityType);
-  const pendingCount = pendingData?.meta?.total ?? 0;
+  const pendingCount = kpis?.pendingReview ?? 0;
 
   const handleTabChange = useCallback(
     (tab: DocumentTab) => {

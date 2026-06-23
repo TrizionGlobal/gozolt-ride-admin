@@ -54,7 +54,13 @@ export const disputeService = {
   async getDisputeStats(): Promise<DisputeKPIs> {
     try {
       const { data } = await apiClient.get('/admin/disputes/stats');
-      return data;
+      return {
+        total: data.total || 0,
+        open: data.open || 0,
+        inReview: data.inProgress || 0,
+        escalated: 0, // Not tracked in backend yet
+        changes: { total: 0, open: 0, inReview: 0, escalated: 0 }
+      };
     } catch {
       return {
         total: 0,
@@ -68,8 +74,11 @@ export const disputeService = {
 
   async getTabCounts(): Promise<DisputeTabCounts> {
     try {
-      const { data } = await apiClient.get('/admin/disputes/counts');
-      return data;
+      const { data } = await apiClient.get('/admin/disputes/stats');
+      return {
+        open: data.open || 0,
+        escalated: 0, // Not tracked in backend yet
+      };
     } catch {
       return { open: 0, escalated: 0 };
     }

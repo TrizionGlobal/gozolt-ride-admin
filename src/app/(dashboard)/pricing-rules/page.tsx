@@ -4,9 +4,13 @@ import { usePricing } from '@/hooks/use-pricing';
 import { FareRulesCard } from '@/components/pricing/fare-rules-card';
 import { CancellationPolicyCard } from '@/components/pricing/cancellation-policy-card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { VehicleType } from '@/types';
+import { PREFERRED_VEHICLE_DISPLAY } from '@/services/admin/user.types';
 
 export default function PricingRulesPage() {
-  const { rule, loading, error, saving, updateRule } = usePricing();
+  const { rules, selectedType, setSelectedType, loading, error, saving, updateRule } = usePricing();
+  
+  const currentRule = rules.find((r) => r.vehicleType === selectedType);
 
   if (error) {
     return (
@@ -35,13 +39,34 @@ export default function PricingRulesPage() {
         </div>
       </div>
 
+      {/* Vehicle Type Tabs */}
+      <div className="flex flex-wrap gap-2">
+        {Object.values(VehicleType).map((type) => {
+          const display = PREFERRED_VEHICLE_DISPLAY[type];
+          const isActive = type === selectedType;
+          return (
+            <button
+              key={type}
+              onClick={() => setSelectedType(type)}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                isActive 
+                  ? 'bg-[#FACC15] text-black' 
+                  : 'bg-[#141414] border border-[#2A2A2A] text-[#9CA3AF] hover:text-white hover:border-[#FACC15]/50'
+              }`}
+            >
+              {display ? display.name : type}
+            </button>
+          );
+        })}
+      </div>
+
       {/* Cards */}
       {loading ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Skeleton className="h-80 rounded-lg bg-[#1A1A1A]" />
           <Skeleton className="h-48 rounded-lg bg-[#1A1A1A]" />
         </div>
-      ) : !rule ? (
+      ) : !currentRule ? (
         <div className="flex flex-col items-center justify-center h-96 border border-dashed border-[#2A2A2A] rounded-lg">
           <h3 className="text-lg font-medium text-white">No Pricing Rules Found</h3>
           <p className="text-sm text-[#6B7280] mt-1">
@@ -50,8 +75,8 @@ export default function PricingRulesPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-          <FareRulesCard rule={rule} saving={saving} onSave={updateRule} />
-          <CancellationPolicyCard rule={rule} saving={saving} onSave={updateRule} />
+          <FareRulesCard rule={currentRule} saving={saving} onSave={updateRule} />
+          <CancellationPolicyCard rule={currentRule} saving={saving} onSave={updateRule} />
         </div>
       )}
     </div>

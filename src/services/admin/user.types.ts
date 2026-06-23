@@ -83,11 +83,14 @@ export interface UserKpis {
 
 // --- Preferred vehicle display ---
 export const PREFERRED_VEHICLE_DISPLAY: Record<VehicleType, { name: string; year: string; color: string }> = {
-  ECONOMY: { name: 'Dacia Sandero', year: '2023', color: 'White' },
-  STANDARD: { name: 'Toyota Prius', year: '2023', color: 'White' },
-  PREMIUM: { name: 'Mercedes C-Class', year: '2024', color: 'Black' },
-  XL: { name: 'Toyota Highlander', year: '2023', color: 'Silver' },
-  ELECTRIC: { name: 'Tesla Model 3', year: '2024', color: 'White' },
+  GO: { name: 'Go', year: '2015+', color: 'bg-blue-500' },
+  STANDARD: { name: 'Standard', year: '2018+', color: 'bg-green-500' },
+  COMFORT: { name: 'Comfort', year: '2020+', color: 'bg-yellow-500' },
+  GREEN: { name: 'Green', year: '2021+', color: 'bg-teal-500' },
+  PRIME: { name: 'Prime', year: '2022+', color: 'bg-amber-500' },
+  PREMIUM_XL: { name: 'Premium XL', year: '2018+', color: 'bg-purple-500' },
+  VAN: { name: 'Van', year: '2018+', color: 'bg-indigo-500' },
+  CHAUFFEUR: { name: 'Chauffeur', year: '2022+', color: 'bg-slate-800' },
 };
 
 // --- Status display utility ---

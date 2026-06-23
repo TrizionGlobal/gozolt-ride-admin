@@ -19,7 +19,11 @@ export async function POST(request: NextRequest) {
     });
 
     if (!backendResponse.ok) {
-      return NextResponse.json({ error: 'Refresh failed' }, { status: 401 });
+      const status = backendResponse.status;
+      return NextResponse.json(
+        { error: 'Refresh failed' },
+        { status: [401, 403].includes(status) ? 401 : status }
+      );
     }
 
     const data = await backendResponse.json();

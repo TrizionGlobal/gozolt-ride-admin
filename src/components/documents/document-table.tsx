@@ -20,6 +20,7 @@ interface DocumentTableProps {
   data: DocumentListResponse | null;
   loading: boolean;
   page: number;
+  onPageChange: (page: number) => void;
   variant: 'approved' | 'rejected';
   onRowClick?: (id: string) => void;
 }

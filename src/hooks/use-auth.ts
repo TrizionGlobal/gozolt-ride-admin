@@ -27,16 +27,28 @@ export function useAuth() {
             password: payload.password,
             tempToken: response.tempToken,
           });
-          router.push('/verify-2fa');
+          
+          let verify2FAUrl = '/verify-2fa';
+          if (typeof window !== 'undefined') {
+            const searchParams = new URLSearchParams(window.location.search);
+            const redirectVal = searchParams.get('redirect');
+            if (redirectVal) {
+              verify2FAUrl += `?redirect=${encodeURIComponent(redirectVal)}`;
+            }
+          }
+          router.push(verify2FAUrl);
           return;
         }
 
         if (isAuthSuccess(response)) {
+          // Ensure the email is preserved even if the backend doesn't return it
+          const userObj = { ...(response.user || {}), email: response.user?.email || payload.email };
+
           if (DEV_BYPASS) {
             // In dev mode, store user in localStorage and set a cookie marker
-            localStorage.setItem('gozolt-dev-user', JSON.stringify(response.user));
+            localStorage.setItem('gozolt-dev-user', JSON.stringify(userObj));
             document.cookie = 'gozolt-dev-authenticated=true; path=/; max-age=86400';
-            setUser(response.user);
+            setUser(userObj);
           } else {
             // Set HTTP-only cookies via API route
             await fetch('/api/auth/login', {
@@ -45,12 +57,21 @@ export function useAuth() {
               body: JSON.stringify({
                 accessToken: response.accessToken,
                 refreshToken: response.refreshToken,
-                user: response.user,
+                user: userObj,
               }),
             });
-            setUser(response.user);
+            setUser(userObj);
           }
-          router.push('/');
+          
+          let redirectPath = '/';
+          if (typeof window !== 'undefined') {
+            const searchParams = new URLSearchParams(window.location.search);
+            const redirectVal = searchParams.get('redirect');
+            if (redirectVal && redirectVal.startsWith('/')) {
+              redirectPath = redirectVal;
+            }
+          }
+          router.push(redirectPath);
         }
       } finally {
         setLoading(false);
@@ -75,10 +96,13 @@ export function useAuth() {
         });
 
         if (isAuthSuccess(response)) {
+          // Ensure the email is preserved even if the backend doesn't return it
+          const userObj = { ...(response.user || {}), email: response.user?.email || twoFactorState.email };
+
           if (DEV_BYPASS) {
-            localStorage.setItem('gozolt-dev-user', JSON.stringify(response.user));
+            localStorage.setItem('gozolt-dev-user', JSON.stringify(userObj));
             document.cookie = 'gozolt-dev-authenticated=true; path=/; max-age=86400';
-            setUser(response.user);
+            setUser(userObj);
           } else {
             await fetch('/api/auth/login', {
               method: 'POST',
@@ -86,13 +110,22 @@ export function useAuth() {
               body: JSON.stringify({
                 accessToken: response.accessToken,
                 refreshToken: response.refreshToken,
-                user: response.user,
+                user: userObj,
               }),
             });
-            setUser(response.user);
+            setUser(userObj);
           }
           useAuthStore.getState().clearTwoFactorState();
-          router.push('/');
+          
+          let redirectPath = '/';
+          if (typeof window !== 'undefined') {
+            const searchParams = new URLSearchParams(window.location.search);
+            const redirectVal = searchParams.get('redirect');
+            if (redirectVal && redirectVal.startsWith('/')) {
+              redirectPath = redirectVal;
+            }
+          }
+          router.push(redirectPath);
         }
       } finally {
         setLoading(false);

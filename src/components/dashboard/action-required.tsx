@@ -11,9 +11,9 @@ interface ActionRequiredProps {
 export function ActionRequired({ items, isLoading }: ActionRequiredProps) {
   if (isLoading) {
     return (
-      <div className="rounded-lg border border-[#2A2A2A] bg-[#141414] p-4">
+      <div className="h-full flex flex-col rounded-lg border border-[#2A2A2A] bg-[#141414] p-4">
         <Skeleton className="h-5 w-32 mb-4 bg-[#2A2A2A]" />
-        <div className="space-y-3">
+        <div className="flex-1 space-y-3">
           {Array.from({ length: 5 }).map((_, i) => (
             <Skeleton key={i} className="h-8 w-full bg-[#2A2A2A]" />
           ))}
@@ -23,10 +23,10 @@ export function ActionRequired({ items, isLoading }: ActionRequiredProps) {
   }
 
   return (
-    <div className="rounded-lg border border-[#2A2A2A] bg-[#141414] p-4">
+    <div className="h-full flex flex-col rounded-lg border border-[#2A2A2A] bg-[#141414] p-4">
       <h3 className="text-sm font-semibold text-white mb-4">Action Required</h3>
 
-      <div className="space-y-3">
+      <div className="flex-1 space-y-3">
         {items.map((item, index) => (
           <div
             key={index}

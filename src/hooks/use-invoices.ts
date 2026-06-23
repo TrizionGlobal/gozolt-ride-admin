@@ -14,16 +14,12 @@ export function useInvoices(params: InvoiceFilterParams) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetch = useCallback(async () => {
+  const fetchList = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      const [listResult, kpiResult] = await Promise.all([
-        invoiceService.listInvoices(params),
-        invoiceService.getKpis(),
-      ]);
+      const listResult = await invoiceService.listInvoices(params);
       setData(listResult);
-      setKpis(kpiResult);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load invoices');
     } finally {
@@ -31,14 +27,37 @@ export function useInvoices(params: InvoiceFilterParams) {
     }
   }, [params.status, params.supplierId, params.search, params.page, params.limit]);
 
+  const fetchKpis = useCallback(async () => {
+    try {
+      const kpiResult = await invoiceService.getKpis();
+      setKpis(kpiResult);
+    } catch {
+      // ignore
+    }
+  }, []);
+
   useEffect(() => {
-    fetch();
-  }, [fetch]);
+    fetchList();
+  }, [fetchList]);
+
+  useEffect(() => {
+    fetchKpis();
+  }, [fetchKpis]);
 
   const markAsPaid = useCallback(async (id: string) => {
     const result = await invoiceService.markAsPaid(id);
     return result;
   }, []);
 
-  return { data, kpis, loading, error, markAsPaid, refetch: fetch };
+  return { 
+    data, 
+    kpis, 
+    loading, 
+    error, 
+    markAsPaid, 
+    refetch: useCallback(() => {
+      fetchList();
+      fetchKpis();
+    }, [fetchList, fetchKpis])
+  };
 }

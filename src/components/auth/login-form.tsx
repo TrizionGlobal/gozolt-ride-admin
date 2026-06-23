@@ -109,7 +109,7 @@ export function LoginForm() {
             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#6B7280]" />
             <Input
               type="email"
-              placeholder="admin@gozolt.in"
+              placeholder="Enter User Name"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               onBlur={() => setEmailTouched(true)}
@@ -126,7 +126,7 @@ export function LoginForm() {
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#6B7280]" />
             <Input
               type={showPassword ? 'text' : 'password'}
-              placeholder="Minimum 8 Characters"
+              placeholder="Enter password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="pl-10 pr-10 h-11 bg-[#0A0A0A] border-[#2A2A2A] text-white placeholder:text-[#6B7280] focus:border-[#FACC15] focus:ring-[#FACC15]/20"
@@ -160,12 +160,6 @@ export function LoginForm() {
             )}
           </Button>
         </form>
-
-        {/* Footer Warning */}
-        <div className="mt-6 flex items-center justify-center gap-2 text-xs text-[#6B7280]">
-          <AlertTriangle className="h-3 w-3" />
-          <span>Unauthorized access is monitored and recorded</span>
-        </div>
       </div>
     </div>
   );

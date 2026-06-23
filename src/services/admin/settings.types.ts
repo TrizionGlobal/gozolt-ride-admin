@@ -41,11 +41,14 @@ export const FEE_FIELDS: FeeFieldConfig[] = [
 
 // --- Vehicle type display ---
 export const VEHICLE_TYPE_DISPLAY: Record<string, string> = {
-  ECONOMY: 'Economy',
+  GO: 'Go',
   STANDARD: 'Standard',
-  PREMIUM: 'Premium',
-  XL: 'XL',
-  ELECTRIC: 'Electric',
+  COMFORT: 'Comfort',
+  GREEN: 'Green',
+  PRIME: 'Prime',
+  PREMIUM_XL: 'Premium XL',
+  VAN: 'Van',
+  CHAUFFEUR: 'Chauffeur',
 };
 
 // --- Fare config table columns ---
@@ -87,3 +90,12 @@ export const SETTINGS_TABS: SettingsTabConfig[] = [
   { id: 'fees', label: 'Fees' },
   { id: 'admin-users', label: 'Admin Users' },
 ];
+
+export interface SystemConfigItem {
+  key: string;
+  title: string;
+  description: string;
+  icon: string;
+  type: 'toggle' | 'button';
+  value: boolean;
+}

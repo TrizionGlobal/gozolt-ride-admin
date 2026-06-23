@@ -9,12 +9,16 @@ import type {
   RideListResponse,
 } from '@/services/admin/ride.types';
 
-export function useRides(params: RideFilterParams) {
+export function useRides(params: RideFilterParams | null) {
   const [data, setData] = useState<RideListResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetch = useCallback(async () => {
+    if (!params) {
+      setLoading(false);
+      return;
+    }
     try {
       setLoading(true);
       setError(null);
@@ -25,7 +29,7 @@ export function useRides(params: RideFilterParams) {
     } finally {
       setLoading(false);
     }
-  }, [params.status, params.disputed, params.search, params.page, params.limit]);
+  }, [params?.status, params?.disputed, params?.search, params?.page, params?.limit]);
 
   useEffect(() => {
     fetch();

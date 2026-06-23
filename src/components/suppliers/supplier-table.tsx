@@ -22,6 +22,7 @@ interface SupplierTableProps {
   onApprove: (id: string) => void;
   onReject: (id: string) => void;
   onSuspend: (id: string) => void;
+  onChangeCommission?: (id: string) => void;
 }
 
 export function SupplierTable({
@@ -35,6 +36,7 @@ export function SupplierTable({
   onApprove,
   onReject,
   onSuspend,
+  onChangeCommission,
 }: SupplierTableProps) {
   const [selectedSupplierId, setSelectedSupplierId] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -118,6 +120,7 @@ export function SupplierTable({
             onReject={() => onReject(row.id)}
             onSuspend={() => onSuspend(row.id)}
             onActivate={handleActivate}
+            onChangeCommission={onChangeCommission ? () => onChangeCommission(row.id) : undefined}
           />
         );
       },

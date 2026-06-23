@@ -115,6 +115,21 @@ export function SupplierActionsMenu({
             )}
           </>
         )}
+
+        {status === SupplierStatus.REJECTED && (
+          <>
+            <DropdownMenuSeparator className="bg-[#2A2A2A]" />
+            {onApprove && (
+              <DropdownMenuItem
+                onClick={onApprove}
+                className="text-green-400 hover:text-green-300 hover:bg-[#2A2A2A] cursor-pointer"
+              >
+                <CheckCircle2 className="mr-2 h-4 w-4" />
+                Approve
+              </DropdownMenuItem>
+            )}
+          </>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

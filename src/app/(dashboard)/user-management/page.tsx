@@ -63,16 +63,9 @@ export default function UserManagementPage() {
     [activeTab, search, sortBy, page, tabConfig],
   );
 
-  // Fetch banned count separately for the tab badge
-  const bannedParams: UserFilterParams = useMemo(
-    () => ({ status: UserStatus.SUSPENDED, page: 1, limit: 100 }),
-    [],
-  );
-
   const { data, loading, refetch } = useUsers(params);
-  const { data: bannedData } = useUsers(bannedParams);
   const { kpis, refresh: refreshKpis } = useUserKpis();
-  const bannedCount = bannedData?.meta.total ?? 0;
+  const bannedCount = kpis?.bannedUsers ?? 0;
 
   const handleTabChange = useCallback(
     (tab: UserTab) => {

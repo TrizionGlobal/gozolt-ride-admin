@@ -42,8 +42,8 @@ export default function RideManagementPage() {
   }>({ open: false, rideDisplayId: '', passengerName: '', driverName: '' });
 
   // Build filter params for table tabs
-  const params: RideFilterParams = useMemo(() => {
-    if (activeTab === 'active') return { page: 1, limit: 100 }; // Not used for live view
+  const params: RideFilterParams | null = useMemo(() => {
+    if (activeTab === 'active') return null; // Not used for live view
     const base: RideFilterParams = {
       search: search || undefined,
       page,

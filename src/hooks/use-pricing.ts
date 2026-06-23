@@ -6,7 +6,8 @@ import { pricingService } from '@/services/admin/pricing.service';
 import type { PricingRule, UpdatePricingPayload } from '@/services/admin/pricing.types';
 
 export function usePricing() {
-  const [rule, setRule] = useState<PricingRule | null>(null);
+  const [rules, setRules] = useState<PricingRule[]>([]);
+  const [selectedType, setSelectedType] = useState<VehicleType>(VehicleType.STANDARD);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -15,10 +16,8 @@ export function usePricing() {
     try {
       setLoading(true);
       setError(null);
-      const rules = await pricingService.getPricingRules();
-      // Show STANDARD vehicle type by default
-      const standard = rules.find((r) => r.vehicleType === VehicleType.STANDARD) ?? rules[0] ?? null;
-      setRule(standard);
+      const fetchedRules = await pricingService.getPricingRules();
+      setRules(fetchedRules);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load pricing rules');
     } finally {
@@ -32,11 +31,12 @@ export function usePricing() {
 
   const updateRule = useCallback(
     async (payload: UpdatePricingPayload) => {
-      if (!rule) return;
+      const rule = rules.find((r) => r.vehicleType === selectedType);
+      if (!rule) return false;
       try {
         setSaving(true);
         const updated = await pricingService.updatePricingRule(rule.id, payload);
-        setRule(updated);
+        setRules((prev) => prev.map((r) => (r.id === rule.id ? updated : r)));
         return true;
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to update pricing rule');
@@ -45,8 +45,8 @@ export function usePricing() {
         setSaving(false);
       }
     },
-    [rule],
+    [rules, selectedType],
   );
 
-  return { rule, loading, error, saving, updateRule, refetch: fetchPricing };
+  return { rules, selectedType, setSelectedType, loading, error, saving, updateRule, refetch: fetchPricing };
 }

@@ -16,6 +16,7 @@ const TAB_STATUS_MAP: Record<SupplierTab, SupplierStatus | undefined> = {
   pending: SupplierStatus.PENDING_VERIFICATION,
   approved: SupplierStatus.ACTIVE,
   suspended: SupplierStatus.SUSPENDED,
+  rejected: SupplierStatus.REJECTED,
 };
 
 export default function SupplierManagementPage() {
