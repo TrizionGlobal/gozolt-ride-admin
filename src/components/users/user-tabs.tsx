@@ -15,7 +15,7 @@ interface UserTabsProps {
 }
 
 const tabs: { key: UserTab; label: string }[] = [
-  { key: 'all', label: 'All drivers' },
+  { key: 'all', label: 'All users' },
   { key: 'active', label: 'Active' },
   { key: 'inactive', label: 'Inactive' },
   { key: 'banned', label: 'Banned' },
@@ -71,7 +71,7 @@ export function UserTabs({
             type="text"
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Search reservation..."
+            placeholder="Search users..."
             className="h-9 w-64 rounded-md border border-[#2A2A2A] bg-[#141414] pl-9 pr-3 text-sm text-white placeholder:text-[#6B7280] focus:border-[#FACC15] focus:outline-none focus:ring-1 focus:ring-[#FACC15]/20"
           />
         </div>

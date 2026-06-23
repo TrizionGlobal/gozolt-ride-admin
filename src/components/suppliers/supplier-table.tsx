@@ -1,40 +1,42 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
-import {
-  Table,
-  TableBody,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { SupplierTableRow } from './supplier-table-row';
+import { ServerSideTable, type ColumnDef } from '@/components/ui/server-side-table';
+import { SupplierStatusBadge } from './supplier-status-badge';
+import { SupplierActionsMenu } from './supplier-actions-menu';
 import { SupplierDetailDrawer } from './supplier-detail-drawer';
-import type { SupplierListResponse } from '@/services/admin/supplier.types';
+import { TIER_DISPLAY, TIER_COLORS } from '@/services/admin/supplier.types';
+import { supplierService } from '@/services/admin/supplier.service';
+import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
+import type { SupplierListResponse, SupplierListItem } from '@/services/admin/supplier.types';
 
 interface SupplierTableProps {
   data: SupplierListResponse | null;
   loading: boolean;
   page: number;
+  limit: number;
   onPageChange: (page: number) => void;
+  onLimitChange: (limit: number) => void;
   onRefetch: () => void;
   onApprove: (id: string) => void;
   onReject: (id: string) => void;
   onSuspend: (id: string) => void;
+  onChangeCommission?: (id: string) => void;
 }
 
 export function SupplierTable({
   data,
   loading,
   page,
+  limit,
   onPageChange,
+  onLimitChange,
   onRefetch,
   onApprove,
   onReject,
   onSuspend,
+  onChangeCommission,
 }: SupplierTableProps) {
   const [selectedSupplierId, setSelectedSupplierId] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -44,98 +46,109 @@ export function SupplierTable({
     setDrawerOpen(true);
   };
 
-  if (loading) {
-    return (
-      <div className="space-y-3">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <Skeleton key={i} className="h-12 w-full bg-[#1A1A1A]" />
-        ))}
-      </div>
-    );
-  }
-
-  if (!data || data.data.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center py-12 text-center">
-        <p className="text-sm text-[#6B7280]">No suppliers found</p>
-        <p className="text-xs text-[#4B5563] mt-1">Try adjusting your filters</p>
-      </div>
-    );
-  }
-
-  const { meta } = data;
-  const start = (meta.page - 1) * meta.limit + 1;
-  const end = Math.min(meta.page * meta.limit, meta.total);
+  const columns: ColumnDef<SupplierListItem>[] = [
+    {
+      key: 'company',
+      title: 'Company',
+      render: (row) => (
+        <span className="text-sm font-medium text-white">{row.companyName}</span>
+      ),
+    },
+    {
+      key: 'reg',
+      title: 'VAT Number',
+      render: (row) => (
+        <span className="text-sm text-[#9CA3AF] font-mono">{row.vatNumber || '—'}</span>
+      ),
+    },
+    {
+      key: 'tier',
+      title: 'Subscription Tier',
+      render: (row) => {
+        const tier = row.subscription?.tier;
+        return tier ? (
+          <span className={cn('inline-flex items-center rounded-sm px-2 py-0.5 text-xs font-medium', TIER_COLORS[tier])}>
+            {TIER_DISPLAY[tier]}
+          </span>
+        ) : (
+          <span className="inline-flex items-center rounded-sm px-2 py-0.5 text-xs font-medium bg-[#2A2A2A] text-[#9CA3AF] border border-[#3A3A3A]">
+            Not Subscribed
+          </span>
+        );
+      },
+    },
+    {
+      key: 'status',
+      title: 'Status',
+      render: (row) => <SupplierStatusBadge status={row.status} />,
+    },
+    {
+      key: 'vehicles',
+      title: 'Vehicles',
+      render: (row) => <span className="text-sm text-[#9CA3AF]">{row._count.vehicles}</span>,
+    },
+    {
+      key: 'drivers',
+      title: 'Drivers',
+      render: (row) => <span className="text-sm text-[#9CA3AF]">{row._count.drivers}</span>,
+    },
+    {
+      key: 'revenue',
+      title: 'Revenue',
+      render: (row) => (
+        <span className="text-sm text-white">€{(row.totalRevenue ?? 0).toLocaleString()}</span>
+      ),
+    },
+    {
+      key: 'actions',
+      title: 'Actions',
+      render: (row) => {
+        const handleActivate = async () => {
+          try {
+            await supplierService.activateSupplier(row.id);
+            toast.success(`${row.companyName} activated successfully`);
+            onRefetch();
+          } catch {
+            toast.error('Failed to activate supplier');
+          }
+        };
+        return (
+          <SupplierActionsMenu
+            status={row.status}
+            onView={() => handleViewDetail(row.id)}
+            onApprove={() => onApprove(row.id)}
+            onReject={() => onReject(row.id)}
+            onSuspend={() => onSuspend(row.id)}
+            onActivate={handleActivate}
+            onChangeCommission={onChangeCommission ? () => onChangeCommission(row.id) : undefined}
+          />
+        );
+      },
+    },
+  ];
 
   return (
-    <div>
-      <Table>
-        <TableHeader>
-          <TableRow className="border-b border-[#2A2A2A] hover:bg-transparent">
-            <TableHead className="text-[#9CA3AF] text-xs font-medium">Company</TableHead>
-            <TableHead className="text-[#9CA3AF] text-xs font-medium">Reg #</TableHead>
-            <TableHead className="text-[#9CA3AF] text-xs font-medium">Tier</TableHead>
-            <TableHead className="text-[#9CA3AF] text-xs font-medium">Status</TableHead>
-            <TableHead className="text-[#9CA3AF] text-xs font-medium">Vehicles</TableHead>
-            <TableHead className="text-[#9CA3AF] text-xs font-medium">Drivers</TableHead>
-            <TableHead className="text-[#9CA3AF] text-xs font-medium">Revenue</TableHead>
-            <TableHead className="text-[#9CA3AF] text-xs font-medium">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {data.data.map((supplier) => (
-            <SupplierTableRow
-              key={supplier.id}
-              supplier={supplier}
-              onRefetch={onRefetch}
-              onApprove={onApprove}
-              onReject={onReject}
-              onSuspend={onSuspend}
-              onViewDetail={handleViewDetail}
-            />
-          ))}
-        </TableBody>
-      </Table>
-
-      {/* Pagination */}
-      {meta.totalPages > 1 && (
-        <div className="flex items-center justify-between border-t border-[#2A2A2A] px-4 py-3 mt-2">
-          <p className="text-xs text-[#6B7280]">
-            Showing {start}-{end} of {meta.total} suppliers
-          </p>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              disabled={page <= 1}
-              onClick={() => onPageChange(page - 1)}
-              className="h-8 text-xs text-[#9CA3AF] hover:text-white hover:bg-[#1A1A1A] disabled:opacity-40"
-            >
-              <ChevronLeft className="mr-1 h-3 w-3" />
-              Previous
-            </Button>
-            <span className="text-xs text-[#6B7280]">
-              Page {meta.page} of {meta.totalPages}
-            </span>
-            <Button
-              variant="ghost"
-              size="sm"
-              disabled={page >= meta.totalPages}
-              onClick={() => onPageChange(page + 1)}
-              className="h-8 text-xs text-[#9CA3AF] hover:text-white hover:bg-[#1A1A1A] disabled:opacity-40"
-            >
-              Next
-              <ChevronRight className="ml-1 h-3 w-3" />
-            </Button>
-          </div>
-        </div>
-      )}
+    <>
+      <div className="rounded-lg border border-[#2A2A2A] bg-[#0A0A0A] overflow-hidden">
+        <ServerSideTable<SupplierListItem>
+          columns={columns}
+          data={data?.data ?? []}
+          isLoading={loading}
+          page={page}
+          limit={limit}
+          total={data?.meta.total ?? 0}
+          onPageChange={onPageChange}
+          onLimitChange={onLimitChange}
+          rowKey="id"
+          emptyText="No suppliers found. Try adjusting your filters."
+        />
+      </div>
 
       <SupplierDetailDrawer
         supplierId={selectedSupplierId}
         open={drawerOpen}
         onOpenChange={setDrawerOpen}
       />
-    </div>
+    </>
   );
 }

@@ -23,11 +23,14 @@ const SUPPLIER_OPTIONS = [
 
 const TYPE_OPTIONS = [
   { value: '', label: 'All Types' },
-  { value: VehicleType.ECONOMY, label: 'Economy' },
+  { value: VehicleType.GO, label: 'Go' },
   { value: VehicleType.STANDARD, label: 'Standard' },
-  { value: VehicleType.PREMIUM, label: 'Premium' },
-  { value: VehicleType.XL, label: 'XL' },
-  { value: VehicleType.ELECTRIC, label: 'Electric' },
+  { value: VehicleType.COMFORT, label: 'Comfort' },
+  { value: VehicleType.GREEN, label: 'Green' },
+  { value: VehicleType.PRIME, label: 'Prime' },
+  { value: VehicleType.PREMIUM_XL, label: 'Premium XL' },
+  { value: VehicleType.VAN, label: 'Van' },
+  { value: VehicleType.CHAUFFEUR, label: 'Chauffeur' },
 ];
 
 export function VehicleFiltersPopover({

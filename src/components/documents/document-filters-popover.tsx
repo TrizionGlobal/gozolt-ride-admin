@@ -7,8 +7,6 @@ import type { DocumentEntityType } from '@/services/admin/document.types';
 interface DocumentFiltersPopoverProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  entityType: string;
-  onEntityTypeChange: (value: string) => void;
   sortBy: string;
   onSortByChange: (value: string) => void;
 }
@@ -16,21 +14,17 @@ interface DocumentFiltersPopoverProps {
 export function DocumentFiltersPopover({
   open,
   onOpenChange,
-  entityType,
-  onEntityTypeChange,
   sortBy,
   onSortByChange,
 }: DocumentFiltersPopoverProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const [localEntityType, setLocalEntityType] = useState(entityType);
   const [localSortBy, setLocalSortBy] = useState(sortBy);
 
   useEffect(() => {
     if (open) {
-      setLocalEntityType(entityType);
       setLocalSortBy(sortBy);
     }
-  }, [open, entityType, sortBy]);
+  }, [open, sortBy]);
 
   useEffect(() => {
     if (!open) return;
@@ -46,13 +40,11 @@ export function DocumentFiltersPopover({
   if (!open) return null;
 
   const handleApply = () => {
-    onEntityTypeChange(localEntityType);
     onSortByChange(localSortBy);
     onOpenChange(false);
   };
 
   const handleReset = () => {
-    setLocalEntityType('');
     setLocalSortBy('');
   };
 
@@ -61,19 +53,6 @@ export function DocumentFiltersPopover({
       ref={ref}
       className="absolute right-0 top-12 z-50 w-72 rounded-lg border border-[#2A2A2A] bg-[#1A1A1A] p-4 shadow-xl space-y-4"
     >
-      <div className="space-y-2">
-        <label className="text-sm text-[#9CA3AF]">Entity Type</label>
-        <select
-          value={localEntityType}
-          onChange={(e) => setLocalEntityType(e.target.value)}
-          className="w-full h-9 rounded-md border border-[#2A2A2A] bg-[#141414] px-3 text-sm text-white focus:border-[#FACC15] focus:outline-none focus:ring-1 focus:ring-[#FACC15]/20"
-        >
-          <option value="">All</option>
-          <option value="driver">Driver</option>
-          <option value="supplier">Supplier</option>
-        </select>
-      </div>
-
       <div className="space-y-2">
         <label className="text-sm text-[#9CA3AF]">Sort By</label>
         <select

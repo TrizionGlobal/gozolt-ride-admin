@@ -60,3 +60,25 @@ export interface AnalyticsFilter {
   dateTo?: string;
   period?: 'day' | 'week' | 'month';
 }
+
+export interface PeakHourItem {
+  hour: number;
+  rideCount: number;
+  avgFare: number;
+}
+
+export interface PeakHoursData {
+  byHour: PeakHourItem[];
+  byHourAndDay: any[];
+}
+
+export interface DashboardAllResponse {
+  kpis: DashboardKpi;
+  rideTrends: RideTrends;
+  revenueTrends: RevenueTrendPoint[];
+  vehicleTypeBreakdown: VehicleTypeBreakdown[];
+  actionRequired: ActionRequiredItem[];
+  liveActivity: LiveActivityItem[];
+  peakHours?: PeakHoursData;
+}
+

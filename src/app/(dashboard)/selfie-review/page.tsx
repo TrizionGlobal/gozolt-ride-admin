@@ -27,7 +27,7 @@ export default function SelfieReviewPage() {
     try {
       setLoading(true);
       const response = await apiClient.get<PendingSelfiesResponse>(
-        '/admin/selfie-verifications/pending'
+        '/admin/selfies/pending'
       );
       setSelfies(response.data.data);
     } catch {
@@ -53,7 +53,7 @@ export default function SelfieReviewPage() {
       setSelfies((prev) => prev.filter((s) => s.id !== id));
 
       try {
-        await apiClient.post(`/admin/selfie-verifications/${id}/review`, {
+        await apiClient.post(`/admin/selfies/${id}/review`, {
           approved,
         });
         toast.success(

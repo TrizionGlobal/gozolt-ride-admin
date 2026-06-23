@@ -79,14 +79,6 @@ export function SupplierTableRow({
       </TableCell>
       <TableCell>
         <div className="flex items-center gap-1">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 text-[#6B7280] hover:text-white hover:bg-[#1A1A1A]"
-            onClick={handleView}
-          >
-            <Eye className="h-4 w-4" />
-          </Button>
           <SupplierActionsMenu
             status={supplier.status}
             onView={handleView}

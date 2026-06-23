@@ -45,11 +45,14 @@ export enum RideStatus {
 }
 
 export enum VehicleType {
-  ECONOMY = 'ECONOMY',
+  GO = 'GO',
   STANDARD = 'STANDARD',
-  PREMIUM = 'PREMIUM',
-  XL = 'XL',
-  ELECTRIC = 'ELECTRIC',
+  COMFORT = 'COMFORT',
+  GREEN = 'GREEN',
+  PRIME = 'PRIME',
+  PREMIUM_XL = 'PREMIUM_XL',
+  VAN = 'VAN',
+  CHAUFFEUR = 'CHAUFFEUR',
 }
 
 export enum VehicleStatus {
@@ -113,6 +116,8 @@ export enum DocumentType {
   VEHICLE_PHOTO_INTERIOR = 'VEHICLE_PHOTO_INTERIOR',
   PROFILE_PHOTO = 'PROFILE_PHOTO',
   ID_CARD = 'ID_CARD',
+  PROOF_OF_ADDRESS = 'PROOF_OF_ADDRESS',
+  BANK_PROOF = 'BANK_PROOF',
 }
 
 // Shared pagination types

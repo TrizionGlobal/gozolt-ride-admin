@@ -133,11 +133,14 @@ export function getRideStatusDisplay(status: RideStatus) {
 // --- Vehicle type badge display ---
 export function getRideTypeDisplay(type: VehicleType) {
   const map: Record<string, { label: string; className: string }> = {
-    ECONOMY: { label: 'Economy', className: 'bg-slate-700/50 text-slate-300 border-slate-600/30' },
+    GO: { label: 'Go', className: 'bg-slate-700/50 text-slate-300 border-slate-600/30' },
     STANDARD: { label: 'Standard', className: 'bg-yellow-900/50 text-yellow-400 border-yellow-700/30' },
-    PREMIUM: { label: 'Premium', className: 'bg-purple-900/50 text-purple-400 border-purple-700/30' },
-    XL: { label: 'XL', className: 'bg-blue-900/50 text-blue-300 border-blue-700/30' },
-    ELECTRIC: { label: 'Electric', className: 'bg-green-900/50 text-green-400 border-green-700/30' },
+    COMFORT: { label: 'Comfort', className: 'bg-purple-900/50 text-purple-400 border-purple-700/30' },
+    GREEN: { label: 'Green', className: 'bg-green-900/50 text-green-400 border-green-700/30' },
+    PRIME: { label: 'Prime', className: 'bg-amber-900/50 text-amber-400 border-amber-700/30' },
+    PREMIUM_XL: { label: 'Premium XL', className: 'bg-blue-900/50 text-blue-300 border-blue-700/30' },
+    VAN: { label: 'Van', className: 'bg-indigo-900/50 text-indigo-300 border-indigo-700/30' },
+    CHAUFFEUR: { label: 'Chauffeur', className: 'bg-zinc-800/50 text-zinc-300 border-zinc-700/30' },
   };
   return map[type] ?? { label: type, className: 'bg-gray-500/20 text-gray-400 border-gray-500/30' };
 }

@@ -50,10 +50,10 @@ export function DocumentPendingCard({
               <p className="text-sm font-medium text-white truncate">
                 {getDocumentTypeDisplay(doc.type)}
               </p>
-              <DocumentEntityBadge entityType={doc.entity.entityType} />
+              <DocumentEntityBadge entityType={doc.entity?.entityType || (doc as any).entityType || 'driver'} />
             </div>
             <p className="text-xs text-[#6B7280] truncate">
-              {doc.entity.name} ({doc.entity.displayId})
+              {doc.entity?.name || 'Unknown Entity'} ({doc.entity?.displayId || (doc as any).entityId || 'N/A'})
             </p>
           </div>
         </div>

@@ -38,6 +38,11 @@ export interface SupplierListItem {
 
 // --- Supplier detail (from GET /admin/suppliers/:id) ---
 export interface SupplierDetail extends Omit<SupplierListItem, 'subscription' | '_count'> {
+  supplierBankName: string | null;
+  supplierAccountNumber: string | null;
+  supplierAccountHolder: string | null;
+  supplierSwiftCode: string | null;
+  vehicleTypeCounts: { type: string; count: number }[];
   subscription: SupplierSubscriptionDetail | null;
   tipSummary: {
     totalTipsReceived: number;
@@ -116,10 +121,11 @@ export const STATUS_DISPLAY: Record<SupplierStatus, string> = {
 };
 
 export const SUPPLIER_DOCUMENT_TYPES: { type: DocumentType; label: string }[] = [
-  { type: 'OPERATOR_LICENSE' as DocumentType, label: 'Business License' },
-  { type: 'INSURANCE' as DocumentType, label: 'Insurance Certificate' },
-  { type: 'VAT_CERTIFICATE' as DocumentType, label: 'Tax Clearance' },
-  { type: 'COMPANY_REGISTRATION' as DocumentType, label: 'Company Registration' },
+  { type: 'COMPANY_REGISTRATION' as DocumentType, label: 'Business Registration Certificate' },
+  { type: 'ID_CARD' as DocumentType, label: 'Owner / Authorized Representative ID' },
+  { type: 'PROOF_OF_ADDRESS' as DocumentType, label: 'Proof of Business Address' },
+  { type: 'BANK_PROOF' as DocumentType, label: 'Bank Account Proof' },
+  { type: 'VAT_CERTIFICATE' as DocumentType, label: 'VAT Certificate' },
 ];
 
 export const REJECTION_REASONS = [

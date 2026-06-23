@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useCallback, useMemo } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useState, useCallback, useMemo, useRef } from 'react';
 import { SupplierStatus } from '@/types';
 import { useSuppliers } from '@/hooks/use-suppliers';
 import { SupplierTabs, type SupplierTab } from '@/components/suppliers/supplier-tabs';
@@ -17,18 +16,14 @@ const TAB_STATUS_MAP: Record<SupplierTab, SupplierStatus | undefined> = {
   pending: SupplierStatus.PENDING_VERIFICATION,
   approved: SupplierStatus.ACTIVE,
   suspended: SupplierStatus.SUSPENDED,
+  rejected: SupplierStatus.REJECTED,
 };
 
 export default function SupplierManagementPage() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-
-  // Tab state from URL
-  const tabParam = (searchParams.get('tab') as SupplierTab) || 'all';
-  const activeTab = (['all', 'pending', 'approved', 'suspended'].includes(tabParam)
-    ? tabParam
-    : 'all') as SupplierTab;
+  // Tab state — managed locally, no URL changes (avoids Next.js RSC refetch on tab switch)
+  const [activeTab, setActiveTab] = useState<SupplierTab>('all');
   const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(20);
 
   // Modal state
   const [approveModal, setApproveModal] = useState<{ open: boolean; supplier: SupplierListItem | null }>({
@@ -49,37 +44,36 @@ export default function SupplierManagementPage() {
     () => ({
       status: TAB_STATUS_MAP[activeTab],
       page,
-      limit: 20,
+      limit,
     }),
-    [activeTab, page],
+    [activeTab, page, limit],
   );
 
-  // Also fetch pending count separately
-  const pendingParams: SupplierFilterParams = useMemo(
-    () => ({ status: SupplierStatus.PENDING_VERIFICATION, page: 1, limit: 100 }),
-    [],
-  );
 
   const { data, loading, refetch } = useSuppliers(params);
-  const { data: pendingData } = useSuppliers(pendingParams);
-  const pendingCount = pendingData?.meta.total ?? 0;
 
-  const handleTabChange = useCallback(
-    (tab: SupplierTab) => {
-      setPage(1);
-      const newParams = new URLSearchParams();
-      if (tab !== 'all') newParams.set('tab', tab);
-      router.push(`/supplier-management${newParams.toString() ? `?${newParams.toString()}` : ''}`);
-    },
-    [router],
-  );
+  // Derive the pending count from data when on the pending tab.
+  // Cache the last known count so the badge persists on other tabs.
+  const cachedPendingCount = useRef(0);
+  if (activeTab === 'pending' && data?.meta.total !== undefined) {
+    cachedPendingCount.current = data.meta.total;
+  }
+  const pendingCount = cachedPendingCount.current;
+
+  const refetchWithCount = refetch;
+
+  const handleTabChange = useCallback((tab: SupplierTab) => {
+    setActiveTab(tab);
+    setPage(1);
+    setLimit(20);
+  }, []);
 
   // Find supplier by id from current data
   const findSupplier = useCallback(
     (id: string): SupplierListItem | null => {
-      return data?.data.find((s) => s.id === id) ?? pendingData?.data.find((s) => s.id === id) ?? null;
+      return data?.data.find((s) => s.id === id) ?? null;
     },
-    [data, pendingData],
+    [data],
   );
 
   const handleApprove = useCallback(
@@ -107,8 +101,8 @@ export default function SupplierManagementPage() {
   );
 
   const handleMutationSuccess = useCallback(() => {
-    refetch();
-  }, [refetch]);
+    refetchWithCount();
+  }, [refetchWithCount]);
 
   return (
     <div className="space-y-6">
@@ -139,7 +133,11 @@ export default function SupplierManagementPage() {
           <SupplierPendingList
             data={data}
             loading={loading}
-            onRefetch={refetch}
+            page={page}
+            limit={limit}
+            onPageChange={setPage}
+            onLimitChange={(l) => { setLimit(l); setPage(1); }}
+            onRefetch={refetchWithCount}
             onApprove={handleApprove}
             onReject={handleReject}
           />
@@ -148,7 +146,9 @@ export default function SupplierManagementPage() {
             data={data}
             loading={loading}
             page={page}
+            limit={limit}
             onPageChange={setPage}
+            onLimitChange={(l) => { setLimit(l); setPage(1); }}
             onRefetch={refetch}
             onApprove={handleApprove}
             onReject={handleReject}

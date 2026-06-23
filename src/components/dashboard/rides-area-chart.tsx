@@ -20,9 +20,9 @@ interface RidesAreaChartProps {
 export function RidesAreaChart({ data, isLoading }: RidesAreaChartProps) {
   if (isLoading) {
     return (
-      <div className="rounded-lg border border-[#2A2A2A] bg-[#141414] p-4">
+      <div className="h-full flex flex-col rounded-lg border border-[#2A2A2A] bg-[#141414] p-4">
         <Skeleton className="h-5 w-16 mb-4 bg-[#2A2A2A]" />
-        <Skeleton className="h-[200px] w-full bg-[#2A2A2A]" />
+        <Skeleton className="flex-1 min-h-[200px] w-full bg-[#2A2A2A]" />
       </div>
     );
   }
@@ -33,9 +33,9 @@ export function RidesAreaChart({ data, isLoading }: RidesAreaChartProps) {
   })) || [];
 
   return (
-    <div className="rounded-lg border border-[#2A2A2A] bg-[#141414] p-4">
-      <h3 className="text-sm font-semibold text-white mb-4">Area</h3>
-      <div className="h-[200px]">
+    <div className="h-full flex flex-col rounded-lg border border-[#2A2A2A] bg-[#141414] p-4">
+      <h3 className="text-sm font-semibold text-white mb-4">Revenue Trends</h3>
+      <div className="flex-1 min-h-[200px]">
         <ResponsiveContainer width="99%" height="100%" minWidth={0}>
           <AreaChart data={chartData}>
             <defs>

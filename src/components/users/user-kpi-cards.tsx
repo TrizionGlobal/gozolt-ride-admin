@@ -13,14 +13,14 @@ export function UserKpiCards({ kpis, isLoading }: UserKpiCardsProps) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <KpiCard
-        label="Total Vehicles"
+        label="Total Users"
         value={kpis.totalUsers.toLocaleString()}
         change={12}
         icon={Users}
         isLoading={isLoading}
       />
       <KpiCard
-        label="Active on Road"
+        label="Active Users"
         value={kpis.activeUsers.toLocaleString()}
         change={12}
         icon={UserCheck}
@@ -28,7 +28,7 @@ export function UserKpiCards({ kpis, isLoading }: UserKpiCardsProps) {
       />
       <div className={kpis.bannedUsers > 0 ? 'rounded-lg border border-yellow-500/50' : ''}>
         <KpiCard
-          label="Pending Inspection"
+          label="Banned Users"
           value={kpis.bannedUsers.toLocaleString()}
           change={12}
           icon={Ban}
@@ -36,7 +36,7 @@ export function UserKpiCards({ kpis, isLoading }: UserKpiCardsProps) {
         />
       </div>
       <KpiCard
-        label="Suspended"
+        label="Inactive Users"
         value={kpis.inactiveUsers.toLocaleString()}
         change={-12}
         icon={UserX}

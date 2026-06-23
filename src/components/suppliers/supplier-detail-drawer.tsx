@@ -11,6 +11,11 @@ import {
   ArrowRight,
   Users,
   ExternalLink,
+  CreditCard,
+  Car,
+  Download,
+  Calendar,
+  Eye,
 } from 'lucide-react';
 import {
   Dialog,
@@ -28,8 +33,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { supplierService } from '@/services/admin/supplier.service';
-import { STATUS_DISPLAY, TIER_DISPLAY } from '@/services/admin/supplier.types';
-import type { SupplierDetail } from '@/services/admin/supplier.types';
+import { STATUS_DISPLAY, TIER_DISPLAY, SUPPLIER_DOCUMENT_TYPES } from '@/services/admin/supplier.types';
+import type { SupplierDetail, SupplierDocument } from '@/services/admin/supplier.types';
 import { toast } from 'sonner';
 
 interface SupplierDetailDrawerProps {
@@ -40,18 +45,25 @@ interface SupplierDetailDrawerProps {
 
 export function SupplierDetailDrawer({ supplierId, open, onOpenChange }: SupplierDetailDrawerProps) {
   const [supplier, setSupplier] = useState<SupplierDetail | null>(null);
+  const [documents, setDocuments] = useState<SupplierDocument[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (supplierId && open) {
       setLoading(true);
-      supplierService
-        .getSupplierDetail(supplierId)
-        .then(setSupplier)
+      Promise.all([
+        supplierService.getSupplierDetail(supplierId),
+        supplierService.getSupplierDocuments(supplierId)
+      ])
+        .then(([sup, docs]) => {
+          setSupplier(sup);
+          setDocuments(docs);
+        })
         .catch(() => toast.error('Failed to load supplier details'))
         .finally(() => setLoading(false));
     } else {
       setSupplier(null);
+      setDocuments([]);
     }
   }, [supplierId, open]);
 
@@ -86,6 +98,135 @@ export function SupplierDetailDrawer({ supplierId, open, onOpenChange }: Supplie
 
           {!loading && supplier && (
             <>
+              {/* Documents Card */}
+              <div className="bg-[#0A0A0A] border border-[#2A2A2A] rounded-lg p-4">
+                <div className="flex items-center gap-2 mb-4">
+                  <FileText className="h-4 w-4 text-[#FACC15]" />
+                  <h4 className="text-sm font-medium text-white">Uploaded Documents</h4>
+                </div>
+                {(() => {
+                  const companyDocs = (documents || []).filter(doc => SUPPLIER_DOCUMENT_TYPES.some(t => t.type === doc.type));
+                  return companyDocs.length > 0 ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {companyDocs.map((doc) => {
+                        const typeLabel = SUPPLIER_DOCUMENT_TYPES.find(t => t.type === doc.type)?.label || doc.type;
+                        return (
+                          <div key={doc.id} className="bg-[#141414] border border-[#2A2A2A] rounded-lg p-3 flex justify-between items-start">
+                            <div>
+                              <p className="text-sm font-medium text-white">{typeLabel}</p>
+                              <p className="text-xs text-[#9CA3AF] mt-1 line-clamp-1">{doc.fileName || 'Document'}</p>
+                            </div>
+                            {doc.fileUrl && (
+                              <Link href={doc.fileUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 px-2.5 py-1.5 bg-[#2A2A2A] hover:bg-[#3A3A3A] rounded text-[#D4D4D8] transition-colors text-xs font-medium">
+                                <Eye className="h-3.5 w-3.5" />
+                                View
+                              </Link>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-[#6B7280]">No documents uploaded.</p>
+                  );
+                })()}
+              </div>
+
+              {/* Bank Details Card */}
+              <div className="bg-[#0A0A0A] border border-[#2A2A2A] rounded-lg p-4">
+                <div className="flex items-center gap-2 mb-4">
+                  <CreditCard className="h-4 w-4 text-[#FACC15]" />
+                  <h4 className="text-sm font-medium text-white">Bank Details</h4>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-xs text-[#6B7280]">Bank Name</p>
+                    <p className="text-sm text-white font-medium">{supplier.supplierBankName || '—'}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-[#6B7280]">Account Holder</p>
+                    <p className="text-sm text-white font-medium">{supplier.supplierAccountHolder || '—'}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-[#6B7280]">Account Number / IBAN</p>
+                    <p className="text-sm text-white font-medium">{supplier.supplierAccountNumber || '—'}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-[#6B7280]">SWIFT / BIC Code</p>
+                    <p className="text-sm text-white font-medium">{supplier.supplierSwiftCode || '—'}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Subscription Details Card */}
+              {supplier.subscription && (
+                <div className="bg-[#0A0A0A] border border-[#2A2A2A] rounded-lg p-4">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Calendar className="h-4 w-4 text-[#FACC15]" />
+                    <h4 className="text-sm font-medium text-white">Subscription Details</h4>
+                  </div>
+                  
+                  <div className="grid grid-cols-3 gap-4 mb-4">
+                    <div className="bg-[#141414] border border-[#2A2A2A] rounded-lg p-3">
+                      <p className="text-xs text-[#6B7280] mb-1">Plan Tier</p>
+                      <p className="text-sm font-bold text-[#FACC15]">{TIER_DISPLAY[supplier.subscription.tier]}</p>
+                    </div>
+                    <div className="bg-[#141414] border border-[#2A2A2A] rounded-lg p-3">
+                      <p className="text-xs text-[#6B7280] mb-1">Status</p>
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                        supplier.subscription.stripeSubId ? 'bg-green-500/20 text-green-400' : 'bg-[#2A2A2A] text-[#9CA3AF] border border-[#3A3A3A]'
+                      }`}>
+                        {supplier.subscription.stripeSubId ? 'Active' : 'Not Subscribed'}
+                      </span>
+                    </div>
+                    <div className="bg-[#141414] border border-[#2A2A2A] rounded-lg p-3">
+                      <p className="text-xs text-[#6B7280] mb-1">Expiration</p>
+                      <p className="text-sm font-medium text-white">
+                        {supplier.subscription.currentPeriodEnd 
+                          ? new Date(supplier.subscription.currentPeriodEnd).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+                          : '—'
+                        }
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-[#141414] border border-[#2A2A2A] rounded-lg p-3">
+                      <p className="text-xs text-[#6B7280] mb-1">Vehicles Limit</p>
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-lg font-bold text-white">{supplier._count?.vehicles ?? 0}</span>
+                        <span className="text-sm text-[#9CA3AF]">/ {supplier.subscription.maxVehicles}</span>
+                      </div>
+                    </div>
+                    <div className="bg-[#141414] border border-[#2A2A2A] rounded-lg p-3">
+                      <p className="text-xs text-[#6B7280] mb-1">Drivers Limit</p>
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-lg font-bold text-white">{supplier._count?.drivers ?? 0}</span>
+                        <span className="text-sm text-[#9CA3AF]">/ {supplier.subscription.maxDrivers}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Vehicle Type Breakdown Card */}
+              {supplier.vehicleTypeCounts && supplier.vehicleTypeCounts.length > 0 && (
+                <div className="bg-[#0A0A0A] border border-[#2A2A2A] rounded-lg p-4">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Car className="h-4 w-4 text-[#FACC15]" />
+                    <h4 className="text-sm font-medium text-white">Vehicle Breakdown</h4>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    {supplier.vehicleTypeCounts.map(v => (
+                      <div key={v.type} className="bg-[#141414] border border-[#2A2A2A] rounded-lg p-3 text-center">
+                        <p className="text-lg font-bold text-white">{v.count}</p>
+                        <p className="text-xs text-[#6B7280] capitalize">{v.type.toLowerCase().replace('_', ' ')}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Revenue Summary Card */}
               {supplier.revenueSummary && (
                 <div className="bg-[#0A0A0A] border border-[#2A2A2A] rounded-lg p-4">

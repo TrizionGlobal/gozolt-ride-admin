@@ -5,16 +5,10 @@ import { SettingsTabs } from '@/components/settings/settings-tabs';
 import { FareConfigTable } from '@/components/settings/fare-config-table';
 import { FeesConfig } from '@/components/settings/fees-config';
 import { AdminUsersTable } from '@/components/settings/admin-users-table';
-import { SystemConfig } from '@/components/settings/system-config';
-import { LanguageConfig } from '@/components/settings/language-config';
-import { IntegrationsGrid } from '@/components/settings/integrations-grid';
 import {
   useFareConfig,
   useFeeConfig,
   useAdminUsers,
-  useSystemConfig,
-  useLanguageConfig,
-  useIntegrations,
 } from '@/hooks/use-settings';
 import type { SettingsTab } from '@/services/admin/settings.types';
 
@@ -24,9 +18,7 @@ export default function SettingsPage() {
   const fareConfig = useFareConfig();
   const feeConfig = useFeeConfig();
   const adminUsers = useAdminUsers();
-  const systemConfig = useSystemConfig();
-  const languageConfig = useLanguageConfig();
-  const integrations = useIntegrations();
+
 
   return (
     <div className="space-y-6">
@@ -34,7 +26,7 @@ export default function SettingsPage() {
       <div>
         <h1 className="text-2xl font-bold text-white">Settings</h1>
         <p className="text-sm text-[#6B7280] mt-1">
-          Manage system configuration, users, and integrations
+          Manage system configuration and users
         </p>
       </div>
 
@@ -70,31 +62,7 @@ export default function SettingsPage() {
             />
           )}
 
-          {activeTab === 'system' && (
-            <SystemConfig
-              config={systemConfig.config}
-              loading={systemConfig.loading}
-              onToggle={systemConfig.updateSetting}
-            />
-          )}
 
-          {activeTab === 'language' && (
-            <LanguageConfig
-              config={languageConfig.config}
-              loading={languageConfig.loading}
-              saving={languageConfig.saving}
-              onSave={languageConfig.updateConfig}
-            />
-          )}
-
-          {activeTab === 'integrations' && (
-            <IntegrationsGrid
-              integrations={integrations.integrations}
-              loading={integrations.loading}
-              testing={integrations.testing}
-              onTest={integrations.testConnection}
-            />
-          )}
         </div>
       </div>
     </div>

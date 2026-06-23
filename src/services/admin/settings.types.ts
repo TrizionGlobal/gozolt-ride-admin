@@ -16,50 +16,7 @@ export interface AdminUser {
   createdAt: string;
 }
 
-// --- System Config ---
-export type SystemConfigType = 'toggle' | 'configure';
-
-export interface SystemConfigItem {
-  key: string;
-  title: string;
-  description: string;
-  icon: string;
-  type: SystemConfigType;
-  value: string | boolean;
-}
-
-// --- Language Config ---
-export interface LanguageConfig {
-  defaultLanguage: string;
-  supportedLanguages: string[];
-}
-
-export interface LanguageOption {
-  code: string;
-  label: string;
-}
-
-export const AVAILABLE_LANGUAGES: LanguageOption[] = [
-  { code: 'en', label: 'English' },
-  { code: 'mt', label: 'Maltese' },
-  { code: 'it', label: 'Italian' },
-  { code: 'fr', label: 'French' },
-  { code: 'de', label: 'German' },
-  { code: 'es', label: 'Spanish' },
-];
-
-// --- Integration ---
-export type IntegrationStatus = 'connected' | 'error' | 'disconnected';
-
-export interface Integration {
-  id: string;
-  name: string;
-  icon: string;
-  status: IntegrationStatus;
-  description?: string;
-}
-
-// --- Fee Config ---
+// --- Admin User ---
 export interface FeeConfig {
   bookingFee: number;
   cancellationFee: number;
@@ -84,11 +41,14 @@ export const FEE_FIELDS: FeeFieldConfig[] = [
 
 // --- Vehicle type display ---
 export const VEHICLE_TYPE_DISPLAY: Record<string, string> = {
-  ECONOMY: 'Economy',
+  GO: 'Go',
   STANDARD: 'Standard',
-  PREMIUM: 'Premium',
-  XL: 'XL',
-  ELECTRIC: 'Electric',
+  COMFORT: 'Comfort',
+  GREEN: 'Green',
+  PRIME: 'Prime',
+  PREMIUM_XL: 'Premium XL',
+  VAN: 'Van',
+  CHAUFFEUR: 'Chauffeur',
 };
 
 // --- Fare config table columns ---
@@ -118,7 +78,7 @@ export const ADMIN_ROLE_COLOR: Record<AdminRole, string> = {
 };
 
 // --- Tab definitions ---
-export type SettingsTab = 'fare-config' | 'fees' | 'admin-users' | 'system' | 'language' | 'integrations';
+export type SettingsTab = 'fare-config' | 'fees' | 'admin-users';
 
 export interface SettingsTabConfig {
   id: SettingsTab;
@@ -129,7 +89,13 @@ export const SETTINGS_TABS: SettingsTabConfig[] = [
   { id: 'fare-config', label: 'Fare config' },
   { id: 'fees', label: 'Fees' },
   { id: 'admin-users', label: 'Admin Users' },
-  { id: 'system', label: 'System' },
-  { id: 'language', label: 'Language' },
-  { id: 'integrations', label: 'Integrations' },
 ];
+
+export interface SystemConfigItem {
+  key: string;
+  title: string;
+  description: string;
+  icon: string;
+  type: 'toggle' | 'button';
+  value: boolean;
+}

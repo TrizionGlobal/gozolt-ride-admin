@@ -1,46 +1,52 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { getDashboardKPIs, getRideTrends, getRevenueTrends } from '@/services/admin/dashboard.service';
-import type { DashboardKpi, RideTrends, RevenueTrendPoint } from '@/services/admin/dashboard.types';
+import { useState, useEffect, useCallback } from 'react';
+import { getDashboardAll } from '@/services/admin/dashboard.service';
+import type { DashboardAllResponse } from '@/services/admin/dashboard.types';
 
 export function useDashboard() {
-  const [kpis, setKpis] = useState<DashboardKpi | null>(null);
-  const [rideTrends, setRideTrends] = useState<RideTrends | null>(null);
-  const [revenueTrends, setRevenueTrends] = useState<RevenueTrendPoint[] | null>(null);
+  const [data, setData] = useState<DashboardAllResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    async function fetchDashboardData() {
-      try {
+  const fetchDashboardData = useCallback(async (showSkeleton = true) => {
+    try {
+      if (showSkeleton) {
         setIsLoading(true);
-        const [kpiData, rideData, revenueData] = await Promise.all([
-          getDashboardKPIs(),
-          getRideTrends(),
-          getRevenueTrends(),
-        ]);
-        setKpis(kpiData);
-        setRideTrends(rideData);
-        setRevenueTrends(revenueData);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load dashboard data');
-      } finally {
-        setIsLoading(false);
+      } else {
+        setIsRefreshing(true);
       }
+      const allData = await getDashboardAll();
+      setData(allData);
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load dashboard data');
+    } finally {
+      setIsLoading(false);
+      setIsRefreshing(false);
     }
-
-    fetchDashboardData();
   }, []);
 
+  useEffect(() => {
+    fetchDashboardData(true);
+  }, [fetchDashboardData]);
+
+  const refresh = useCallback(() => {
+    return fetchDashboardData(false);
+  }, [fetchDashboardData]);
+
   return {
-    kpis,
-    rideTrends,
-    revenueTrends,
-    vehicleTypeBreakdown: [],
-    actionRequired: [],
-    liveActivity: [],
+    kpis: data?.kpis || null,
+    rideTrends: data?.rideTrends || null,
+    revenueTrends: data?.revenueTrends || null,
+    vehicleTypeBreakdown: data?.vehicleTypeBreakdown || [],
+    actionRequired: data?.actionRequired || [],
+    liveActivity: data?.liveActivity || [],
+    peakHours: data?.peakHours || null,
     isLoading,
+    isRefreshing,
     error,
+    refresh,
   };
 }

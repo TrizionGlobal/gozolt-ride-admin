@@ -5,7 +5,6 @@ import { VehicleType } from '@/types';
 import { TableCell, TableRow } from '@/components/ui/table';
 import { UserStatusBadge } from './user-status-badge';
 import { UserActionsMenu } from './user-actions-menu';
-import { PREFERRED_VEHICLE_DISPLAY } from '@/services/admin/user.types';
 import type { UserListItem } from '@/services/admin/user.types';
 
 interface UserTableRowProps {
@@ -18,8 +17,6 @@ interface UserTableRowProps {
 
 export function UserTableRow({ user, onBan, onForceLogout, onRefetch, onViewDetail }: UserTableRowProps) {
   const fullName = [user.firstName, user.lastName].filter(Boolean).join(' ') || 'Unknown User';
-  const preferredVehicle = user._computed?.preferredVehicle ?? VehicleType.STANDARD;
-  const vehicleDisplay = PREFERRED_VEHICLE_DISPLAY[preferredVehicle];
   const totalSpent = user._computed?.totalSpent ?? 0;
   const paymentMethod = user._computed?.paymentMethod ?? 'N/A';
   const lastRideDate = user._computed?.lastRideDate ?? '—';
@@ -34,12 +31,12 @@ export function UserTableRow({ user, onBan, onForceLogout, onRefetch, onViewDeta
         {user.displayId}
       </TableCell>
 
-      {/* Vehicle (preferred) */}
+      {/* User Info */}
       <TableCell>
         <div className="flex flex-col">
-          <span className="text-sm font-medium text-white">{vehicleDisplay.name}</span>
+          <span className="text-sm font-medium text-white">{fullName}</span>
           <span className="text-xs text-[#6B7280]">
-            {vehicleDisplay.year} &middot; {vehicleDisplay.color}
+            {user.email} &middot; {user.phone || 'No phone'}
           </span>
         </div>
       </TableCell>
@@ -53,7 +50,7 @@ export function UserTableRow({ user, onBan, onForceLogout, onRefetch, onViewDeta
       <TableCell>
         <span className="inline-flex items-center gap-1 text-sm text-white">
           <Star className="h-3.5 w-3.5 fill-[#FACC15] text-[#FACC15]" />
-          {user.avgRating.toFixed(1)}
+          {(user.avgRating ?? 0).toFixed(1)}
         </span>
       </TableCell>
 

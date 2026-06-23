@@ -28,8 +28,9 @@ export function DocumentReviewPanel({
     return `${(bytes / 1000).toFixed(0)} KB`;
   };
 
-  const metCount = detail.requirements.filter((r) => r.met).length;
-  const totalCount = detail.requirements.length;
+  const requirements = detail.requirements || [];
+  const metCount = requirements.filter((r) => r.met).length;
+  const totalCount = requirements.length;
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 p-4 border-t border-[#2A2A2A] bg-[#0A0A0A]/50">
@@ -55,10 +56,10 @@ export function DocumentReviewPanel({
           <div className="rounded-lg border border-[#2A2A2A] bg-[#141414] p-3 space-y-2">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-white">{detail.entity.name}</p>
-                <p className="text-xs text-[#6B7280]">{detail.entity.displayId}</p>
+                <p className="text-sm font-medium text-white">{detail.entity?.name || 'Unknown Entity'}</p>
+                <p className="text-xs text-[#6B7280]">{detail.entity?.displayId || (detail as any).entityId || 'N/A'}</p>
               </div>
-              <DocumentEntityBadge entityType={detail.entity.entityType} />
+              <DocumentEntityBadge entityType={detail.entity?.entityType || (detail as any).entityType || 'driver'} />
             </div>
             <div className="pt-2 border-t border-[#2A2A2A]">
               <p className="text-xs text-[#6B7280]">Document Type</p>
@@ -85,8 +86,8 @@ export function DocumentReviewPanel({
             Requirements ({metCount}/{totalCount})
           </p>
           <div className="rounded-lg border border-[#2A2A2A] bg-[#141414] p-3 space-y-2">
-            {detail.requirements.map((req, i) => (
-              <div key={i} className="flex items-center gap-2">
+            {requirements.map((req, i) => (
+              <div key={i} className="flex items-start gap-2">
                 {req.met ? (
                   <CheckCircle2 className="h-4 w-4 text-green-400 shrink-0" />
                 ) : (

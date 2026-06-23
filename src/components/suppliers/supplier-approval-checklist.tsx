@@ -25,7 +25,7 @@ interface SupplierApprovalChecklistProps {
 const CHECKLIST_ITEMS = [
   'All documents verified and valid',
   'Business license confirmed',
-  'Stripe account connected',
+  'Bank details verified',
   'Company information accurate',
 ];
 
