@@ -22,6 +22,7 @@ interface DocumentExpiredTableProps {
   loading: boolean;
   page: number;
   onPageChange: (page: number) => void;
+  onRowClick?: (id: string) => void;
 }
 
 export function DocumentExpiredTable({
@@ -29,6 +30,7 @@ export function DocumentExpiredTable({
   loading,
   page,
   onPageChange,
+  onRowClick,
 }: DocumentExpiredTableProps) {
   const handleSendReminder = async (docId: string, entityName: string) => {
     try {
@@ -78,7 +80,8 @@ export function DocumentExpiredTable({
           {data.data.map((doc) => (
             <TableRow
               key={doc.id}
-              className="border-b border-[#2A2A2A] hover:bg-[#1A1A1A]/50"
+              onClick={() => onRowClick?.(doc.id)}
+              className={`border-b border-[#2A2A2A] ${onRowClick ? 'cursor-pointer hover:bg-[#1A1A1A]/50' : 'hover:bg-[#1A1A1A]/50'}`}
             >
               <TableCell>
                 <div>
@@ -90,11 +93,11 @@ export function DocumentExpiredTable({
               </TableCell>
               <TableCell>
                 <div className="flex items-center gap-2">
-                  <div>
-                    <p className="text-sm text-white">{doc.entity.name}</p>
-                    <p className="text-xs text-[#6B7280]">{doc.entity.displayId}</p>
+                  <div className="flex flex-col gap-1">
+                    <p className="text-sm text-white">{doc.entity?.name || 'Unknown Entity'}</p>
+                    <p className="text-xs text-[#6B7280]">{doc.entity?.displayId || (doc as any).entityId || 'N/A'}</p>
                   </div>
-                  <DocumentEntityBadge entityType={doc.entity.entityType} />
+                  <DocumentEntityBadge entityType={doc.entity?.entityType || (doc as any).entityType || 'driver'} />
                 </div>
               </TableCell>
               <TableCell className="text-sm text-[#9CA3AF]">

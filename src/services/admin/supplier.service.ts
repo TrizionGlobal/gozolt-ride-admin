@@ -27,10 +27,10 @@ export const supplierService = {
 
   async getSupplierDocuments(supplierId: string): Promise<SupplierDocument[]> {
     try {
-      const { data } = await apiClient.get<SupplierDocument[]>(
+      const { data } = await apiClient.get<{ data: SupplierDocument[] }>(
         `/admin/documents?entityId=${supplierId}&entityType=SUPPLIER`,
       );
-      return data;
+      return Array.isArray(data) ? data : (data?.data ?? []);
     } catch {
       return [];
     }

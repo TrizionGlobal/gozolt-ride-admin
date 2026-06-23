@@ -113,6 +113,8 @@ export enum DocumentType {
   VEHICLE_PHOTO_INTERIOR = 'VEHICLE_PHOTO_INTERIOR',
   PROFILE_PHOTO = 'PROFILE_PHOTO',
   ID_CARD = 'ID_CARD',
+  PROOF_OF_ADDRESS = 'PROOF_OF_ADDRESS',
+  BANK_PROOF = 'BANK_PROOF',
 }
 
 // Shared pagination types

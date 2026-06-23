@@ -1,9 +1,6 @@
 import { apiClient } from '@/lib/api-client';
 import type {
   AdminUser,
-  SystemConfigItem,
-  LanguageConfig,
-  Integration,
   FeeConfig,
 } from './settings.types';
 import type { PricingRule, UpdatePricingPayload } from './pricing.types';
@@ -62,57 +59,6 @@ export const settingsService = {
       return data;
     } catch {
       return [];
-    }
-  },
-
-  // --- System Config ---
-  async getSystemConfig(): Promise<SystemConfigItem[]> {
-    try {
-      const { data } = await apiClient.get<SystemConfigItem[]>('/admin/settings');
-      return data;
-    } catch {
-      return [];
-    }
-  },
-
-  async updateSystemSetting(key: string, value: string | boolean): Promise<SystemConfigItem> {
-    const { data } = await apiClient.put<SystemConfigItem>(`/admin/settings/${key}`, { value });
-    return data;
-  },
-
-  // --- Language ---
-  async getLanguageConfig(): Promise<LanguageConfig> {
-    try {
-      const { data } = await apiClient.get<LanguageConfig>('/admin/settings/language_config');
-      return data;
-    } catch {
-      return { defaultLanguage: 'en', supportedLanguages: ['en'] };
-    }
-  },
-
-  async updateLanguageConfig(config: LanguageConfig): Promise<LanguageConfig> {
-    const { data } = await apiClient.put<LanguageConfig>('/admin/settings/language_config', config);
-    return data;
-  },
-
-  // --- Integrations ---
-  async getIntegrations(): Promise<Integration[]> {
-    try {
-      const { data } = await apiClient.get<Integration[]>('/admin/settings/integrations_config');
-      return data;
-    } catch {
-      return [];
-    }
-  },
-
-  async testIntegration(id: string): Promise<{ success: boolean }> {
-    try {
-      const { data } = await apiClient.post<{ success: boolean }>(
-        `/admin/settings/integrations/${id}/test`,
-      );
-      return data;
-    } catch {
-      return { success: false };
     }
   },
 };

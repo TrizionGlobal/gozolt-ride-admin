@@ -6,7 +6,18 @@ import { CancellationPolicyCard } from '@/components/pricing/cancellation-policy
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function PricingRulesPage() {
-  const { rule, loading, saving, updateRule } = usePricing();
+  const { rule, loading, error, saving, updateRule } = usePricing();
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-lg">
+          <p className="font-medium">Error Loading Pricing Rules</p>
+          <p className="text-sm mt-1">{error}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -25,10 +36,17 @@ export default function PricingRulesPage() {
       </div>
 
       {/* Cards */}
-      {loading || !rule ? (
+      {loading ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Skeleton className="h-80 rounded-lg bg-[#1A1A1A]" />
           <Skeleton className="h-48 rounded-lg bg-[#1A1A1A]" />
+        </div>
+      ) : !rule ? (
+        <div className="flex flex-col items-center justify-center h-96 border border-dashed border-[#2A2A2A] rounded-lg">
+          <h3 className="text-lg font-medium text-white">No Pricing Rules Found</h3>
+          <p className="text-sm text-[#6B7280] mt-1">
+            Please make sure the database is seeded with initial pricing rules for STANDARD vehicle types.
+          </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">

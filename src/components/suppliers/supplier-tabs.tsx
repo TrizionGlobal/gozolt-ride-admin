@@ -33,11 +33,6 @@ export function SupplierTabs({ activeTab, onTabChange, pendingCount }: SupplierT
         >
           <span className="flex items-center gap-2">
             {tab.label}
-            {tab.key === 'pending' && pendingCount > 0 && (
-              <span className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-[#FACC15] px-1.5 text-[10px] font-bold text-black">
-                {pendingCount}
-              </span>
-            )}
           </span>
           {/* Active underline */}
           {activeTab === tab.key && (

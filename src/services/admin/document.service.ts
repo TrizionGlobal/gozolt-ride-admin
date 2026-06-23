@@ -41,9 +41,9 @@ export const documentService = {
     return data;
   },
 
-  async getKpis(): Promise<DocumentKpis> {
+  async getKpis(entityType?: string): Promise<DocumentKpis> {
     try {
-      const { data } = await apiClient.get<DocumentKpis>('/admin/documents/kpis');
+      const { data } = await apiClient.get<DocumentKpis>('/admin/documents/kpis', { params: { entityType } });
       return data;
     } catch {
       return { pendingReview: 0, approved: 0, rejected: 0, expiringSoon: 0 };

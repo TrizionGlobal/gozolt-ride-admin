@@ -61,22 +61,28 @@ export function useDocumentDetail(id: string | null) {
   return { detail, loading, refetch: fetch };
 }
 
-export function useDocumentKpis() {
+export function useDocumentKpis(entityType?: string) {
   const [kpis, setKpis] = useState<DocumentKpis>({
     pendingReview: 0,
     approved: 0,
     rejected: 0,
     expiringSoon: 0,
   });
+  const [loading, setLoading] = useState(true);
 
   const refresh = useCallback(async () => {
-    const data = await documentService.getKpis();
-    setKpis(data);
-  }, []);
+    setLoading(true);
+    try {
+      const data = await documentService.getKpis(entityType);
+      setKpis(data);
+    } finally {
+      setLoading(false);
+    }
+  }, [entityType]);
 
   useEffect(() => {
     refresh();
   }, [refresh]);
 
-  return { kpis, refresh };
+  return { kpis, loading, refresh };
 }

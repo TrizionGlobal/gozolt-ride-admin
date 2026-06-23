@@ -6,6 +6,7 @@ import type { DocumentKpis } from '@/services/admin/document.types';
 
 interface DocumentKpiCardsProps {
   kpis: DocumentKpis;
+  loading?: boolean;
 }
 
 const kpiConfig = [
@@ -15,10 +16,8 @@ const kpiConfig = [
   { key: 'expiringSoon' as const, label: 'Expiring Soon', icon: AlertTriangle, color: 'text-orange-400' },
 ];
 
-export function DocumentKpiCards({ kpis }: DocumentKpiCardsProps) {
-  const isLoading = kpis.pendingReview === 0 && kpis.approved === 0 && kpis.rejected === 0 && kpis.expiringSoon === 0;
-
-  if (isLoading) {
+export function DocumentKpiCards({ kpis, loading }: DocumentKpiCardsProps) {
+  if (loading) {
     return (
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {Array.from({ length: 4 }).map((_, i) => (

@@ -56,16 +56,9 @@ export default function DriverManagementPage() {
     [activeTab, debouncedSearch, supplierId, page, limit, tabConfig],
   );
 
-  // Fetch pending count separately for the tab badge
-  const pendingParams: DriverFilterParams = useMemo(
-    () => ({ status: DriverStatus.SUPPLIER_APPROVED, page: 1, limit: 100 }),
-    [],
-  );
-
   const { data, loading, refetch } = useDrivers(params);
-  const { data: pendingData } = useDrivers(pendingParams);
   const { kpis, refresh: refreshKpis } = useDriverKpis();
-  const pendingCount = pendingData?.meta?.total ?? 0;
+  const pendingCount = kpis?.pendingApproval ?? 0;
 
   const handleTabChange = useCallback(
     (tab: DriverTab) => {

@@ -23,20 +23,25 @@ apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+    const status = error.response?.status;
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // Only attempt token refresh for genuine 401 Unauthorized errors
+    // Ignore 4xx errors like 400 Bad Request — those are not auth issues
+    if (status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
       try {
-        // Attempt to refresh the token via our Next.js API route
-        await axios.post('/api/auth/refresh');
+        // Attempt to refresh the access token via our Next.js API route.
+        // Must send withCredentials so the refresh token cookie is included.
+        await axios.post('/api/auth/refresh', {}, { withCredentials: true });
+        // Refresh succeeded — silently retry the original request with the new token
         return apiClient(originalRequest);
-      } catch {
-        // Refresh failed — redirect to login
+      } catch (refreshError: any) {
+        // Refresh token is expired/invalid — force logout
         if (typeof window !== 'undefined') {
           window.location.href = '/login';
         }
-        return Promise.reject(error);
+        return Promise.reject(refreshError);
       }
     }
 

@@ -29,7 +29,7 @@ export function FeeCard({ label, description, value, isEditing, onChange }: FeeC
           />
         ) : (
           <div className="pl-7 h-10 flex items-center bg-[#0A0A0A] rounded-md border border-[#2A2A2A] text-white text-sm">
-            {value.toFixed(2)}
+            {Number(value || 0).toFixed(2)}
           </div>
         )}
       </div>

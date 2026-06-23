@@ -100,7 +100,7 @@ export function UserTable({
         <TableHeader>
           <TableRow className="border-b border-[#2A2A2A] hover:bg-transparent">
             <TableHead className="text-[#9CA3AF] text-xs font-medium">ID</TableHead>
-            <TableHead className="text-[#9CA3AF] text-xs font-medium">Vehicle</TableHead>
+            <TableHead className="text-[#9CA3AF] text-xs font-medium">User</TableHead>
             <TableHead className="text-[#9CA3AF] text-xs font-medium">Status</TableHead>
             <TableHead className="text-[#9CA3AF] text-xs font-medium">Rating</TableHead>
             <TableHead className="text-[#9CA3AF] text-xs font-medium">Rides</TableHead>

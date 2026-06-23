@@ -55,7 +55,7 @@ export function DocumentPendingList({
       setApproving(true);
       try {
         await documentService.approveDocument(doc.id);
-        toast.success(`${doc.entity.name}'s document approved`);
+        toast.success(`${doc.entity?.name || 'Entity'}'s document approved`);
         setExpandedId(null);
         onMutationSuccess();
       } catch {

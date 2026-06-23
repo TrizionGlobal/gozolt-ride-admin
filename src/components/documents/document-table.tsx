@@ -20,8 +20,8 @@ interface DocumentTableProps {
   data: DocumentListResponse | null;
   loading: boolean;
   page: number;
-  onPageChange: (page: number) => void;
   variant: 'approved' | 'rejected';
+  onRowClick?: (id: string) => void;
 }
 
 export function DocumentTable({
@@ -30,6 +30,7 @@ export function DocumentTable({
   page,
   onPageChange,
   variant,
+  onRowClick,
 }: DocumentTableProps) {
   if (loading) {
     return (
@@ -74,7 +75,8 @@ export function DocumentTable({
           {data.data.map((doc) => (
             <TableRow
               key={doc.id}
-              className="border-b border-[#2A2A2A] hover:bg-[#1A1A1A]/50"
+              onClick={() => onRowClick?.(doc.id)}
+              className={`border-b border-[#2A2A2A] ${onRowClick ? 'cursor-pointer hover:bg-[#1A1A1A]/50' : 'hover:bg-[#1A1A1A]/50'}`}
             >
               <TableCell>
                 <div>
@@ -86,15 +88,15 @@ export function DocumentTable({
               </TableCell>
               <TableCell>
                 <div className="flex items-center gap-2">
-                  <div>
-                    <p className="text-sm text-white">{doc.entity.name}</p>
-                    <p className="text-xs text-[#6B7280]">{doc.entity.displayId}</p>
+                  <div className="flex flex-col gap-1">
+                    <p className="text-sm text-white">{doc.entity?.name || 'Unknown Entity'}</p>
+                    <p className="text-xs text-[#6B7280]">{doc.entity?.displayId || (doc as any).entityId || 'N/A'}</p>
                   </div>
-                  <DocumentEntityBadge entityType={doc.entity.entityType} />
+                  <DocumentEntityBadge entityType={doc.entity?.entityType || (doc as any).entityType || 'driver'} />
                 </div>
               </TableCell>
               <TableCell>
-                <DocumentEntityBadge entityType={doc.entity.entityType} />
+                <DocumentEntityBadge entityType={doc.entity?.entityType || (doc as any).entityType || 'driver'} />
               </TableCell>
               <TableCell>
                 <DocumentStatusBadge status={doc.status} />

@@ -15,9 +15,12 @@ export function PricingFieldRow({
   isEditing,
   onChange,
 }: PricingFieldRowProps) {
-  const formatValue = (val: number) => {
-    if (unit === 'min') return val.toString();
-    return val.toFixed(2);
+  const formatValue = (val: any) => {
+    if (val == null) return '0.00';
+    const num = typeof val === 'number' ? val : Number(val);
+    if (isNaN(num)) return '0.00';
+    if (unit === 'min') return num.toString();
+    return num.toFixed(2);
   };
 
   return (

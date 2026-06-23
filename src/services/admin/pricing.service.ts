@@ -6,8 +6,9 @@ export const pricingService = {
     try {
       const { data } = await apiClient.get<PricingRule[]>('/admin/pricing');
       return data;
-    } catch {
-      return [];
+    } catch (error) {
+      console.error('Failed to get pricing rules:', error);
+      throw error;
     }
   },
 
