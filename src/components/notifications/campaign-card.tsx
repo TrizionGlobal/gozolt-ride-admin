@@ -13,7 +13,6 @@ import {
 
 interface CampaignCardProps {
   campaign: NotificationCampaign;
-  onDuplicate: (id: string) => Promise<NotificationCampaign>;
   onDelete: (id: string) => Promise<void>;
 }
 
@@ -27,7 +26,7 @@ function formatDate(dateStr: string): string {
   return `${year}-${month}-${day} ${hours}:${mins}`;
 }
 
-export function CampaignCard({ campaign, onDuplicate, onDelete }: CampaignCardProps) {
+export function CampaignCard({ campaign, onDelete }: CampaignCardProps) {
   const [expanded, setExpanded] = useState(false);
 
   const audienceText = getAudienceDisplay(campaign);
@@ -76,7 +75,6 @@ export function CampaignCard({ campaign, onDuplicate, onDelete }: CampaignCardPr
       {expanded && (
         <CampaignCardExpanded
           campaign={campaign}
-          onDuplicate={onDuplicate}
           onDelete={onDelete}
         />
       )}

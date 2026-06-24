@@ -15,7 +15,7 @@ export function RideActiveCard({ ride, isSelected, onSelect }: RideActiveCardPro
   const driverName = ride.driver
     ? `${ride.driver.firstName} ${ride.driver.lastName}`
     : '—';
-  const fare = ride.actualFare ?? ride.estimatedFare;
+  const fare = Number(ride.actualFare ?? ride.estimatedFare ?? 0);
 
   return (
     <button

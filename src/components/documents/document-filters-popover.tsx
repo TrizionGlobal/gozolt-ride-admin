@@ -60,10 +60,9 @@ export function DocumentFiltersPopover({
           onChange={(e) => setLocalSortBy(e.target.value)}
           className="w-full h-9 rounded-md border border-[#2A2A2A] bg-[#141414] px-3 text-sm text-white focus:border-[#FACC15] focus:outline-none focus:ring-1 focus:ring-[#FACC15]/20"
         >
-          <option value="">Default</option>
-          <option value="newest">Newest First</option>
-          <option value="oldest">Oldest First</option>
-          <option value="entity">Entity Name</option>
+          <option value="">Default (Submitted)</option>
+          <option value="type:asc">Documents</option>
+          <option value="supplier:asc">Supplier</option>
         </select>
       </div>
 

@@ -95,6 +95,7 @@ export interface RideFilterParams extends PaginatedQuery {
   driverId?: string;
   userId?: string;
   disputed?: boolean;
+  isActive?: boolean;
   from?: string;
   to?: string;
 }

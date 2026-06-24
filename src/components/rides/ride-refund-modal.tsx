@@ -35,7 +35,7 @@ export function RideRefundModal({
   onSuccess,
 }: RideRefundModalProps) {
   const [refundType, setRefundType] = useState<RefundType>('full');
-  const [amount, setAmount] = useState(fare.toFixed(2));
+  const [amount, setAmount] = useState(Number(fare).toFixed(2));
   const [reason, setReason] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
@@ -45,7 +45,7 @@ export function RideRefundModal({
   const handleTypeChange = (type: RefundType) => {
     setRefundType(type);
     if (type === 'full') {
-      setAmount(fare.toFixed(2));
+      setAmount(Number(fare).toFixed(2));
     }
   };
 
@@ -57,10 +57,10 @@ export function RideRefundModal({
         amount: numAmount,
         reason: reason.trim(),
       });
-      toast.success(`Refund of €${numAmount.toFixed(2)} processed for ${rideDisplayId}`);
+      toast.success(`Refund of €${Number(numAmount).toFixed(2)} processed for ${rideDisplayId}`);
       onOpenChange(false);
       setRefundType('full');
-      setAmount(fare.toFixed(2));
+      setAmount(Number(fare).toFixed(2));
       setReason('');
       onSuccess();
     } catch {
@@ -73,7 +73,7 @@ export function RideRefundModal({
   const handleCancel = () => {
     onOpenChange(false);
     setRefundType('full');
-    setAmount(fare.toFixed(2));
+    setAmount(Number(fare).toFixed(2));
     setReason('');
   };
 

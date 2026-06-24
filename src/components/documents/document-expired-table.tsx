@@ -22,7 +22,6 @@ interface DocumentExpiredTableProps {
   loading: boolean;
   page: number;
   onPageChange: (page: number) => void;
-  onRowClick?: (id: string) => void;
 }
 
 export function DocumentExpiredTable({
@@ -30,7 +29,6 @@ export function DocumentExpiredTable({
   loading,
   page,
   onPageChange,
-  onRowClick,
 }: DocumentExpiredTableProps) {
   const handleSendReminder = async (docId: string, entityName: string) => {
     try {
@@ -70,7 +68,7 @@ export function DocumentExpiredTable({
         <TableHeader>
           <TableRow className="border-b border-[#2A2A2A] hover:bg-transparent">
             <TableHead className="text-[#9CA3AF] text-xs font-medium">Document</TableHead>
-            <TableHead className="text-[#9CA3AF] text-xs font-medium">Entity</TableHead>
+            <TableHead className="text-[#9CA3AF] text-xs font-medium">Supplier</TableHead>
             <TableHead className="text-[#9CA3AF] text-xs font-medium">Expired On</TableHead>
             <TableHead className="text-[#9CA3AF] text-xs font-medium">Status</TableHead>
             <TableHead className="text-[#9CA3AF] text-xs font-medium">Actions</TableHead>
@@ -80,22 +78,20 @@ export function DocumentExpiredTable({
           {data.data.map((doc) => (
             <TableRow
               key={doc.id}
-              onClick={() => onRowClick?.(doc.id)}
-              className={`border-b border-[#2A2A2A] ${onRowClick ? 'cursor-pointer hover:bg-[#1A1A1A]/50' : 'hover:bg-[#1A1A1A]/50'}`}
+              onClick={() => window.open(doc.fileUrl, '_blank')}
+              className="border-b border-[#2A2A2A] cursor-pointer hover:bg-[#1A1A1A]/50"
             >
               <TableCell>
                 <div>
                   <p className="text-sm font-medium text-white">
                     {getDocumentTypeDisplay(doc.type)}
                   </p>
-                  <p className="text-xs text-[#6B7280]">{doc.fileName}</p>
                 </div>
               </TableCell>
               <TableCell>
                 <div className="flex items-center gap-2">
                   <div className="flex flex-col gap-1">
-                    <p className="text-sm text-white">{doc.entity?.name || 'Unknown Entity'}</p>
-                    <p className="text-xs text-[#6B7280]">{doc.entity?.displayId || (doc as any).entityId || 'N/A'}</p>
+                    <p className="text-sm text-white">{doc.entity?.name !== 'Unknown Entity' ? doc.entity?.name : 'Supplier'}</p>
                   </div>
                   <DocumentEntityBadge entityType={doc.entity?.entityType || (doc as any).entityType || 'driver'} />
                 </div>
@@ -104,7 +100,7 @@ export function DocumentExpiredTable({
                 {doc.expiresAt
                   ? new Date(doc.expiresAt).toLocaleDateString('en-GB', {
                       day: '2-digit',
-                      month: 'short',
+                      month: '2-digit',
                       year: 'numeric',
                     })
                   : '—'}

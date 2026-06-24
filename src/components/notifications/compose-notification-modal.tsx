@@ -40,11 +40,12 @@ export function ComposeNotificationModal({
   const [body, setBody] = useState('');
   const [channels, setChannels] = useState<NotificationChannel[]>([]);
   const [audience, setAudience] = useState<CampaignAudience>('ALL_DRIVERS');
-  const [scheduledAt, setScheduledAt] = useState('');
+  const [scheduleDate, setScheduleDate] = useState('');
+  const [scheduleTime, setScheduleTime] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   const canSubmit = title.trim() && body.trim() && channels.length > 0 && !submitting;
-  const isScheduled = !!scheduledAt;
+  const isScheduled = !!(scheduleDate && scheduleTime);
 
   const toggleChannel = (ch: NotificationChannel) => {
     setChannels((prev) =>
@@ -57,7 +58,8 @@ export function ComposeNotificationModal({
     setBody('');
     setChannels([]);
     setAudience('ALL_DRIVERS');
-    setScheduledAt('');
+    setScheduleDate('');
+    setScheduleTime('');
   };
 
   const handleSubmit = async () => {
@@ -65,13 +67,18 @@ export function ComposeNotificationModal({
     setSubmitting(true);
 
     try {
+      let finalScheduledAt = null;
+      if (scheduleDate && scheduleTime) {
+        finalScheduledAt = new Date(`${scheduleDate}T${scheduleTime}`).toISOString();
+      }
+
       const payload: CreateCampaignPayload = {
         title: title.trim(),
         body: body.trim(),
-        type: 'GENERAL',
+        type: 'SYSTEM',
         channels,
         targetAudience: audience,
-        scheduledAt: scheduledAt ? new Date(scheduledAt).toISOString() : null,
+        scheduledAt: finalScheduledAt,
       };
 
       await onCreate(payload);
@@ -135,7 +142,7 @@ export function ComposeNotificationModal({
                     key={opt.value}
                     type="button"
                     onClick={() => toggleChannel(opt.value)}
-                    className={`flex-1 h-10 rounded-md text-sm font-medium transition-colors ${
+                    className={`flex-1 h-8 rounded-md text-xs font-medium transition-colors ${
                       selected
                         ? 'bg-[#FACC15] text-black'
                         : 'border border-[#2A2A2A] bg-[#141414] text-[#9CA3AF] hover:text-white'
@@ -167,12 +174,20 @@ export function ComposeNotificationModal({
           {/* Schedule */}
           <div className="space-y-2">
             <label className={labelClass}>Schedule (optional)</label>
-            <input
-              type="datetime-local"
-              value={scheduledAt}
-              onChange={(e) => setScheduledAt(e.target.value)}
-              className={inputClass}
-            />
+            <div className="flex gap-2">
+              <input
+                type="date"
+                value={scheduleDate}
+                onChange={(e) => setScheduleDate(e.target.value)}
+                className={`${inputClass} flex-1 appearance-none`}
+              />
+              <input
+                type="time"
+                value={scheduleTime}
+                onChange={(e) => setScheduleTime(e.target.value)}
+                className={`${inputClass} flex-1 appearance-none`}
+              />
+            </div>
             <p className="text-xs text-[#6B7280]">
               {isScheduled
                 ? 'Campaign will be sent at the scheduled time'

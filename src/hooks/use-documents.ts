@@ -25,7 +25,7 @@ export function useDocuments(params: DocumentFilterParams) {
     } finally {
       setLoading(false);
     }
-  }, [params.status, params.entityType, params.documentType, params.search, params.page, params.limit]);
+  }, [params.status, params.entityType, params.documentType, params.search, params.page, params.limit, params.sortBy, params.order]);
 
   useEffect(() => {
     fetch();

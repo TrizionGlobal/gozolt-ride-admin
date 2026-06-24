@@ -51,8 +51,13 @@ export interface VehicleDetail extends Omit<VehicleListItem, 'supplier' | 'assig
       phone: string;
     };
   } | null;
+  documents: {
+    id: string;
+    type: string;
+    url: string;
+    status: string;
+  }[];
   _count: {
-    documents: number;
     maintenanceLogs: number;
   };
 }

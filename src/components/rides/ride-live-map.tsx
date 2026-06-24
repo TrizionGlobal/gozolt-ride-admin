@@ -65,7 +65,7 @@ export function RideLiveMap({ rides }: RideLiveMapProps) {
 
         {/* Ride markers */}
         {rides.map((ride) => {
-          const { x, y } = latLngToPercent(ride.pickupLat, ride.pickupLng);
+          const { x, y } = latLngToPercent(Number(ride.pickupLat || 0), Number(ride.pickupLng || 0));
           const color = getMarkerColor(ride.status);
           return (
             <div

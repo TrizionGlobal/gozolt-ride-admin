@@ -1,9 +1,9 @@
 'use client';
 
-import { Search, SlidersHorizontal } from 'lucide-react';
+import { Search, SlidersHorizontal, Download } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export type UserTab = 'all' | 'active' | 'inactive' | 'banned';
+export type UserTab = 'all' | 'active' | 'deleted' | 'suspended';
 
 interface UserTabsProps {
   activeTab: UserTab;
@@ -11,14 +11,14 @@ interface UserTabsProps {
   bannedCount: number;
   search: string;
   onSearchChange: (value: string) => void;
-  onFiltersClick: () => void;
+  onExport: () => void;
 }
 
 const tabs: { key: UserTab; label: string }[] = [
-  { key: 'all', label: 'All users' },
+  { key: 'all', label: 'All Users' },
   { key: 'active', label: 'Active' },
-  { key: 'inactive', label: 'Inactive' },
-  { key: 'banned', label: 'Banned' },
+  { key: 'deleted', label: 'Deleted' },
+  { key: 'suspended', label: 'Suspended' },
 ];
 
 export function UserTabs({
@@ -27,7 +27,7 @@ export function UserTabs({
   bannedCount,
   search,
   onSearchChange,
-  onFiltersClick,
+  onExport,
 }: UserTabsProps) {
   return (
     <div className="flex items-center justify-between gap-4">
@@ -46,11 +46,11 @@ export function UserTabs({
           >
             <span className="flex items-center gap-1.5">
               {tab.label}
-              {tab.key === 'banned' && bannedCount > 0 && (
+              {tab.key === 'suspended' && bannedCount > 0 && (
                 <span
                   className={cn(
                     'inline-flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-[10px] font-bold',
-                    activeTab === 'banned'
+                    activeTab === 'suspended'
                       ? 'bg-black/20 text-black'
                       : 'bg-[#FACC15] text-black',
                   )}
@@ -76,11 +76,11 @@ export function UserTabs({
           />
         </div>
         <button
-          onClick={onFiltersClick}
+          onClick={onExport}
           className="flex items-center gap-2 rounded-md border border-[#2A2A2A] bg-[#141414] px-3 h-9 text-sm text-[#9CA3AF] hover:text-white hover:border-[#3A3A3A] transition-colors"
         >
-          <SlidersHorizontal className="h-4 w-4" />
-          Filters
+          <Download className="h-4 w-4" />
+          Export
         </button>
       </div>
     </div>

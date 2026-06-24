@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Loader2, AlertTriangle } from 'lucide-react';
+import { Loader2, Info } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -53,9 +53,9 @@ export function DocumentRejectModal({
     if (!canSubmit) return;
     setSubmitting(true);
     try {
-      await documentService.rejectDocument(documentId, {
-        reason,
-        details: details.trim() || undefined,
+      await documentService.reviewDocument(documentId, {
+        approved: false,
+        reason: reason + (details.trim() ? ` - ${details.trim()}` : ''),
       });
       toast.success(`Document rejected for ${entityName}`);
       onOpenChange(false);
@@ -94,9 +94,9 @@ export function DocumentRejectModal({
               </p>
             </div>
             <div>
-              <p className="text-sm text-[#9CA3AF]">Entity</p>
+              <p className="text-sm text-[#9CA3AF]">Supplier</p>
               <p className="text-sm font-medium text-white mt-0.5">
-                {entityName} ({entityDisplayId})
+                {entityName}
               </p>
             </div>
           </div>
@@ -132,10 +132,10 @@ export function DocumentRejectModal({
             />
           </div>
 
-          <div className="flex items-start gap-2 rounded-lg bg-red-950/20 border border-red-800/30 p-3">
-            <AlertTriangle className="h-4 w-4 text-red-400 shrink-0 mt-0.5" />
-            <p className="text-xs text-red-400/80">
-              The entity will be notified of the rejection and will need to re-upload the document.
+          <div className="flex items-start gap-2 rounded-lg bg-blue-950/20 border border-blue-800/30 p-3">
+            <Info className="h-4 w-4 text-blue-400 shrink-0 mt-0.5" />
+            <p className="text-xs text-blue-400/80">
+              The supplier will be notified of the rejection and will need to re-upload the document.
             </p>
           </div>
         </div>

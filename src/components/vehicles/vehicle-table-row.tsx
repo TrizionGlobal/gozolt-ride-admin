@@ -19,9 +19,10 @@ interface VehicleTableRowProps {
   onSuspend: (id: string) => void;
   onReject: (id: string) => void;
   onRefetch: () => void;
+  onViewDetail: (id: string) => void;
 }
 
-export function VehicleTableRow({ vehicle, onSuspend, onReject, onRefetch }: VehicleTableRowProps) {
+export function VehicleTableRow({ vehicle, onSuspend, onReject, onRefetch, onViewDetail }: VehicleTableRowProps) {
   const driverName = vehicle.assignment
     ? `${vehicle.assignment.driver.firstName} ${vehicle.assignment.driver.lastName}`
     : null;
@@ -89,6 +90,7 @@ export function VehicleTableRow({ vehicle, onSuspend, onReject, onRefetch }: Veh
           onSuspend={() => onSuspend(vehicle.id)}
           onReject={() => onReject(vehicle.id)}
           onRefetch={onRefetch}
+          onViewDetail={() => onViewDetail(vehicle.id)}
         />
       </TableCell>
     </TableRow>

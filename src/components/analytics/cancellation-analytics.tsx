@@ -1,9 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { XCircle } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { analyticsService } from '@/services/admin/analytics.service';
 import type { CancellationAnalytics as CancellationData } from '@/services/admin/analytics.types';
 
 const ACTOR_COLORS: Record<string, string> = {
@@ -18,16 +16,12 @@ const ACTOR_LABELS: Record<string, string> = {
   SYSTEM: 'System',
 };
 
-export function CancellationAnalytics() {
-  const [data, setData] = useState<CancellationData | null>(null);
-  const [loading, setLoading] = useState(true);
+interface CancellationAnalyticsProps {
+  data?: CancellationData | null;
+  loading?: boolean;
+}
 
-  useEffect(() => {
-    analyticsService.getCancellationAnalytics().then((d) => {
-      setData(d);
-      setLoading(false);
-    });
-  }, []);
+export function CancellationAnalytics({ data, loading }: CancellationAnalyticsProps) {
 
   if (loading) {
     return (

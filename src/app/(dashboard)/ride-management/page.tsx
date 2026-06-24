@@ -3,10 +3,11 @@
 import { useState, useCallback, useMemo } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { RideStatus } from '@/types';
+import { exportToCSV } from '@/lib/export-csv';
 import { sanitizeSearchQuery } from '@/lib/sanitize';
 import { useRides } from '@/hooks/use-rides';
 import { RideTabs, type RideTab } from '@/components/rides/ride-tabs';
-import { RideLiveView } from '@/components/rides/ride-live-view';
+import { useDebounce } from '@/hooks/use-debounce';
 import { RideTable } from '@/components/rides/ride-table';
 import { RideRefundModal } from '@/components/rides/ride-refund-modal';
 import { RideDisputeModal } from '@/components/rides/ride-dispute-modal';
@@ -19,11 +20,13 @@ export default function RideManagementPage() {
   const searchParams = useSearchParams();
 
   // Tab state from URL
-  const tabParam = (searchParams.get('tab') as RideTab) || 'active';
-  const activeTab = (VALID_TABS.includes(tabParam) ? tabParam : 'active') as RideTab;
+  const tabParam = (searchParams.get('tab') as RideTab) || 'all';
+  const activeTab = (VALID_TABS.includes(tabParam) ? tabParam : 'all') as RideTab;
 
   const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(20);
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 500);
 
   // Refund modal state
   const [refundModal, setRefundModal] = useState<{
@@ -43,18 +46,48 @@ export default function RideManagementPage() {
 
   // Build filter params for table tabs
   const params: RideFilterParams | null = useMemo(() => {
-    if (activeTab === 'active') return null; // Not used for live view
     const base: RideFilterParams = {
-      search: search || undefined,
+      search: debouncedSearch || undefined,
       page,
-      limit: 20,
+      limit,
     };
+    if (activeTab === 'active') base.isActive = true;
     if (activeTab === 'cancelled') base.status = RideStatus.CANCELLED;
     if (activeTab === 'disputed') base.disputed = true;
     return base;
-  }, [activeTab, search, page]);
+  }, [activeTab, debouncedSearch, page, limit]);
 
   const { data, loading, refetch } = useRides(params);
+
+  const handleExport = useCallback(() => {
+    if (!data?.data) return;
+    const rows = data.data.map((r) => ({
+      id: r._displayId,
+      passenger: [r.user.firstName, r.user.lastName].filter(Boolean).join(' '),
+      driver: r.driver ? `${r.driver.firstName} ${r.driver.lastName}` : '',
+      vehicleType: r.vehicleType,
+      status: r.status,
+      fare: r.actualFare ?? r.estimatedFare,
+      tip: r.tip?.amount ?? 0,
+      paymentMethod: r.paymentMethod,
+      date: r.requestedAt,
+    }));
+    exportToCSV(
+      rows,
+      [
+        { key: 'id', label: 'ID' },
+        { key: 'passenger', label: 'Passenger' },
+        { key: 'driver', label: 'Driver' },
+        { key: 'vehicleType', label: 'Vehicle Type' },
+        { key: 'status', label: 'Status' },
+        { key: 'fare', label: 'Fare' },
+        { key: 'tip', label: 'Tip' },
+        { key: 'paymentMethod', label: 'Payment Method' },
+        { key: 'date', label: 'Date' },
+      ],
+      'rides'
+    );
+  }, [data]);
 
   const handleTabChange = useCallback(
     (tab: RideTab) => {
@@ -132,13 +165,18 @@ export default function RideManagementPage() {
         onTabChange={handleTabChange}
         search={search}
         onSearchChange={handleSearchChange}
+        onExport={handleExport}
       />
 
       {/* Content — different per tab */}
       {activeTab === 'active' && (
-        <RideLiveView
-          onIssueRefund={handleIssueRefund}
-          onFlagDispute={handleFlagDispute}
+        <RideTable
+          data={data}
+          loading={loading}
+          page={page}
+          limit={limit}
+          onPageChange={setPage}
+          onLimitChange={setLimit}
         />
       )}
 
@@ -147,7 +185,9 @@ export default function RideManagementPage() {
           data={data}
           loading={loading}
           page={page}
+          limit={limit}
           onPageChange={setPage}
+          onLimitChange={setLimit}
         />
       )}
 
@@ -156,7 +196,9 @@ export default function RideManagementPage() {
           data={data}
           loading={loading}
           page={page}
+          limit={limit}
           onPageChange={setPage}
+          onLimitChange={setLimit}
         />
       )}
 
@@ -165,7 +207,9 @@ export default function RideManagementPage() {
           data={data}
           loading={loading}
           page={page}
+          limit={limit}
           onPageChange={setPage}
+          onLimitChange={setLimit}
         />
       )}
 

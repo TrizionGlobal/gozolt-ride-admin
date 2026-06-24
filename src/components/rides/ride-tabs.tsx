@@ -1,6 +1,6 @@
 'use client';
 
-import { Search } from 'lucide-react';
+import { Search, Download } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export type RideTab = 'active' | 'all' | 'cancelled' | 'disputed';
@@ -10,11 +10,12 @@ interface RideTabsProps {
   onTabChange: (tab: RideTab) => void;
   search: string;
   onSearchChange: (value: string) => void;
+  onExport: () => void;
 }
 
 const tabs: { key: RideTab; label: string }[] = [
-  { key: 'active', label: 'Active (Live)' },
   { key: 'all', label: 'All Rides' },
+  { key: 'active', label: 'Active' },
   { key: 'cancelled', label: 'Cancelled' },
   { key: 'disputed', label: 'Disputed' },
 ];
@@ -24,6 +25,7 @@ export function RideTabs({
   onTabChange,
   search,
   onSearchChange,
+  onExport,
 }: RideTabsProps) {
   return (
     <div className="flex items-center justify-between gap-4">
@@ -45,16 +47,25 @@ export function RideTabs({
         ))}
       </div>
 
-      {/* Search */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#6B7280]" />
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => onSearchChange(e.target.value)}
-          placeholder="Search reservation..."
-          className="h-9 w-64 rounded-md border border-[#2A2A2A] bg-[#141414] pl-9 pr-3 text-sm text-white placeholder:text-[#6B7280] focus:border-[#FACC15] focus:outline-none focus:ring-1 focus:ring-[#FACC15]/20"
-        />
+      {/* Search and Export */}
+      <div className="flex items-center gap-3">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#6B7280]" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => onSearchChange(e.target.value)}
+            placeholder="Search reservation..."
+            className="h-9 w-64 rounded-md border border-[#2A2A2A] bg-[#141414] pl-9 pr-3 text-sm text-white placeholder:text-[#6B7280] focus:border-[#FACC15] focus:outline-none focus:ring-1 focus:ring-[#FACC15]/20"
+          />
+        </div>
+        <button
+          onClick={onExport}
+          className="h-9 px-4 rounded-md border border-[#2A2A2A] bg-[#0A0A0A] text-sm font-medium text-white hover:bg-[#1A1A1A] transition-colors flex items-center gap-2"
+        >
+          <Download className="h-4 w-4" />
+          Export
+        </button>
       </div>
     </div>
   );

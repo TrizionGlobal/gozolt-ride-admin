@@ -16,7 +16,7 @@ export default function NotificationsPage() {
   const [search, setSearch] = useState('');
   const [composeOpen, setComposeOpen] = useState(false);
 
-  const { campaigns, loading, createCampaign, deleteCampaign, duplicateCampaign } = useCampaigns(
+  const { campaigns, loading, createCampaign, deleteCampaign } = useCampaigns(
     activeTab,
     search,
   );
@@ -59,7 +59,6 @@ export default function NotificationsPage() {
       <CampaignCardList
         campaigns={campaigns}
         loading={loading}
-        onDuplicate={duplicateCampaign}
         onDelete={deleteCampaign}
       />
 

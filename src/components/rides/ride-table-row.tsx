@@ -1,6 +1,7 @@
 'use client';
 
 import { TableCell, TableRow } from '@/components/ui/table';
+import { Eye } from 'lucide-react';
 import { RideStatusBadge } from './ride-status-badge';
 import { RideTypeBadge } from './ride-type-badge';
 import type { RideListItem } from '@/services/admin/ride.types';
@@ -24,7 +25,7 @@ export function RideTableRow({ ride }: RideTableRowProps) {
     ? `${ride.driver.firstName} ${ride.driver.lastName}`
     : '—';
   const supplierName = ride._supplierName ?? '—';
-  const fare = ride.actualFare ?? ride.estimatedFare;
+  const fare = Number(ride.actualFare ?? ride.estimatedFare ?? 0);
   const payment = ride.driver ? (ride.paymentMethod === 'CARD' ? 'Card' : ride.paymentMethod === 'CASH' ? 'Cash' : 'Wallet') : '—';
   const duration = ride.durationMinutes ? `${ride.durationMinutes} min` : '—';
 
@@ -54,6 +55,11 @@ export function RideTableRow({ ride }: RideTableRowProps) {
       <TableCell className="text-sm text-white">&euro;{fare.toFixed(2)}</TableCell>
       <TableCell className="text-sm text-[#9CA3AF]">{payment}</TableCell>
       <TableCell className="text-sm text-[#9CA3AF]">{duration}</TableCell>
+      <TableCell className="text-center">
+        <button className="text-[#38BDF8] hover:text-[#7DD3FC] transition-colors p-1">
+          <Eye className="h-4 w-4" />
+        </button>
+      </TableCell>
     </TableRow>
   );
 }

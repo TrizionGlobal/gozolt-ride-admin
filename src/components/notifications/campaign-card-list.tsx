@@ -7,14 +7,12 @@ import type { NotificationCampaign } from '@/services/admin/notification.types';
 interface CampaignCardListProps {
   campaigns: NotificationCampaign[];
   loading: boolean;
-  onDuplicate: (id: string) => Promise<NotificationCampaign>;
   onDelete: (id: string) => Promise<void>;
 }
 
 export function CampaignCardList({
   campaigns,
   loading,
-  onDuplicate,
   onDelete,
 }: CampaignCardListProps) {
   if (loading) {
@@ -41,7 +39,6 @@ export function CampaignCardList({
         <CampaignCard
           key={campaign.id}
           campaign={campaign}
-          onDuplicate={onDuplicate}
           onDelete={onDelete}
         />
       ))}

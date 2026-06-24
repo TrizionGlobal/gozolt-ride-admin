@@ -1,8 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight, Download } from 'lucide-react';
-import { exportToCSV } from '@/lib/export-csv';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
@@ -66,48 +65,20 @@ export function UserTable({
   const start = (meta.page - 1) * meta.limit + 1;
   const end = Math.min(meta.page * meta.limit, meta.total);
 
-  const handleExport = () => {
-    const rows = data.data.map((u) => ({
-      name: [u.firstName, u.lastName].filter(Boolean).join(' '),
-      phone: u.phone ?? '',
-      rides: u._count?.rides ?? 0,
-      rating: u.avgRating ?? 0,
-      status: u.status,
-      date: u.createdAt,
-    }));
-    exportToCSV(rows, [
-      { key: 'name', label: 'Name' },
-      { key: 'phone', label: 'Phone' },
-      { key: 'rides', label: 'Rides' },
-      { key: 'rating', label: 'Rating' },
-      { key: 'status', label: 'Status' },
-      { key: 'date', label: 'Date' },
-    ], 'users');
-  };
-
   return (
     <div>
-      <div className="flex items-center justify-end px-4 py-2 border-b border-[#2A2A2A]">
-        <button
-          onClick={handleExport}
-          className="border border-[#2A2A2A] bg-[#0A0A0A] px-3 py-1.5 rounded-lg text-xs text-[#9CA3AF] hover:bg-[#1A1A1A] hover:text-white flex items-center gap-1.5"
-        >
-          <Download className="h-3.5 w-3.5" />
-          Export
-        </button>
-      </div>
       <Table>
         <TableHeader>
           <TableRow className="border-b border-[#2A2A2A] hover:bg-transparent">
-            <TableHead className="text-[#9CA3AF] text-xs font-medium">ID</TableHead>
             <TableHead className="text-[#9CA3AF] text-xs font-medium">User</TableHead>
+            <TableHead className="text-[#9CA3AF] text-xs font-medium">Mobile</TableHead>
             <TableHead className="text-[#9CA3AF] text-xs font-medium">Status</TableHead>
             <TableHead className="text-[#9CA3AF] text-xs font-medium">Rating</TableHead>
             <TableHead className="text-[#9CA3AF] text-xs font-medium">Rides</TableHead>
             <TableHead className="text-[#9CA3AF] text-xs font-medium">Spent</TableHead>
             <TableHead className="text-[#9CA3AF] text-xs font-medium">Payments</TableHead>
             <TableHead className="text-[#9CA3AF] text-xs font-medium">Last Ride</TableHead>
-            <TableHead className="text-[#9CA3AF] text-xs font-medium">Actions</TableHead>
+            <TableHead className="text-[#9CA3AF] text-xs font-medium text-center">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

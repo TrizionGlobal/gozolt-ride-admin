@@ -1,148 +1,126 @@
 'use client';
 
-import { ChevronLeft, ChevronRight, Download } from 'lucide-react';
-import { exportToCSV } from '@/lib/export-csv';
+import { Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
-import {
-  Table,
-  TableBody,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { RideTableRow } from './ride-table-row';
-import type { RideListResponse } from '@/services/admin/ride.types';
+import { ServerSideTable, type ColumnDef } from '@/components/ui/server-side-table';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { RideStatusBadge } from './ride-status-badge';
+import { RideTypeBadge } from './ride-type-badge';
+import type { RideListResponse, RideListItem } from '@/services/admin/ride.types';
+
+function formatDate(iso: string): string {
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-GB', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }) + ' ' + d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+}
 
 interface RideTableProps {
   data: RideListResponse | null;
   loading: boolean;
   page: number;
+  limit: number;
   onPageChange: (page: number) => void;
+  onLimitChange: (limit: number) => void;
 }
 
 export function RideTable({
   data,
   loading,
   page,
+  limit,
   onPageChange,
+  onLimitChange,
 }: RideTableProps) {
-  if (loading) {
-    return (
-      <div className="space-y-3">
-        {Array.from({ length: 8 }).map((_, i) => (
-          <Skeleton key={i} className="h-12 w-full bg-[#1A1A1A]" />
-        ))}
-      </div>
-    );
-  }
-
-  if (!data || data.data.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center py-12 text-center">
-        <p className="text-sm text-[#6B7280]">No rides found</p>
-        <p className="text-xs text-[#4B5563] mt-1">Try adjusting your filters</p>
-      </div>
-    );
-  }
-
-  const { meta } = data;
-  const start = (meta.page - 1) * meta.limit + 1;
-  const end = Math.min(meta.page * meta.limit, meta.total);
-
-  const handleExport = () => {
-    const rows = data.data.map((r) => ({
-      id: r._displayId,
-      passenger: [r.user.firstName, r.user.lastName].filter(Boolean).join(' '),
-      driver: r.driver ? `${r.driver.firstName} ${r.driver.lastName}` : '',
-      vehicleType: r.vehicleType,
-      status: r.status,
-      fare: r.actualFare ?? r.estimatedFare,
-      tip: r.tip?.amount ?? 0,
-      paymentMethod: r.paymentMethod,
-      date: r.requestedAt,
-    }));
-    exportToCSV(rows, [
-      { key: 'id', label: 'ID' },
-      { key: 'passenger', label: 'Passenger' },
-      { key: 'driver', label: 'Driver' },
-      { key: 'vehicleType', label: 'Vehicle Type' },
-      { key: 'status', label: 'Status' },
-      { key: 'fare', label: 'Fare' },
-      { key: 'tip', label: 'Tip' },
-      { key: 'paymentMethod', label: 'Payment Method' },
-      { key: 'date', label: 'Date' },
-    ], 'rides');
-  };
+  const columns: ColumnDef<RideListItem>[] = [
+    {
+      key: 'date',
+      title: 'Date',
+      render: (r) => <span className="text-sm text-[#9CA3AF]">{formatDate(r.requestedAt)}</span>,
+    },
+    {
+      key: 'user',
+      title: 'User',
+      render: (r) => <span className="text-sm text-white whitespace-nowrap">{[r.user.firstName, r.user.lastName].filter(Boolean).join(' ') || '—'}</span>,
+    },
+    {
+      key: 'driver',
+      title: 'Driver',
+      render: (r) => <span className="text-sm text-white whitespace-nowrap">{r.driver ? `${r.driver.firstName} ${r.driver.lastName}` : '—'}</span>,
+    },
+    {
+      key: 'pickup',
+      title: 'Pickup',
+      render: (r) => (
+        <TooltipProvider delayDuration={300}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="text-sm text-[#9CA3AF] max-w-[140px] truncate block cursor-help">{r.pickupAddress}</span>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p className="max-w-[300px] text-sm">{r.pickupAddress}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      ),
+    },
+    {
+      key: 'dropoff',
+      title: 'Dropoff',
+      render: (r) => (
+        <TooltipProvider delayDuration={300}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="text-sm text-[#9CA3AF] max-w-[140px] truncate block cursor-help">{r.dropoffAddress}</span>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p className="max-w-[300px] text-sm">{r.dropoffAddress}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      ),
+    },
+    {
+      key: 'status',
+      title: 'Status',
+      render: (r) => <RideStatusBadge status={r.status} isDisputed={r._isDisputed} />,
+    },
+    {
+      key: 'type',
+      title: 'Type',
+      render: (r) => <RideTypeBadge type={r.vehicleType} />,
+    },
+    {
+      key: 'fare',
+      title: 'Fare',
+      render: (r) => <span className="text-sm text-white">&euro;{Number(r.actualFare ?? r.estimatedFare ?? 0).toFixed(2)}</span>,
+    },
+    {
+      key: 'payment',
+      title: 'Payment',
+      render: (r) => <span className="text-sm text-[#9CA3AF]">{r.driver ? (r.paymentMethod === 'CARD' ? 'Card' : r.paymentMethod === 'CASH' ? 'Cash' : 'Wallet') : '—'}</span>,
+    },
+    {
+      key: 'duration',
+      title: 'Duration',
+      render: (r) => <span className="text-sm text-[#9CA3AF]">{r.durationMinutes ? `${r.durationMinutes} min` : '—'}</span>,
+    },
+  ];
 
   return (
     <div>
-      <div className="flex items-center justify-end px-4 py-2 border-b border-[#2A2A2A]">
-        <button
-          onClick={handleExport}
-          className="border border-[#2A2A2A] bg-[#0A0A0A] px-3 py-1.5 rounded-lg text-xs text-[#9CA3AF] hover:bg-[#1A1A1A] hover:text-white flex items-center gap-1.5"
-        >
-          <Download className="h-3.5 w-3.5" />
-          Export
-        </button>
-      </div>
-      <Table>
-        <TableHeader>
-          <TableRow className="border-b border-[#2A2A2A] hover:bg-transparent">
-            <TableHead className="text-[#9CA3AF] text-xs font-medium">Ride #</TableHead>
-            <TableHead className="text-[#9CA3AF] text-xs font-medium">Date</TableHead>
-            <TableHead className="text-[#9CA3AF] text-xs font-medium">User</TableHead>
-            <TableHead className="text-[#9CA3AF] text-xs font-medium">Driver</TableHead>
-            <TableHead className="text-[#9CA3AF] text-xs font-medium">Supplier</TableHead>
-            <TableHead className="text-[#9CA3AF] text-xs font-medium">Pickup</TableHead>
-            <TableHead className="text-[#9CA3AF] text-xs font-medium">Dest</TableHead>
-            <TableHead className="text-[#9CA3AF] text-xs font-medium">Status</TableHead>
-            <TableHead className="text-[#9CA3AF] text-xs font-medium">Type</TableHead>
-            <TableHead className="text-[#9CA3AF] text-xs font-medium">Fare</TableHead>
-            <TableHead className="text-[#9CA3AF] text-xs font-medium">Payment</TableHead>
-            <TableHead className="text-[#9CA3AF] text-xs font-medium">Duration</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {data.data.map((ride) => (
-            <RideTableRow key={ride.id} ride={ride} />
-          ))}
-        </TableBody>
-      </Table>
-
-      {/* Pagination */}
-      {meta.totalPages > 1 && (
-        <div className="flex items-center justify-between border-t border-[#2A2A2A] px-4 py-3 mt-2">
-          <p className="text-xs text-[#6B7280]">
-            Showing {start}-{end} of {meta.total} rides
-          </p>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              disabled={page <= 1}
-              onClick={() => onPageChange(page - 1)}
-              className="h-8 text-xs text-[#9CA3AF] hover:text-white hover:bg-[#1A1A1A] disabled:opacity-40"
-            >
-              <ChevronLeft className="mr-1 h-3 w-3" />
-              Previous
-            </Button>
-            <span className="text-xs text-[#6B7280]">
-              Page {meta.page} of {meta.totalPages}
-            </span>
-            <Button
-              variant="ghost"
-              size="sm"
-              disabled={page >= meta.totalPages}
-              onClick={() => onPageChange(page + 1)}
-              className="h-8 text-xs text-[#9CA3AF] hover:text-white hover:bg-[#1A1A1A] disabled:opacity-40"
-            >
-              Next
-              <ChevronRight className="ml-1 h-3 w-3" />
-            </Button>
-          </div>
-        </div>
-      )}
+      <ServerSideTable
+        columns={columns}
+        data={data?.data || []}
+        isLoading={loading}
+        page={page}
+        limit={limit}
+        total={data?.meta?.total || 0}
+        onPageChange={onPageChange}
+        onLimitChange={onLimitChange}
+      />
     </div>
   );
 }

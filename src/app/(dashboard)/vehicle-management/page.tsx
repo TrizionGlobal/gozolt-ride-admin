@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useMemo } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Plus } from 'lucide-react';
+
 import { VehicleStatus, VehicleType } from '@/types';
 import { sanitizeSearchQuery } from '@/lib/sanitize';
 import { useVehicles, useVehicleKpis } from '@/hooks/use-vehicles';
@@ -11,6 +11,7 @@ import { VehicleTabs, type VehicleTab } from '@/components/vehicles/vehicle-tabs
 import { VehicleTable } from '@/components/vehicles/vehicle-table';
 import { VehicleSuspendModal } from '@/components/vehicles/vehicle-suspend-modal';
 import { VehicleRejectModal } from '@/components/vehicles/vehicle-reject-modal';
+import { VehicleDetailDrawer } from '@/components/vehicles/vehicle-detail-drawer';
 import { VehicleFiltersPopover } from '@/components/vehicles/vehicle-filters-popover';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -39,6 +40,12 @@ export default function VehicleManagementPage() {
   const [supplierId, setSupplierId] = useState('');
   const [vehicleType, setVehicleType] = useState('');
   const [filtersOpen, setFiltersOpen] = useState(false);
+
+  // Detail drawer state
+  const [detailDrawer, setDetailDrawer] = useState<{ open: boolean; vehicleId: string | null }>({
+    open: false,
+    vehicleId: null,
+  });
 
   // Suspend modal state
   const [suspendModal, setSuspendModal] = useState<{ open: boolean; vehicle: VehicleListItem | null }>({
@@ -100,6 +107,10 @@ export default function VehicleManagementPage() {
     [data],
   );
 
+  const handleViewDetail = useCallback((id: string) => {
+    setDetailDrawer({ open: true, vehicleId: id });
+  }, []);
+
   const handleMutationSuccess = useCallback(() => {
     refetch();
     refreshKpis();
@@ -116,13 +127,6 @@ export default function VehicleManagementPage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Button
-            onClick={() => toast.info('Add Vehicle — redirects to supplier portal')}
-            className="bg-[#FACC15] text-black hover:bg-[#EAB308] font-medium"
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Add Vehicle
-          </Button>
           <div className="flex items-center gap-2 rounded-full bg-[#22C55E]/10 px-3 py-1.5">
             <span className="h-2 w-2 rounded-full bg-[#22C55E] animate-pulse" />
             <span className="text-xs font-medium text-[#22C55E]">System Online</span>
@@ -167,6 +171,14 @@ export default function VehicleManagementPage() {
         onSuspend={handleSuspend}
         onReject={handleReject}
         onRefetch={handleMutationSuccess}
+        onViewDetail={handleViewDetail}
+      />
+
+      {/* Detail Drawer */}
+      <VehicleDetailDrawer
+        open={detailDrawer.open}
+        onOpenChange={(open) => setDetailDrawer((prev) => ({ ...prev, open }))}
+        vehicleId={detailDrawer.vehicleId}
       />
 
       {/* Suspend Modal */}

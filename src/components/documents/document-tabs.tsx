@@ -46,18 +46,6 @@ export function DocumentTabs({
           >
             <span className="flex items-center gap-1.5">
               {tab.label}
-              {tab.key === 'pending' && pendingCount > 0 && (
-                <span
-                  className={cn(
-                    'inline-flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-[10px] font-bold',
-                    activeTab === 'pending'
-                      ? 'bg-black/20 text-black'
-                      : 'bg-[#FACC15] text-black',
-                  )}
-                >
-                  {pendingCount}
-                </span>
-              )}
             </span>
           </button>
         ))}

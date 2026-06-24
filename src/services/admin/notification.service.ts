@@ -9,8 +9,15 @@ import type {
 export const notificationService = {
   async listCampaigns(tab?: ChannelTab, search?: string): Promise<NotificationCampaign[]> {
     try {
+      const params: any = { search };
+      if (tab === 'scheduled') {
+        params.status = 'SCHEDULED';
+      } else if (tab && tab !== 'all') {
+        params.channel = tab.toUpperCase();
+      }
+      
       const { data } = await apiClient.get('/admin/notifications/campaigns', {
-        params: { channel: tab, search },
+        params,
       });
       return data.data ?? data;
     } catch {

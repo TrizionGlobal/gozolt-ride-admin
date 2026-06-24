@@ -1,34 +1,19 @@
 'use client';
 
-import { Eye, Copy, Trash2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { CampaignStatsCards } from './campaign-stats-cards';
+import { Trash2 } from 'lucide-react';
+import { getChannelBadge } from '@/services/admin/notification.types';
 import type { NotificationCampaign } from '@/services/admin/notification.types';
 import { toast } from 'sonner';
 
 interface CampaignCardExpandedProps {
   campaign: NotificationCampaign;
-  onDuplicate: (id: string) => Promise<NotificationCampaign>;
   onDelete: (id: string) => Promise<void>;
 }
 
 export function CampaignCardExpanded({
   campaign,
-  onDuplicate,
   onDelete,
 }: CampaignCardExpandedProps) {
-  const handlePreview = () => {
-    toast.info(`Preview: ${campaign.title}\n\n${campaign.body}`);
-  };
-
-  const handleDuplicate = async () => {
-    try {
-      await onDuplicate(campaign.id);
-      toast.success('Campaign duplicated as draft');
-    } catch {
-      toast.error('Failed to duplicate');
-    }
-  };
 
   const handleDelete = async () => {
     try {
@@ -40,39 +25,30 @@ export function CampaignCardExpanded({
   };
 
   return (
-    <div className="border-t border-[#2A2A2A] bg-[#0A0A0A]/50 px-4 py-4 space-y-4">
-      {/* Stats */}
-      <CampaignStatsCards campaign={campaign} />
+    <div className="border-t border-[#2A2A2A] bg-[#0A0A0A]/30 px-4 py-3 flex flex-col gap-3">
+      {/* Message Body */}
+      <div className="text-sm text-[#D1D5DB]">
+        {campaign.body}
+      </div>
 
-      {/* Actions */}
-      <div className="flex items-center gap-2">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handlePreview}
-          className="h-8 text-xs text-[#9CA3AF] hover:text-white hover:bg-[#1A1A1A] border border-[#2A2A2A]"
-        >
-          <Eye className="mr-1.5 h-3.5 w-3.5" />
-          Preview
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleDuplicate}
-          className="h-8 text-xs text-[#9CA3AF] hover:text-white hover:bg-[#1A1A1A] border border-[#2A2A2A]"
-        >
-          <Copy className="mr-1.5 h-3.5 w-3.5" />
-          Duplicate
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
+      {/* Footer: Stats & Action */}
+      <div className="flex items-center justify-between pt-2 border-t border-[#2A2A2A]/50 mt-1">
+        <div className="flex items-center gap-6 text-xs text-[#6B7280]">
+          <div>
+            Sent: <span className="text-white font-medium ml-1">{campaign.sentCount}</span>
+          </div>
+          <div>
+            Channel: <span className="text-white font-medium ml-1">{getChannelBadge(campaign.channels).label}</span>
+          </div>
+        </div>
+
+        <button
           onClick={handleDelete}
-          className="h-8 text-xs text-[#EF4444] hover:text-[#EF4444] hover:bg-[#EF4444]/10 border border-[#2A2A2A]"
+          className="text-xs text-[#EF4444] hover:text-red-400 flex items-center transition-colors"
         >
-          <Trash2 className="mr-1.5 h-3.5 w-3.5" />
+          <Trash2 className="mr-1 h-3.5 w-3.5" />
           Delete
-        </Button>
+        </button>
       </div>
     </div>
   );

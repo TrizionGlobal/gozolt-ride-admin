@@ -7,7 +7,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 interface KpiCardProps {
   label: string;
   value: string;
-  change: number;
+  change?: number;
   icon: LucideIcon;
   prefix?: string;
   isLoading?: boolean;
@@ -15,7 +15,7 @@ interface KpiCardProps {
 }
 
 export function KpiCard({ label, value, change, icon: Icon, prefix, isLoading, href }: KpiCardProps) {
-  const isPositive = change >= 0;
+  const isPositive = change !== undefined && change >= 0;
 
   if (isLoading) {
     return (
@@ -37,21 +37,23 @@ export function KpiCard({ label, value, change, icon: Icon, prefix, isLoading, h
         <div className="flex h-9 w-9 items-center justify-center rounded-md bg-[#1A1A1A]">
           <Icon className="h-5 w-5 text-[#FACC15]" />
         </div>
-        <span
-          className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${
-            isPositive
-              ? 'bg-[#22C55E]/10 text-[#22C55E]'
-              : 'bg-[#EF4444]/10 text-[#EF4444]'
-          }`}
-        >
-          {isPositive ? (
-            <TrendingUp className="h-3 w-3" />
-          ) : (
-            <TrendingDown className="h-3 w-3" />
-          )}
-          {isPositive ? '+' : ''}
-          {change}%
-        </span>
+        {change !== undefined && (
+          <span
+            className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${
+              isPositive
+                ? 'bg-[#22C55E]/10 text-[#22C55E]'
+                : 'bg-[#EF4444]/10 text-[#EF4444]'
+            }`}
+          >
+            {isPositive ? (
+              <TrendingUp className="h-3 w-3" />
+            ) : (
+              <TrendingDown className="h-3 w-3" />
+            )}
+            {isPositive ? '+' : ''}
+            {change}%
+          </span>
+        )}
       </div>
       <p className="text-2xl font-bold text-white">
         {prefix}

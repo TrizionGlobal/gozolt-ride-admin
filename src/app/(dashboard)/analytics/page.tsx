@@ -1,27 +1,26 @@
 'use client';
 
-import { useState } from 'react';
-import { Download } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { AnalyticsPeriodSelector } from '@/components/analytics/analytics-period-selector';
+import { useState, useMemo } from 'react';
+import { AnalyticsDateRangeSelector } from '@/components/analytics/analytics-date-range-selector';
 import { AnalyticsKpiCards } from '@/components/analytics/analytics-kpi-cards';
 import { AnalyticsDailyRidesChart } from '@/components/analytics/analytics-daily-rides-chart';
 import { AnalyticsDailyRevenueChart } from '@/components/analytics/analytics-daily-revenue-chart';
 import { AnalyticsUserGrowthChart } from '@/components/analytics/analytics-user-growth-chart';
 import { AnalyticsCategoryChart } from '@/components/analytics/analytics-category-chart';
-import { TipAnalyticsChart } from '@/components/analytics/tip-analytics-chart';
 import { CancellationAnalytics } from '@/components/analytics/cancellation-analytics';
 import { useAnalytics } from '@/hooks/use-analytics';
-import type { AnalyticsPeriod } from '@/services/admin/analytics.types';
-import { toast } from 'sonner';
+import type { DateRange } from '@/services/admin/analytics.types';
 
 export default function AnalyticsPage() {
-  const [period, setPeriod] = useState<AnalyticsPeriod>('7d');
-  const { data, loading } = useAnalytics(period);
+  const [range, setRange] = useState<DateRange>(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(today);
+    endOfDay.setHours(23, 59, 59, 999);
+    return { from: today.toISOString(), to: endOfDay.toISOString() };
+  });
 
-  const handleExport = () => {
-    toast.success('Export started — CSV will be downloaded shortly');
-  };
+  const { data, loading } = useAnalytics(range);
 
   return (
     <div className="space-y-6">
@@ -34,14 +33,7 @@ export default function AnalyticsPage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <AnalyticsPeriodSelector period={period} onPeriodChange={setPeriod} />
-          <Button
-            onClick={handleExport}
-            className="bg-[#FACC15] text-black hover:bg-[#E5B800]"
-          >
-            <Download className="mr-2 h-4 w-4" />
-            Export
-          </Button>
+          <AnalyticsDateRangeSelector range={range} onRangeChange={setRange} />
         </div>
       </div>
 
@@ -60,10 +52,9 @@ export default function AnalyticsPage() {
         <AnalyticsCategoryChart data={data?.chartData ?? null} loading={loading} />
       </div>
 
-      {/* Row 3: Tip Analytics + Cancellation Analytics */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <TipAnalyticsChart period={period} />
-        <CancellationAnalytics />
+      {/* Row 3: Cancellation Analytics */}
+      <div className="grid grid-cols-1 gap-4">
+        <CancellationAnalytics data={data?.cancellations} loading={loading} />
       </div>
     </div>
   );

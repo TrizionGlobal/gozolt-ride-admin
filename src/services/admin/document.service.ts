@@ -26,13 +26,8 @@ export const documentService = {
     return data;
   },
 
-  async approveDocument(id: string, payload?: ApproveDocumentPayload): Promise<DocumentListItem> {
-    const { data } = await apiClient.patch<DocumentListItem>(`/admin/documents/${id}/approve`, payload);
-    return data;
-  },
-
-  async rejectDocument(id: string, payload: RejectDocumentPayload): Promise<DocumentListItem> {
-    const { data } = await apiClient.patch<DocumentListItem>(`/admin/documents/${id}/reject`, payload);
+  async reviewDocument(id: string, payload: { approved: boolean; reason?: string }): Promise<DocumentListItem> {
+    const { data } = await apiClient.post<DocumentListItem>(`/admin/documents/${id}/review`, payload);
     return data;
   },
 
@@ -41,7 +36,7 @@ export const documentService = {
     return data;
   },
 
-  async getKpis(entityType?: string): Promise<DocumentKpis> {
+  getKpis: async (entityType?: string) => {
     try {
       const { data } = await apiClient.get<DocumentKpis>('/admin/documents/kpis', { params: { entityType } });
       return data;

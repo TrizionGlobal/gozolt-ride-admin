@@ -21,6 +21,7 @@ interface VehicleTableProps {
   onSuspend: (id: string) => void;
   onReject: (id: string) => void;
   onRefetch: () => void;
+  onViewDetail: (id: string) => void;
 }
 
 export function VehicleTable({
@@ -31,6 +32,7 @@ export function VehicleTable({
   onSuspend,
   onReject,
   onRefetch,
+  onViewDetail,
 }: VehicleTableProps) {
   if (loading) {
     return (
@@ -75,9 +77,10 @@ export function VehicleTable({
             <VehicleTableRow
               key={vehicle.id}
               vehicle={vehicle}
-              onSuspend={onSuspend}
-              onReject={onReject}
+              onSuspend={() => onSuspend(vehicle.id)}
+              onReject={() => onReject(vehicle.id)}
               onRefetch={onRefetch}
+              onViewDetail={() => onViewDetail(vehicle.id)}
             />
           ))}
         </TableBody>

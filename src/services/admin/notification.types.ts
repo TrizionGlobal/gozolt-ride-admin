@@ -126,9 +126,8 @@ export interface ChannelTabConfig {
 
 export const CHANNEL_TABS: ChannelTabConfig[] = [
   { key: 'all', label: 'All', hasIndicator: false },
-  { key: 'push', label: 'Push', hasIndicator: false },
+  { key: 'push', label: 'App Notifications', hasIndicator: false },
   { key: 'email', label: 'Email', hasIndicator: false },
-  { key: 'sms', label: 'SMS', hasIndicator: false },
   { key: 'in_app', label: 'In-App', hasIndicator: false },
   { key: 'scheduled', label: 'Scheduled', hasIndicator: true },
 ];
@@ -139,13 +138,11 @@ export const AUDIENCE_OPTIONS: { value: CampaignAudience; label: string }[] = [
   { value: 'ALL_USERS', label: 'All Users' },
   { value: 'ALL_DRIVERS', label: 'All Drivers' },
   { value: 'ALL_SUPPLIERS', label: 'All Suppliers' },
-  { value: 'SPECIFIC_USERS', label: 'Specific Users' },
 ];
 
 // --- Channel options for compose ---
 export const CHANNEL_OPTIONS: { value: NotificationChannel; label: string }[] = [
-  { value: 'PUSH', label: 'Push' },
+  { value: 'PUSH', label: 'App Notifications' },
   { value: 'EMAIL', label: 'Email' },
-  { value: 'SMS', label: 'SMS' },
   { value: 'IN_APP', label: 'In-App' },
 ];

@@ -2,17 +2,17 @@
 
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Download } from 'lucide-react';
 import { DocumentStatus } from '@/types';
+import { useDebounce } from '@/hooks/use-debounce';
 import { sanitizeSearchQuery } from '@/lib/sanitize';
 import { useDocuments, useDocumentKpis } from '@/hooks/use-documents';
+import { documentService } from '@/services/admin/document.service';
 import { DocumentKpiCards } from '@/components/documents/document-kpi-cards';
 import { DocumentTabs, type DocumentTab } from '@/components/documents/document-tabs';
 import { DocumentPendingList } from '@/components/documents/document-pending-list';
 import { DocumentTable } from '@/components/documents/document-table';
 import { DocumentExpiredTable } from '@/components/documents/document-expired-table';
 import { DocumentRejectModal } from '@/components/documents/document-reject-modal';
-import { DocumentDetailModal } from '@/components/documents/document-detail-modal';
 import { DocumentFiltersPopover } from '@/components/documents/document-filters-popover';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -38,7 +38,8 @@ export default function DocumentReviewPage() {
 
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
-  const [entityType, setEntityType] = useState<'supplier' | 'driver'>('supplier');
+  const debouncedSearch = useDebounce(search, 500);
+  const entityType = 'SUPPLIER';
   const [sortBy, setSortBy] = useState('');
   const [filtersOpen, setFiltersOpen] = useState(false);
 
@@ -48,24 +49,22 @@ export default function DocumentReviewPage() {
     document: null,
   });
 
-  // Detail modal state
-  const [detailModal, setDetailModal] = useState<{ open: boolean; documentId: string | null }>({
-    open: false,
-    documentId: null,
-  });
-
   // Build filter params
   const tabConfig = TAB_STATUS_MAP[activeTab];
   const params: DocumentFilterParams = useMemo(
-    () => ({
-      ...tabConfig,
-      search: search || undefined,
-      entityType,
-      sortBy: sortBy || undefined,
-      page,
-      limit: 20,
-    }),
-    [activeTab, search, sortBy, page, tabConfig, entityType],
+    () => {
+      const parts = sortBy ? sortBy.split(':') : [];
+      return {
+        ...tabConfig,
+        search: debouncedSearch || undefined,
+        entityType,
+        sortBy: parts[0] || undefined,
+        order: (parts[1] as 'asc' | 'desc') || undefined,
+        page,
+        limit: 20,
+      };
+    },
+    [activeTab, debouncedSearch, sortBy, page, tabConfig, entityType],
   );
 
   const { data, loading, refetch } = useDocuments(params);
@@ -90,6 +89,23 @@ export default function DocumentReviewPage() {
   const handleReject = useCallback((doc: DocumentListItem) => {
     setRejectModal({ open: true, document: doc });
   }, []);
+
+  const [approvingId, setApprovingId] = useState<string | null>(null);
+
+  const handleApprove = async (doc: any) => {
+    setApprovingId(doc.id);
+    try {
+      await documentService.reviewDocument(doc.id, {
+        approved: true,
+      });
+      toast.success('Document approved successfully');
+      handleMutationSuccess();
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to approve document');
+    } finally {
+      setApprovingId(null);
+    }
+  };
 
   const handleMutationSuccess = useCallback(() => {
     refetch();
@@ -124,22 +140,6 @@ export default function DocumentReviewPage() {
             Review and verify uploaded documents
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          <Button
-            variant="outline"
-            onClick={() => toast.info('Export CSV — coming soon')}
-            className="border-[#2A2A2A] bg-transparent text-white hover:bg-[#1A1A1A] hover:text-white"
-          >
-            <Download className="mr-2 h-4 w-4" />
-            Export CSV
-          </Button>
-          <div className="flex items-center gap-2 rounded-full bg-[#22C55E]/10 px-3 py-1.5">
-            <span className={`h-2 w-2 rounded-full ${connected ? 'bg-[#22C55E] animate-pulse' : 'bg-[#EF4444]'}`} />
-            <span className={`text-xs font-medium ${connected ? 'text-[#22C55E]' : 'text-[#EF4444]'}`}>
-              {connected ? 'Live Sync Active' : 'Live Sync Offline'}
-            </span>
-          </div>
-        </div>
       </div>
 
       {/* KPI Cards */}
@@ -147,29 +147,6 @@ export default function DocumentReviewPage() {
 
       {/* Tabs + Search + Filters */}
       <div className="relative space-y-4">
-        {/* Entity Toggle */}
-        <div className="flex items-center gap-1 rounded-lg bg-[#141414] border border-[#2A2A2A] p-1 w-fit">
-          <button
-            onClick={() => { setEntityType('supplier'); setPage(1); }}
-            className={`px-6 py-1.5 text-sm font-medium rounded-md transition-colors ${
-              entityType === 'supplier'
-                ? 'bg-[#FACC15] text-black shadow-sm'
-                : 'text-[#9CA3AF] hover:text-white'
-            }`}
-          >
-            Suppliers
-          </button>
-          <button
-            onClick={() => { setEntityType('driver'); setPage(1); }}
-            className={`px-6 py-1.5 text-sm font-medium rounded-md transition-colors ${
-              entityType === 'driver'
-                ? 'bg-[#FACC15] text-black shadow-sm'
-                : 'text-[#9CA3AF] hover:text-white'
-            }`}
-          >
-            Drivers
-          </button>
-        </div>
 
         <DocumentTabs
           activeTab={activeTab}
@@ -192,11 +169,15 @@ export default function DocumentReviewPage() {
 
       {/* Content — different per tab */}
       {activeTab === 'pending' && (
-        <DocumentPendingList
-          documents={data?.data ?? []}
+        <DocumentTable
+          data={data}
           loading={loading}
+          page={page}
+          onPageChange={setPage}
+          variant="pending"
+          onApprove={handleApprove}
           onReject={handleReject}
-          onMutationSuccess={handleMutationSuccess}
+          approvingId={approvingId}
         />
       )}
 
@@ -207,7 +188,6 @@ export default function DocumentReviewPage() {
           page={page}
           onPageChange={setPage}
           variant="approved"
-          onRowClick={(id) => setDetailModal({ open: true, documentId: id })}
         />
       )}
 
@@ -218,7 +198,6 @@ export default function DocumentReviewPage() {
           page={page}
           onPageChange={setPage}
           variant="rejected"
-          onRowClick={(id) => setDetailModal({ open: true, documentId: id })}
         />
       )}
 
@@ -228,7 +207,6 @@ export default function DocumentReviewPage() {
           loading={loading}
           page={page}
           onPageChange={setPage}
-          onRowClick={(id) => setDetailModal({ open: true, documentId: id })}
         />
       )}
 
@@ -244,13 +222,6 @@ export default function DocumentReviewPage() {
           onSuccess={handleMutationSuccess}
         />
       )}
-
-      {/* Detail Modal */}
-      <DocumentDetailModal
-        open={detailModal.open}
-        onOpenChange={(open) => setDetailModal((prev) => ({ ...prev, open }))}
-        documentId={detailModal.documentId}
-      />
     </div>
   );
 }

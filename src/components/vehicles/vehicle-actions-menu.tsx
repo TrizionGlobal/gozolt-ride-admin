@@ -24,6 +24,7 @@ interface VehicleActionsMenuProps {
   onSuspend: () => void;
   onReject: () => void;
   onRefetch: () => void;
+  onViewDetail: () => void;
 }
 
 export function VehicleActionsMenu({
@@ -36,6 +37,7 @@ export function VehicleActionsMenu({
   onSuspend,
   onReject,
   onRefetch,
+  onViewDetail,
 }: VehicleActionsMenuProps) {
   const router = useRouter();
 
@@ -75,30 +77,12 @@ export function VehicleActionsMenu({
         className="w-48 bg-[#1A1A1A] border-[#2A2A2A] text-white"
       >
         <DropdownMenuItem
-          onClick={() => toast.info(`View details for ${vehicleName} (${plateNumber})`)}
+          onClick={onViewDetail}
           className="text-[#9CA3AF] hover:text-white hover:bg-[#2A2A2A] cursor-pointer"
         >
           <Eye className="mr-2 h-4 w-4" />
           View Details
         </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={() => toast.info(`View documents for ${vehicleName}`)}
-          className="text-[#9CA3AF] hover:text-white hover:bg-[#2A2A2A] cursor-pointer"
-        >
-          <FileText className="mr-2 h-4 w-4" />
-          View Documents
-        </DropdownMenuItem>
-
-        {/* Active vehicle actions */}
-        {status === VehicleStatus.ACTIVE && driverName && (
-          <DropdownMenuItem
-            onClick={() => router.push(`/driver-management?search=${encodeURIComponent(driverName)}`)}
-            className="text-[#9CA3AF] hover:text-white hover:bg-[#2A2A2A] cursor-pointer"
-          >
-            <User className="mr-2 h-4 w-4" />
-            View Assigned Driver
-          </DropdownMenuItem>
-        )}
 
         {status === VehicleStatus.ACTIVE && (
           <>
@@ -148,14 +132,6 @@ export function VehicleActionsMenu({
           </>
         )}
 
-        <DropdownMenuSeparator className="bg-[#2A2A2A]" />
-        <DropdownMenuItem
-          onClick={() => router.push(`/supplier-management?search=${encodeURIComponent(supplierName)}`)}
-          className="text-[#9CA3AF] hover:text-white hover:bg-[#2A2A2A] cursor-pointer"
-        >
-          <Link className="mr-2 h-4 w-4" />
-          View Supplier
-        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

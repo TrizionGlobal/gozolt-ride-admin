@@ -84,14 +84,14 @@ export function UserActionsMenu({
         className="w-48 bg-[#1A1A1A] border-[#2A2A2A] text-white"
       >
         <DropdownMenuItem
-          onClick={() => toast.info(`View profile for ${userName}`)}
+          onSelect={() => toast.info(`View profile for ${userName}`)}
           className="text-[#9CA3AF] hover:text-white hover:bg-[#2A2A2A] cursor-pointer"
         >
           <Eye className="mr-2 h-4 w-4" />
           View Profile
         </DropdownMenuItem>
         <DropdownMenuItem
-          onClick={() => toast.info(`View ride history for ${userName}`)}
+          onSelect={() => toast.info(`View ride history for ${userName}`)}
           className="text-[#9CA3AF] hover:text-white hover:bg-[#2A2A2A] cursor-pointer"
         >
           <MapPin className="mr-2 h-4 w-4" />
@@ -102,7 +102,7 @@ export function UserActionsMenu({
         {status === UserStatus.ACTIVE && (
           <>
             <DropdownMenuItem
-              onClick={onForceLogout}
+              onSelect={() => setTimeout(onForceLogout, 100)}
               className="text-[#9CA3AF] hover:text-white hover:bg-[#2A2A2A] cursor-pointer"
             >
               <LogOut className="mr-2 h-4 w-4" />
@@ -110,7 +110,7 @@ export function UserActionsMenu({
             </DropdownMenuItem>
             <DropdownMenuSeparator className="bg-[#2A2A2A]" />
             <DropdownMenuItem
-              onClick={onBan}
+              onSelect={() => setTimeout(onBan, 100)}
               className="text-red-400 hover:text-red-300 hover:bg-[#2A2A2A] cursor-pointer"
             >
               <Ban className="mr-2 h-4 w-4" />
@@ -124,14 +124,14 @@ export function UserActionsMenu({
           <>
             <DropdownMenuSeparator className="bg-[#2A2A2A]" />
             <DropdownMenuItem
-              onClick={handleUnban}
+              onSelect={handleUnban}
               className="text-green-400 hover:text-green-300 hover:bg-[#2A2A2A] cursor-pointer"
             >
               <CheckCircle2 className="mr-2 h-4 w-4" />
               Unban User
             </DropdownMenuItem>
             <DropdownMenuItem
-              onClick={onForceLogout}
+              onSelect={() => setTimeout(onForceLogout, 100)}
               className="text-[#9CA3AF] hover:text-white hover:bg-[#2A2A2A] cursor-pointer"
             >
               <LogOut className="mr-2 h-4 w-4" />
@@ -145,7 +145,7 @@ export function UserActionsMenu({
           <>
             <DropdownMenuSeparator className="bg-[#2A2A2A]" />
             <DropdownMenuItem
-              onClick={handleReactivate}
+              onSelect={handleReactivate}
               className="text-green-400 hover:text-green-300 hover:bg-[#2A2A2A] cursor-pointer"
             >
               <CheckCircle2 className="mr-2 h-4 w-4" />
@@ -156,7 +156,7 @@ export function UserActionsMenu({
 
         <DropdownMenuSeparator className="bg-[#2A2A2A]" />
         <DropdownMenuItem
-          onClick={handleExportData}
+          onSelect={handleExportData}
           className="text-[#9CA3AF] hover:text-white hover:bg-[#2A2A2A] cursor-pointer"
         >
           <Download className="mr-2 h-4 w-4" />

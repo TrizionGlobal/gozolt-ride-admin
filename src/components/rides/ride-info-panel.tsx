@@ -19,7 +19,7 @@ function FareRow({ label, value, bold, green, badge }: { label: string; value: n
     <div className={`flex justify-between px-3 py-1.5 border-b border-[#2A2A2A] last:border-0 ${bold ? 'bg-[#141414]' : ''}`}>
       <span className={green ? 'text-green-400' : bold ? 'font-semibold text-white' : 'text-[#9CA3AF]'}>{label}</span>
       {value != null ? (
-        <span className={green ? 'font-semibold text-green-400' : bold ? 'font-semibold text-white' : 'text-white'}>€{value.toFixed(2)}</span>
+        <span className={green ? 'font-semibold text-green-400' : bold ? 'font-semibold text-white' : 'text-white'}>€{Number(value).toFixed(2)}</span>
       ) : badge ? (
         <span className="text-yellow-400 font-medium">{badge}</span>
       ) : null}
@@ -37,7 +37,7 @@ export function RideInfoPanel({ detail }: RideInfoPanelProps) {
   const supplierName = detail._supplierName ?? '—';
   const duration = detail.durationMinutes ? `${detail.durationMinutes} min` : '—';
   const avgRating = detail.ratings.length > 0
-    ? (detail.ratings.reduce((sum, r) => sum + r.rating, 0) / detail.ratings.length).toFixed(1)
+    ? Number(detail.ratings.reduce((sum, r) => sum + r.rating, 0) / detail.ratings.length).toFixed(1)
     : '—';
 
   const rows: { icon: React.ElementType; label: string; value: string }[] = [

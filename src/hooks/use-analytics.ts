@@ -2,9 +2,9 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { analyticsService } from '@/services/admin/analytics.service';
-import type { AnalyticsPeriod, AnalyticsData } from '@/services/admin/analytics.types';
+import type { DateRange, AnalyticsData } from '@/services/admin/analytics.types';
 
-export function useAnalytics(period: AnalyticsPeriod) {
+export function useAnalytics(range: DateRange) {
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -13,14 +13,14 @@ export function useAnalytics(period: AnalyticsPeriod) {
     try {
       setLoading(true);
       setError(null);
-      const result = await analyticsService.getAnalytics(period);
+      const result = await analyticsService.getAnalytics(range);
       setData(result);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load analytics');
     } finally {
       setLoading(false);
     }
-  }, [period]);
+  }, [range]);
 
   useEffect(() => {
     fetch();

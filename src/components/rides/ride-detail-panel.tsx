@@ -90,8 +90,8 @@ export function RideDetailPanel({
                     dc.status === 'REJECTED' ? 'bg-red-500/20 text-red-400' :
                     'bg-yellow-500/20 text-yellow-400'}`}>{dc.status}</span>
                 </div>
-                <p className="text-[#9CA3AF]"><span className="text-white">From:</span> {dc.oldDropoffAddress} (€{dc.oldEstimatedFare.toFixed(2)})</p>
-                <p className="text-[#9CA3AF]"><span className="text-white">To:</span> {dc.newDropoffAddress} (€{dc.newEstimatedFare.toFixed(2)})</p>
+                <p className="text-[#9CA3AF]"><span className="text-white">From:</span> {dc.oldDropoffAddress} (€{Number(dc.oldEstimatedFare || 0).toFixed(2)})</p>
+                <p className="text-[#9CA3AF]"><span className="text-white">To:</span> {dc.newDropoffAddress} (€{Number(dc.newEstimatedFare || 0).toFixed(2)})</p>
               </div>
             ))}
           </div>

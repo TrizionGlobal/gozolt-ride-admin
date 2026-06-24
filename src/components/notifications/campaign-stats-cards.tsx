@@ -21,13 +21,11 @@ export function CampaignStatsCards({ campaign }: CampaignStatsCardsProps) {
 
   const stats = [
     { label: 'Sent', value: campaign.sentCount.toString(), sub: null },
-    { label: 'Delivered', value: campaign.deliveredCount.toString(), sub: `${deliveryRate}%` },
-    { label: 'Opened', value: campaign.openedCount.toString(), sub: `${openRate}%` },
     { label: 'Channel', value: channelLabel, sub: null },
   ];
 
   return (
-    <div className="grid grid-cols-4 gap-3">
+    <div className="grid grid-cols-2 gap-3">
       {stats.map((stat) => (
         <div
           key={stat.label}
