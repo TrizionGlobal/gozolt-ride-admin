@@ -20,9 +20,9 @@ export function KpiCard({ label, value, change, icon: Icon, prefix, isLoading, h
   if (isLoading) {
     return (
       <div className="rounded-lg border border-[#2A2A2A] bg-[#141414] p-4">
-        <div className="flex items-center justify-between mb-3">
-          <Skeleton className="h-9 w-9 rounded-md bg-[#2A2A2A]" />
-          <Skeleton className="h-5 w-14 rounded-full bg-[#2A2A2A]" />
+        <div className="flex items-center justify-between mb-2">
+          <Skeleton className="h-7 w-7 rounded-md bg-[#2A2A2A]" />
+          <Skeleton className="h-4 w-12 rounded-full bg-[#2A2A2A]" />
         </div>
         <Skeleton className="h-8 w-20 mb-1 bg-[#2A2A2A]" />
         <Skeleton className="h-4 w-24 bg-[#2A2A2A]" />
@@ -33,9 +33,9 @@ export function KpiCard({ label, value, change, icon: Icon, prefix, isLoading, h
   const cardContent = (
     <>
       <div className="absolute top-0 left-0 right-0 h-[2px] bg-[#FACC15]" />
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex h-9 w-9 items-center justify-center rounded-md bg-[#1A1A1A]">
-          <Icon className="h-5 w-5 text-[#FACC15]" />
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[#1A1A1A]">
+          <Icon className="h-4 w-4 text-[#FACC15]" />
         </div>
         {change !== undefined && (
           <span
@@ -55,7 +55,7 @@ export function KpiCard({ label, value, change, icon: Icon, prefix, isLoading, h
           </span>
         )}
       </div>
-      <p className="text-2xl font-bold text-white">
+      <p className="text-xl font-bold text-white mt-1">
         {prefix}
         {value}
       </p>
@@ -63,7 +63,7 @@ export function KpiCard({ label, value, change, icon: Icon, prefix, isLoading, h
     </>
   );
 
-  const baseClass = 'rounded-lg border border-[#2A2A2A] bg-[#141414] p-4 relative overflow-hidden';
+  const baseClass = 'rounded-lg border border-[#2A2A2A] bg-[#141414] p-3 relative overflow-hidden';
 
   if (href) {
     return (

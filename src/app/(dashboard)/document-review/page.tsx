@@ -39,7 +39,7 @@ export default function DocumentReviewPage() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search, 500);
-  const entityType = 'SUPPLIER';
+  const entityType = 'supplier';
   const [sortBy, setSortBy] = useState('');
   const [filtersOpen, setFiltersOpen] = useState(false);
 

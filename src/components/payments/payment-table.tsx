@@ -1,141 +1,139 @@
 'use client';
 
-import { ChevronLeft, ChevronRight, Download } from 'lucide-react';
-import { exportToCSV } from '@/lib/export-csv';
-import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
-import {
-  Table,
-  TableBody,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { PaymentTableRow } from './payment-table-row';
-import type { TransactionListResponse } from '@/services/admin/payment.types';
+import { ServerSideTable, ColumnDef } from '@/components/ui/server-side-table';
+import { ChevronDown, ChevronRight, CheckCircle2 } from 'lucide-react';
+import { getPaymentStatusDisplay } from '@/services/admin/payment.types';
+import type { TransactionListResponse, UnifiedTransaction } from '@/services/admin/payment.types';
 
 interface PaymentTableProps {
   data: TransactionListResponse | null;
   loading: boolean;
   page: number;
+  limit: number;
   onPageChange: (page: number) => void;
+  onLimitChange?: (limit: number) => void;
+}
+
+function formatDate(iso: string): string {
+  const d = new Date(iso);
+  return (
+    d.toLocaleDateString('en-GB', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }) +
+    ' ' +
+    d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+  );
 }
 
 export function PaymentTable({
   data,
   loading,
   page,
+  limit,
   onPageChange,
+  onLimitChange,
 }: PaymentTableProps) {
-  if (loading) {
+  const columns: ColumnDef<UnifiedTransaction>[] = [
+    {
+      key: 'date',
+      title: 'Date',
+      render: (row, expanded) => {
+        const hasDetails = row.type === 'payout' && !!row.details;
+        return (
+          <div className="flex items-center gap-2 text-sm text-[#9CA3AF]">
+            {formatDate(row.date || (row as any).createdAt || new Date().toISOString())}
+            {hasDetails && (
+              expanded ? <ChevronDown className="h-4 w-4 text-[#6B7280]" /> : <ChevronRight className="h-4 w-4 text-[#6B7280]" />
+            )}
+          </div>
+        );
+      },
+    },
+    {
+      key: 'description',
+      title: 'Description',
+      render: (row) => <span className="text-sm text-white max-w-[200px] block truncate">{row.description || 'Ride Payment'}</span>,
+    },
+    {
+      key: 'supplier',
+      title: 'Supplier',
+      render: (row) => <span className="text-sm text-[#9CA3AF]">{row.supplier || 'N/A'}</span>,
+    },
+    {
+      key: 'method',
+      title: 'Method',
+      render: (row) => <span className="text-sm text-[#9CA3AF]">{row.method}</span>,
+    },
+    {
+      key: 'amount',
+      title: 'Amount',
+      render: (row) => <span className="text-sm font-medium text-white">&euro;{Number(row.amount || 0).toFixed(2)}</span>,
+    },
+    {
+      key: 'commission',
+      title: 'Commission',
+      render: (row) => <span className="text-sm font-medium text-green-400">&euro;{Number((row as any).platformFee ?? row.commission ?? 0).toFixed(2)}</span>,
+    },
+    {
+      key: 'status',
+      title: 'Status',
+      render: (row) => {
+        const statusDisplay = getPaymentStatusDisplay(row.status);
+        return <span className={`text-sm ${statusDisplay.className}`}>{statusDisplay.label}</span>;
+      },
+    },
+  ];
+
+  const renderExpandedRow = (txn: UnifiedTransaction) => {
+    if (txn.type !== 'payout' || !txn.details) return null;
     return (
-      <div className="space-y-3">
-        {Array.from({ length: 8 }).map((_, i) => (
-          <Skeleton key={i} className="h-12 w-full bg-[#1A1A1A]" />
-        ))}
+      <div className="p-4 ml-8 flex flex-col md:flex-row gap-6 items-start justify-between">
+        <div className="flex items-start gap-3">
+          <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5" />
+          <div>
+            <h4 className="text-white font-semibold text-sm">Settlement Receipt</h4>
+            <p className="text-xs text-[#9CA3AF]">Stripe Transfer ID: <span className="font-mono text-[#FACC15]">{txn.details?.transferId || 'N/A'}</span></p>
+          </div>
+        </div>
+        
+        <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+          <div className="space-y-1">
+            <p className="text-[#6B7280] text-xs">Gross Settled Revenue</p>
+            <p className="text-white font-medium">&euro;{Number(txn.details?.totalSettledEarned || 0).toFixed(2)}</p>
+          </div>
+          <div className="space-y-1">
+            <p className="text-[#6B7280] text-xs">Past Payouts</p>
+            <p className="text-white font-medium">&euro;{Number(txn.details?.totalAlreadyPaid || 0).toFixed(2)}</p>
+          </div>
+          <div className="space-y-1">
+            <p className="text-[#6B7280] text-xs">Driver Cash Kept</p>
+            <p className="text-red-400 font-medium">&euro;{Number(txn.details?.totalCashCollected || 0).toFixed(2)}</p>
+          </div>
+          <div className="space-y-1">
+            <p className="text-[#6B7280] text-xs">Remaining Pending</p>
+            <p className="text-[#FACC15] font-medium">&euro;{Number(txn.details?.remainingPendingAfterThis || 0).toFixed(2)}</p>
+          </div>
+        </div>
       </div>
     );
-  }
-
-  if (!data || data.data.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center py-12 text-center">
-        <p className="text-sm text-[#6B7280]">No transactions found</p>
-        <p className="text-xs text-[#4B5563] mt-1">Try adjusting your filters</p>
-      </div>
-    );
-  }
-
-  const { meta } = data;
-  const start = (meta.page - 1) * meta.limit + 1;
-  const end = Math.min(meta.page * meta.limit, meta.total);
-
-  const handleExport = () => {
-    const rows = data.data.map((t) => ({
-      id: t.id,
-      type: t.type,
-      description: t.description,
-      amount: t.amount,
-      commission: t.commission,
-      status: t.status,
-      date: t.date,
-    }));
-    exportToCSV(rows, [
-      { key: 'id', label: 'ID' },
-      { key: 'type', label: 'Type' },
-      { key: 'description', label: 'Description' },
-      { key: 'amount', label: 'Amount' },
-      { key: 'commission', label: 'Commission' },
-      { key: 'status', label: 'Status' },
-      { key: 'date', label: 'Date' },
-    ], 'payments');
   };
 
   return (
-    <div>
-      <div className="flex items-center justify-end px-4 py-2 border-b border-[#2A2A2A]">
-        <button
-          onClick={handleExport}
-          className="border border-[#2A2A2A] bg-[#0A0A0A] px-3 py-1.5 rounded-lg text-xs text-[#9CA3AF] hover:bg-[#1A1A1A] hover:text-white flex items-center gap-1.5"
-        >
-          <Download className="h-3.5 w-3.5" />
-          Export
-        </button>
-      </div>
-      <Table>
-        <TableHeader>
-          <TableRow className="border-b border-[#2A2A2A] hover:bg-transparent">
-            <TableHead className="text-[#9CA3AF] text-xs font-medium">ID</TableHead>
-            <TableHead className="text-[#9CA3AF] text-xs font-medium">Type</TableHead>
-            <TableHead className="text-[#9CA3AF] text-xs font-medium">Description</TableHead>
-            <TableHead className="text-[#9CA3AF] text-xs font-medium">Amount</TableHead>
-            <TableHead className="text-[#9CA3AF] text-xs font-medium">Status</TableHead>
-            <TableHead className="text-[#9CA3AF] text-xs font-medium">Method</TableHead>
-            <TableHead className="text-[#9CA3AF] text-xs font-medium">Supplier</TableHead>
-            <TableHead className="text-[#9CA3AF] text-xs font-medium">Commission</TableHead>
-            <TableHead className="text-[#9CA3AF] text-xs font-medium">Date</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {data.data.map((txn) => (
-            <PaymentTableRow key={txn._rawId} txn={txn} />
-          ))}
-        </TableBody>
-      </Table>
-
-      {/* Pagination */}
-      {meta.totalPages > 1 && (
-        <div className="flex items-center justify-between border-t border-[#2A2A2A] px-4 py-3 mt-2">
-          <p className="text-xs text-[#6B7280]">
-            Showing {start}-{end} of {meta.total} transactions
-          </p>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              disabled={page <= 1}
-              onClick={() => onPageChange(page - 1)}
-              className="h-8 text-xs text-[#9CA3AF] hover:text-white hover:bg-[#1A1A1A] disabled:opacity-40"
-            >
-              <ChevronLeft className="mr-1 h-3 w-3" />
-              Previous
-            </Button>
-            <span className="text-xs text-[#6B7280]">
-              Page {meta.page} of {meta.totalPages}
-            </span>
-            <Button
-              variant="ghost"
-              size="sm"
-              disabled={page >= meta.totalPages}
-              onClick={() => onPageChange(page + 1)}
-              className="h-8 text-xs text-[#9CA3AF] hover:text-white hover:bg-[#1A1A1A] disabled:opacity-40"
-            >
-              Next
-              <ChevronRight className="ml-1 h-3 w-3" />
-            </Button>
-          </div>
-        </div>
-      )}
+    <div className="rounded-lg border border-[#2A2A2A] bg-[#0A0A0A] overflow-hidden">
+      <ServerSideTable
+        columns={columns}
+        data={data?.data || []}
+        isLoading={loading}
+        page={page}
+        limit={limit}
+        total={data?.meta?.total || 0}
+        onPageChange={onPageChange}
+        onLimitChange={onLimitChange || (() => {})}
+        emptyText="No transactions found."
+        renderExpandedRow={(row) => (row.type === 'payout' && !!row.details) ? renderExpandedRow(row) : undefined}
+      />
     </div>
   );
 }

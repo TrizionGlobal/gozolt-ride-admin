@@ -55,8 +55,8 @@ export const settingsService = {
   // --- Admin Users ---
   async getAdminUsers(): Promise<AdminUser[]> {
     try {
-      const { data } = await apiClient.get<AdminUser[]>('/admin/users?role=ADMIN');
-      return data;
+      const { data } = await apiClient.get<{ data: AdminUser[] }>('/admin/users?role=ADMIN');
+      return data.data || [];
     } catch {
       return [];
     }

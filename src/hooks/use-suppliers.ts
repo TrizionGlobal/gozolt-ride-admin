@@ -4,9 +4,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { supplierService } from '@/services/admin/supplier.service';
 import type { SupplierFilterParams, SupplierListResponse, SupplierDocument } from '@/services/admin/supplier.types';
 
-export function useSuppliers(params: SupplierFilterParams) {
+export function useSuppliers(params: SupplierFilterParams, enabled: boolean = true) {
   const [data, setData] = useState<SupplierListResponse | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(enabled);
   const [error, setError] = useState<string | null>(null);
 
   const fetch = useCallback(async () => {
@@ -23,10 +23,12 @@ export function useSuppliers(params: SupplierFilterParams) {
   }, [params.status, params.search, params.page, params.limit, params.tier]);
 
   useEffect(() => {
-    fetch();
-  }, [fetch]);
+    if (enabled) {
+      fetch();
+    }
+  }, [fetch, enabled]);
 
-  return { data, loading, error, refetch: fetch };
+  return { data, loading: enabled ? loading : false, error, refetch: fetch };
 }
 
 export function useSupplierDocuments(supplierId: string | null) {

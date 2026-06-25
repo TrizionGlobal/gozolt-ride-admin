@@ -48,7 +48,7 @@ export default function PricingRulesPage() {
             <button
               key={type}
               onClick={() => setSelectedType(type)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                 isActive 
                   ? 'bg-[#FACC15] text-black' 
                   : 'bg-[#141414] border border-[#2A2A2A] text-[#9CA3AF] hover:text-white hover:border-[#FACC15]/50'

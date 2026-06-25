@@ -19,11 +19,26 @@ export interface UnifiedTransaction {
   _payoutId?: string;
   _refundId?: string;
   _rideId?: string;
+  details?: Record<string, any>;
+}
+
+// --- Settled balance response ---
+export interface SettledBalanceResponse {
+  availableToPayout: number;
+  totalSettledEarned: number;
+  totalCashCollected: number;
+  totalAlreadyPaid: number;
+  totalEarnedAllTime: number;
+  totalPendingBalance: number;
+  lastPaidDate: string | null;
+  nextSettlementDate: string;
+  isPayable: boolean;
 }
 
 // --- Filter params for unified transactions ---
 export interface TransactionFilterParams extends PaginatedQuery {
   type?: TransactionType;
+  status?: string;
 }
 
 // --- Trigger payout payload ---
@@ -38,24 +53,45 @@ export interface TriggerPayoutPayload {
 // --- Payment KPIs ---
 export interface PaymentKpis {
   todayRevenue: number;
-  pendingPayouts: number;
-  thisMonth: number;
-  refunds30d: number;
-  tipRevenue30d: number;
+  pendingPayoutsAmount: number;
+  pendingSuppliersCount: number;
+  completedPayoutsAmount: number;
+  completedSuppliersCount: number;
+  overduePayoutsAmount: number;
+  overdueSuppliersCount: number;
 }
 
 // --- Paginated response ---
 export type TransactionListResponse = PaginatedResponse<UnifiedTransaction>;
 
+export interface SettlementListItem {
+  id: string;
+  companyName: string;
+  email: string;
+  totalSettledEarned: number;
+  totalAlreadyPaid: number;
+  availableToPayout: number;
+  totalEarnedAllTime: number;
+  totalPendingBalance: number;
+  lastPaidDate: string | null;
+  nextSettlementDate: string;
+  isPayable: boolean;
+}
+
+export type SettlementListResponse = PaginatedResponse<SettlementListItem>;
+
 // --- Transaction type display ---
-export function getTransactionTypeDisplay(type: TransactionType) {
-  const map: Record<TransactionType, { label: string; className: string }> = {
+export function getTransactionTypeDisplay(type: string | undefined) {
+  if (!type) {
+    return { label: 'Payment', className: 'bg-gray-500/20 text-gray-400 border-gray-500/30' };
+  }
+  const map: Record<string, { label: string; className: string }> = {
     ride: { label: 'Ride', className: 'bg-green-500/20 text-green-400 border-green-500/30' },
     payout: { label: 'Payouts', className: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' },
     refund: { label: 'Refund', className: 'bg-red-500/20 text-red-400 border-red-500/30' },
     tip: { label: 'Tip', className: 'bg-green-500/20 text-green-400 border-green-500/30' },
   };
-  return map[type];
+  return map[type] || { label: type, className: 'bg-gray-500/20 text-gray-400 border-gray-500/30' };
 }
 
 // --- Payment status display (lowercase colored text, not pill badges) ---

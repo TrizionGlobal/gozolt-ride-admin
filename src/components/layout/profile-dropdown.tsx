@@ -1,17 +1,15 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { LogOut, Settings, ChevronDown } from 'lucide-react';
+import { LogOut, ChevronDown } from 'lucide-react';
 import { useAuthStore } from '@/stores/auth.store';
 import { useAuth } from '@/hooks/use-auth';
-import { useRouter } from 'next/navigation';
 
 export function ProfileDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const user = useAuthStore((s) => s.user);
   const { logout } = useAuth();
-  const router = useRouter();
 
   const initials = user && user.firstName && user.lastName
     ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`
@@ -56,16 +54,6 @@ export function ProfileDropdown() {
           </div>
           
           <div className="py-1">
-            <button
-              onClick={() => { setIsOpen(false); router.push('/settings'); }}
-              className="w-full flex items-center px-4 py-2.5 text-sm text-[#D4D4D8] hover:bg-[#1A1A1A] hover:text-white transition-colors"
-            >
-              <Settings className="h-4 w-4 mr-3 text-[#A1A1AA]" />
-              Platform Settings
-            </button>
-          </div>
-          
-          <div className="border-t border-[#27272A] py-1">
             <button
               onClick={() => { setIsOpen(false); logout(); }}
               className="w-full flex items-center px-4 py-2.5 text-sm text-red-500 hover:bg-[#1A1A1A] transition-colors"

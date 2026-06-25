@@ -4,19 +4,15 @@ import { useState } from 'react';
 import { SettingsTabs } from '@/components/settings/settings-tabs';
 import { FareConfigTable } from '@/components/settings/fare-config-table';
 import { FeesConfig } from '@/components/settings/fees-config';
+import { SystemConfigTab } from '@/components/settings/system-config-tab';
 import { AdminUsersTable } from '@/components/settings/admin-users-table';
-import {
-  useFareConfig,
-  useFeeConfig,
-  useAdminUsers,
-} from '@/hooks/use-settings';
+import { useAdminUsers } from '@/hooks/use-settings';
 import type { SettingsTab } from '@/services/admin/settings.types';
 
 export default function SettingsPage() {
-  const [activeTab, setActiveTab] = useState<SettingsTab>('fare-config');
+  const [activeTab, setActiveTab] = useState<SettingsTab>('system-config');
 
-  const fareConfig = useFareConfig();
-  const feeConfig = useFeeConfig();
+
   const adminUsers = useAdminUsers();
 
 
@@ -37,23 +33,7 @@ export default function SettingsPage() {
 
         {/* Tab Content */}
         <div className="p-6">
-          {activeTab === 'fare-config' && (
-            <FareConfigTable
-              rules={fareConfig.rules}
-              loading={fareConfig.loading}
-              saving={fareConfig.saving}
-              onSave={fareConfig.updateRule}
-            />
-          )}
-
-          {activeTab === 'fees' && (
-            <FeesConfig
-              fees={feeConfig.fees}
-              loading={feeConfig.loading}
-              saving={feeConfig.saving}
-              onSave={feeConfig.updateFees}
-            />
-          )}
+          {activeTab === 'system-config' && <SystemConfigTab />}
 
           {activeTab === 'admin-users' && (
             <AdminUsersTable

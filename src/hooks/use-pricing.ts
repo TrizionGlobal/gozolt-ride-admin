@@ -7,7 +7,7 @@ import type { PricingRule, UpdatePricingPayload } from '@/services/admin/pricing
 
 export function usePricing() {
   const [rules, setRules] = useState<PricingRule[]>([]);
-  const [selectedType, setSelectedType] = useState<VehicleType>(VehicleType.STANDARD);
+  const [selectedType, setSelectedType] = useState<VehicleType>(VehicleType.GO);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);

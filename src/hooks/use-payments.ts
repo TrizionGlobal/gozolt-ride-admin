@@ -6,17 +6,19 @@ import type {
   TransactionFilterParams,
   TransactionListResponse,
   PaymentKpis,
+  SettlementListResponse,
 } from '@/services/admin/payment.types';
 
-export function useTransactions(params: TransactionFilterParams) {
+export function useTransactions(params: TransactionFilterParams, enabled: boolean = true) {
   const [data, setData] = useState<TransactionListResponse | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(enabled);
   const [error, setError] = useState<string | null>(null);
 
   const fetch = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
+      setData(null); 
       const result = await paymentService.listTransactions(params);
       setData(result);
     } catch (err) {
@@ -24,13 +26,15 @@ export function useTransactions(params: TransactionFilterParams) {
     } finally {
       setLoading(false);
     }
-  }, [params.type, params.search, params.page, params.limit]);
+  }, [params.type, params.search, params.page, params.limit, params.status]);
 
   useEffect(() => {
-    fetch();
-  }, [fetch]);
+    if (enabled) {
+      fetch();
+    }
+  }, [fetch, enabled]);
 
-  return { data, loading, error, refetch: fetch };
+  return { data, loading: enabled ? loading : false, error, refetch: fetch };
 }
 
 export function usePaymentKpis() {
@@ -54,4 +58,32 @@ export function usePaymentKpis() {
   }, [fetch]);
 
   return { kpis, loading, refresh: fetch };
+}
+
+export function useSettlements(page: number, limit: number, status?: string, search?: string, enabled: boolean = true) {
+  const [data, setData] = useState<SettlementListResponse | null>(null);
+  const [loading, setLoading] = useState(enabled);
+
+  const fetch = useCallback(async () => {
+    try {
+      setLoading(true);
+      const params: any = { page, limit };
+      if (status && status !== 'ALL') params.status = status;
+      if (search) params.search = search;
+      const result = await paymentService.listSettlements(params);
+      setData(result);
+    } catch {
+      // ignore
+    } finally {
+      setLoading(false);
+    }
+  }, [page, limit, status, search]);
+
+  useEffect(() => {
+    if (enabled) {
+      fetch();
+    }
+  }, [fetch, enabled]);
+
+  return { data, loading: enabled ? loading : false, refetch: fetch };
 }

@@ -78,7 +78,7 @@ export const ADMIN_ROLE_COLOR: Record<AdminRole, string> = {
 };
 
 // --- Tab definitions ---
-export type SettingsTab = 'fare-config' | 'fees' | 'admin-users';
+export type SettingsTab = 'system-config' | 'admin-users';
 
 export interface SettingsTabConfig {
   id: SettingsTab;
@@ -86,8 +86,7 @@ export interface SettingsTabConfig {
 }
 
 export const SETTINGS_TABS: SettingsTabConfig[] = [
-  { id: 'fare-config', label: 'Fare config' },
-  { id: 'fees', label: 'Fees' },
+  { id: 'system-config', label: 'System Configuration' },
   { id: 'admin-users', label: 'Admin Users' },
 ];
 

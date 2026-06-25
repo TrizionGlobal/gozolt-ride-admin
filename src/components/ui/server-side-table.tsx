@@ -1,12 +1,13 @@
 'use client';
 
 import { ReactNode } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 export interface ColumnDef<T> {
   key: string;
   title: ReactNode;
   dataIndex?: keyof T;
-  render?: (row: T) => ReactNode;
+  render?: (row: T, expanded?: boolean) => ReactNode;
   className?: string;
 }
 
@@ -22,6 +23,8 @@ interface ServerSideTableProps<T> {
   onRowClick?: (row: T) => void;
   rowKey?: keyof T | ((row: T) => string);
   emptyText?: ReactNode;
+  size?: 'default' | 'sm';
+  renderExpandedRow?: (row: T) => ReactNode;
 }
 
 export function ServerSideTable<T extends Record<string, any>>({
@@ -36,6 +39,8 @@ export function ServerSideTable<T extends Record<string, any>>({
   onRowClick,
   rowKey = 'id',
   emptyText = 'No data found',
+  size = 'default',
+  renderExpandedRow,
 }: ServerSideTableProps<T>) {
   const getRowKey = (row: T) => {
     if (typeof rowKey === 'function') {
@@ -43,6 +48,8 @@ export function ServerSideTable<T extends Record<string, any>>({
     }
     return String(row[rowKey]);
   };
+
+  const cellPadding = size === 'sm' ? 'px-2 py-2' : 'px-4 py-3';
 
   return (
     <div className="flex flex-col w-full">
@@ -61,7 +68,7 @@ export function ServerSideTable<T extends Record<string, any>>({
                 {columns.map((col) => (
                   <th
                     key={col.key}
-                    className={`px-4 py-3 text-xs font-medium uppercase text-[#71717A] ${col.className || ''}`}
+                    className={`${cellPadding} text-xs font-medium text-[#9CA3AF] whitespace-nowrap ${col.className || ''}`}
                   >
                     {col.title}
                   </th>
@@ -70,23 +77,14 @@ export function ServerSideTable<T extends Record<string, any>>({
             </thead>
             <tbody>
               {data.map((row) => (
-                <tr
+                <RowItem
                   key={getRowKey(row)}
-                  onClick={() => onRowClick?.(row)}
-                  className={`border-b border-[#27272A] last:border-b-0 transition-colors ${
-                    onRowClick ? 'cursor-pointer hover:bg-[#1A1A1A]/30' : ''
-                  }`}
-                >
-                  {columns.map((col) => (
-                    <td key={col.key} className={`px-4 py-3 ${col.className || ''}`}>
-                      {col.render
-                        ? col.render(row)
-                        : col.dataIndex
-                        ? String(row[col.dataIndex] ?? '—')
-                        : '—'}
-                    </td>
-                  ))}
-                </tr>
+                  row={row}
+                  columns={columns}
+                  cellPadding={cellPadding}
+                  onRowClick={onRowClick}
+                  renderExpandedRow={renderExpandedRow}
+                />
               ))}
               {data.length === 0 && (
                 <tr>
@@ -106,19 +104,18 @@ export function ServerSideTable<T extends Record<string, any>>({
       {/* Pagination Footer */}
       {!isLoading && data.length > 0 && (
         <div className="flex flex-col sm:flex-row items-center justify-between border-t border-[#27272A] p-4 gap-4">
-          <div className="text-sm text-[#A1A1AA]">
-            Showing <span className="font-medium text-white">{(page - 1) * limit + 1}</span> to{' '}
-            <span className="font-medium text-white">{Math.min(page * limit, total)}</span> of{' '}
-            <span className="font-medium text-white">{total}</span> records
-          </div>
+          {/* Left Side: Showing count and Rows per page */}
+          <div className="flex items-center gap-6">
+            <div className="text-sm text-[#A1A1AA]">
+              Showing {(page - 1) * limit + 1}-{Math.min(page * limit, total)} of {total} records
+            </div>
 
-          <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <label className="text-sm text-[#A1A1AA]">Rows per page:</label>
               <select
                 value={limit}
                 onChange={(e) => onLimitChange(Number(e.target.value))}
-                className="rounded border border-[#27272A] bg-[#0A0A0A] px-2 py-1 text-sm text-white outline-none focus:border-[#FACC15]"
+                className="rounded-md border border-[#27272A] bg-[#141414] px-2 py-1 text-sm text-[#A1A1AA] outline-none focus:border-[#FACC15]"
               >
                 {[20, 50, 100, 200, 500].map((sz) => (
                   <option key={sz} value={sz}>
@@ -127,26 +124,87 @@ export function ServerSideTable<T extends Record<string, any>>({
                 ))}
               </select>
             </div>
+          </div>
 
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => onPageChange(page - 1)}
-                disabled={page === 1}
-                className="rounded border border-[#27272A] bg-[#111111] px-3 py-1 text-sm text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#27272A] transition-colors"
-              >
-                Previous
-              </button>
-              <button
-                onClick={() => onPageChange(page + 1)}
-                disabled={page * limit >= total}
-                className="rounded border border-[#27272A] bg-[#111111] px-3 py-1 text-sm text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#27272A] transition-colors"
-              >
-                Next
-              </button>
-            </div>
+          {/* Right Side: Pagination Controls */}
+          <div className="flex items-center gap-4 text-sm text-[#A1A1AA]">
+            <button
+              onClick={() => onPageChange(page - 1)}
+              disabled={page === 1}
+              className="flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed hover:text-white transition-colors"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Previous
+            </button>
+            
+            <span>Page {page} of {Math.max(1, Math.ceil(total / limit))}</span>
+
+            <button
+              onClick={() => onPageChange(page + 1)}
+              disabled={page * limit >= total}
+              className="flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed hover:text-white transition-colors"
+            >
+              Next
+              <ChevronRight className="h-4 w-4" />
+            </button>
           </div>
         </div>
       )}
     </div>
+  );
+}
+
+import React, { useState } from 'react';
+
+function RowItem<T>({ 
+  row, 
+  columns, 
+  cellPadding, 
+  onRowClick, 
+  renderExpandedRow 
+}: { 
+  row: T; 
+  columns: ColumnDef<T>[]; 
+  cellPadding: string; 
+  onRowClick?: (row: T) => void;
+  renderExpandedRow?: (row: T) => ReactNode;
+}) {
+  const [expanded, setExpanded] = useState(false);
+
+  const handleClick = () => {
+    if (renderExpandedRow) {
+      setExpanded(!expanded);
+    }
+    if (onRowClick) {
+      onRowClick(row);
+    }
+  };
+
+  return (
+    <React.Fragment>
+      <tr
+        onClick={handleClick}
+        className={`border-b border-[#27272A] last:border-b-0 transition-colors ${
+          (onRowClick || renderExpandedRow) ? 'cursor-pointer hover:bg-[#1A1A1A]/30' : ''
+        }`}
+      >
+        {columns.map((col) => (
+          <td key={col.key} className={`${cellPadding} ${col.className || ''}`}>
+            {col.render
+              ? col.render(row, expanded)
+              : col.dataIndex
+              ? String((row as any)[col.dataIndex] ?? '—')
+              : '—'}
+          </td>
+        ))}
+      </tr>
+      {expanded && renderExpandedRow && (
+        <tr className="bg-[#141414] border-b border-[#2A2A2A]">
+          <td colSpan={columns.length} className="p-0">
+            {renderExpandedRow(row)}
+          </td>
+        </tr>
+      )}
+    </React.Fragment>
   );
 }

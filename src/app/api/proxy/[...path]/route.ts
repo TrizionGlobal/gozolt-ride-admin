@@ -51,6 +51,7 @@ async function handler(
   const fetchOptions: RequestInit = {
     method,
     headers,
+    cache: 'no-store',
   };
 
   if (hasBody) {
