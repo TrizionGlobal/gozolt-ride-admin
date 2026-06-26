@@ -60,4 +60,9 @@ export const supplierService = {
     const { data } = await apiClient.patch<SupplierListItem>(`/admin/suppliers/${id}/commission`, payload);
     return data;
   },
+
+  async toggleBankDetailsPermission(id: string, allow: boolean): Promise<SupplierListItem> {
+    const { data } = await apiClient.patch<SupplierListItem>(`/admin/suppliers/${id}/bank-details-permission`, { allow });
+    return data;
+  },
 };

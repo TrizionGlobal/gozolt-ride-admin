@@ -21,8 +21,7 @@ export function DriverTableRow({ driver, onSuspend, onRefetch, onViewDetail }: D
 
   return (
     <TableRow
-      className="border-b border-[#2A2A2A] hover:bg-[#1A1A1A]/50 transition-colors cursor-pointer"
-      onClick={() => onViewDetail?.(driver.id)}
+      className="border-b border-[#2A2A2A] hover:bg-[#1A1A1A]/50 transition-colors"
     >
 
       {/* Driver (name + email) */}

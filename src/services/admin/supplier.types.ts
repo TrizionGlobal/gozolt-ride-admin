@@ -25,6 +25,7 @@ export interface SupplierListItem {
   emailVerified: boolean;
   status: SupplierStatus;
   commissionRate: number;
+  editBankDetails: boolean;
   stripeAccountId: string | null;
   createdAt: string;
   updatedAt: string;

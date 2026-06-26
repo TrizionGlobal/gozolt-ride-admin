@@ -45,6 +45,17 @@ export function SupplierTableRow({
     }
   };
 
+  const handleToggleBankDetails = async () => {
+    try {
+      const newStatus = !supplier.editBankDetails;
+      await supplierService.toggleBankDetailsPermission(supplier.id, newStatus);
+      toast.success(newStatus ? 'Bank edit enabled' : 'Bank edit disabled');
+      onRefetch();
+    } catch {
+      toast.error('Failed to update permission');
+    }
+  };
+
   return (
     <TableRow className="border-b border-[#2A2A2A] hover:bg-[#1A1A1A]/50 transition-colors">
       <TableCell className="text-sm font-medium text-white">

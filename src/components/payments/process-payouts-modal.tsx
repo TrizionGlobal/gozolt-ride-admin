@@ -98,6 +98,7 @@ export function ProcessPayoutsModal({
       // In a real app, the backend returns the full Payout object including details
       await paymentService.triggerPayout({
         supplierId,
+        supplierName: selectedSupplier.companyName,
         amount: numAmount,
       });
       toast.success(

@@ -23,8 +23,7 @@ export function UserTableRow({ user, onBan, onForceLogout, onRefetch, onViewDeta
 
   return (
     <TableRow
-      className="border-b border-[#2A2A2A] hover:bg-[#1A1A1A]/50 transition-colors cursor-pointer"
-      onClick={() => onViewDetail?.(user.id)}
+      className="border-b border-[#2A2A2A] hover:bg-[#1A1A1A]/50 transition-colors"
     >
       {/* User Info */}
       <TableCell>

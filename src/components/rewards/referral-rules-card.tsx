@@ -21,7 +21,7 @@ export function PointEarningRulesCard({ config, saving, onSave }: PointEarningRu
   const handleEdit = () => {
     const values: Record<string, number> = {};
     POINT_EARNING_FIELDS.forEach((f) => {
-      values[f.key] = config.earning?.[f.key as keyof typeof config.earning] ?? 0;
+      values[f.key] = config[f.key] ?? 0;
     });
     setEditValues(values);
     setIsEditing(true);
@@ -35,10 +35,9 @@ export function PointEarningRulesCard({ config, saving, onSave }: PointEarningRu
   const handleSave = async () => {
     const payload: UpdateRewardConfigPayload = {};
     POINT_EARNING_FIELDS.forEach((f) => {
-      const originalValue = config.earning?.[f.key as keyof typeof config.earning] ?? 0;
+      const originalValue = config[f.key as keyof RewardConfig] ?? 0;
       if (editValues[f.key] !== originalValue) {
-        if (!payload.earning) payload.earning = {};
-        (payload.earning as any)[f.key] = editValues[f.key];
+        (payload as any)[f.key] = editValues[f.key];
       }
     });
 
@@ -98,7 +97,7 @@ export function PointEarningRulesCard({ config, saving, onSave }: PointEarningRu
           <RewardFieldRow
             key={field.key}
             label={field.label}
-            value={isEditing ? editValues[field.key] : (config.earning?.[field.key as keyof typeof config.earning] ?? 0)}
+            value={isEditing ? editValues[field.key] : (config[field.key as keyof RewardConfig] ?? 0)}
             unit={field.unit}
             step={field.step}
             isEditing={isEditing}

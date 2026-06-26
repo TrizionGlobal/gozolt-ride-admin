@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { Switch } from '@/components/ui/switch';
+import { Loader2 } from 'lucide-react';
 import { ServerSideTable, type ColumnDef } from '@/components/ui/server-side-table';
 import { SupplierStatusBadge } from './supplier-status-badge';
 import { SupplierActionsMenu } from './supplier-actions-menu';
@@ -40,6 +42,7 @@ export function SupplierTable({
 }: SupplierTableProps) {
   const [selectedSupplierId, setSelectedSupplierId] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [updatingBankDetailsId, setUpdatingBankDetailsId] = useState<string | null>(null);
 
   const handleViewDetail = (id: string) => {
     setSelectedSupplierId(id);
@@ -98,6 +101,36 @@ export function SupplierTable({
       render: (row) => (
         <span className="text-sm text-white">€{(row.totalRevenue ?? 0).toLocaleString()}</span>
       ),
+    },
+    {
+      key: 'editBankDetails',
+      title: 'Edit Bank Details',
+      render: (row) => {
+        const isUpdating = updatingBankDetailsId === row.id;
+        const handleToggleBankDetails = async (checked: boolean) => {
+          setUpdatingBankDetailsId(row.id);
+          try {
+            await supplierService.toggleBankDetailsPermission(row.id, checked);
+            toast.success(checked ? 'Bank edit enabled' : 'Bank edit disabled');
+            onRefetch();
+          } catch {
+            toast.error('Failed to update permission');
+          } finally {
+            setUpdatingBankDetailsId(null);
+          }
+        };
+        return (
+          <div className="flex items-center gap-2">
+            <Switch
+              checked={row.editBankDetails}
+              onCheckedChange={handleToggleBankDetails}
+              disabled={isUpdating}
+              aria-label="Toggle bank details edit"
+            />
+            {isUpdating && <Loader2 className="h-4 w-4 animate-spin text-[#9CA3AF]" />}
+          </div>
+        );
+      },
     },
     {
       key: 'actions',

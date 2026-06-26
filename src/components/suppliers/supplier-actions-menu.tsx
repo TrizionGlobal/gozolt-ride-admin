@@ -1,6 +1,6 @@
 'use client';
 
-import { MoreHorizontal, Eye, Ban, CheckCircle2, XCircle, Percent } from 'lucide-react';
+import { MoreHorizontal, Eye, Ban, CheckCircle2, XCircle, Percent, CreditCard } from 'lucide-react';
 import { SupplierStatus } from '@/types';
 import {
   DropdownMenu,
