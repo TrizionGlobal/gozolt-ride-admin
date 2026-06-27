@@ -73,13 +73,19 @@ export function Sidebar() {
       {/* Footer Version */}
       <div className={cn("border-t border-[#2A2A2A] px-4 py-3", isCollapsed && "px-2")}>
         {!isCollapsed ? (
-          <div className="flex flex-col gap-1">
-            <span className="text-xs font-medium text-[#71717A]">v1.0.0</span>
-            <span className="text-[10px] text-[#52525B]">Made by Gozolt</span>
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center rounded-md bg-[#FACC15]/10 px-2 py-0.5 text-[10px] font-medium text-[#FACC15] ring-1 ring-inset ring-[#FACC15]/20">
+                v1.0.0
+              </span>
+            </div>
+            <span className="text-[10px] text-[#52525B]">Born in Malta, Loved by Europe</span>
           </div>
         ) : (
           <div className="flex justify-center">
-            <span className="text-[10px] font-medium text-[#71717A]">v1</span>
+            <span className="inline-flex items-center rounded-md bg-[#FACC15]/10 px-1.5 py-0.5 text-[9px] font-medium text-[#FACC15] ring-1 ring-inset ring-[#FACC15]/20">
+              v1.0
+            </span>
           </div>
         )}
       </div>
