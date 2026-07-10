@@ -25,6 +25,15 @@ export const supplierService = {
     return data;
   },
 
+  async getSupplierPenalties(id: string): Promise<any[]> {
+    try {
+      const { data } = await apiClient.get<any[]>(`/admin/suppliers/${id}/penalties`);
+      return data;
+    } catch {
+      return [];
+    }
+  },
+
   async getSupplierDocuments(supplierId: string): Promise<SupplierDocument[]> {
     try {
       const { data } = await apiClient.get<{ data: SupplierDocument[] }>(

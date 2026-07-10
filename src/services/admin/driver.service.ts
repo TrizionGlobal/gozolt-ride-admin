@@ -25,6 +25,15 @@ export const driverService = {
     return data;
   },
 
+  async getDriverPenalties(id: string): Promise<any[]> {
+    try {
+      const { data } = await apiClient.get<any[]>(`/admin/drivers/${id}/penalties`);
+      return data;
+    } catch {
+      return [];
+    }
+  },
+
   async approveDriver(id: string): Promise<DriverListItem> {
     const { data } = await apiClient.patch<DriverListItem>(`/admin/drivers/${id}/approve`);
     return data;

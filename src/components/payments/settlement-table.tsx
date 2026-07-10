@@ -19,11 +19,18 @@ export function SettlementTable({ data, loading, page, limit, onPageChange, onLi
       key: 'companyName',
       title: 'Company Name',
       dataIndex: 'companyName',
+      render: (row) => <span className="text-white text-sm">{row.companyName}</span>
+
     },
     {
       key: 'totalEarnedAllTime',
       title: 'Total Earned',
       render: (row) => <span className="text-white text-sm">&euro;{Number(row.totalEarnedAllTime || 0).toFixed(2)}</span>,
+    },
+    {
+      key: 'penaltyEarned',
+      title: 'Cancellation Fees',
+      render: (row) => <span className="text-white text-sm">&euro;{Number(row.totalPenaltyEarned || 0).toFixed(2)}</span>,
     },
     {
       key: 'totalAlreadyPaid',
@@ -63,8 +70,8 @@ export function SettlementTable({ data, loading, page, limit, onPageChange, onLi
           onClick={(e) => { e.stopPropagation(); onPaySupplier(row); }}
           disabled={!row.isPayable || row.availableToPayout <= 0}
           className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${row.isPayable && row.availableToPayout > 0
-              ? 'bg-[#FACC15] text-black hover:bg-[#E5B800]'
-              : 'bg-[#2A2A2A] text-[#6B7280] cursor-not-allowed'
+            ? 'bg-[#FACC15] text-black hover:bg-[#E5B800]'
+            : 'bg-[#2A2A2A] text-[#6B7280] cursor-not-allowed'
             }`}
         >
           Pay Settlement

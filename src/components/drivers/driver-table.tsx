@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/table';
 import { DriverTableRow } from './driver-table-row';
 import { DriverDetailDrawer } from './driver-detail-drawer';
+import { PenaltyDetailsModal } from '@/components/shared/penalty-details-modal';
 import type { DriverListResponse } from '@/services/admin/driver.types';
 
 interface DriverTableProps {
@@ -38,10 +39,17 @@ export function DriverTable({
 }: DriverTableProps) {
   const [selectedDriverId, setSelectedDriverId] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [penaltyModalOpen, setPenaltyModalOpen] = useState(false);
+  const [selectedPenaltyDriverId, setSelectedPenaltyDriverId] = useState<string | null>(null);
 
   const handleViewDetail = (id: string) => {
     setSelectedDriverId(id);
     setDrawerOpen(true);
+  };
+
+  const handleViewPenalties = (id: string) => {
+    setSelectedPenaltyDriverId(id);
+    setPenaltyModalOpen(true);
   };
 
   if (loading) {
@@ -76,6 +84,7 @@ export function DriverTable({
           <TableRow className="border-b border-[#2A2A2A] hover:bg-transparent">
             <TableHead className="text-[#9CA3AF] text-xs font-medium">Driver</TableHead>
             <TableHead className="text-[#9CA3AF] text-xs font-medium">Supplier</TableHead>
+            <TableHead className="text-[#9CA3AF] text-xs font-medium">Cancellation Fees</TableHead>
             <TableHead className="text-[#9CA3AF] text-xs font-medium">Driver Status</TableHead>
             <TableHead className="text-[#9CA3AF] text-xs font-medium">Rating</TableHead>
             <TableHead className="text-[#9CA3AF] text-xs font-medium">Rides</TableHead>
@@ -94,6 +103,7 @@ export function DriverTable({
               onSuspend={onSuspend}
               onRefetch={onRefetch}
               onViewDetail={handleViewDetail}
+              onViewPenalties={handleViewPenalties}
             />
           ))}
         </TableBody>
@@ -156,6 +166,13 @@ export function DriverTable({
         driverId={selectedDriverId}
         open={drawerOpen}
         onOpenChange={setDrawerOpen}
+      />
+
+      <PenaltyDetailsModal
+        open={penaltyModalOpen}
+        onOpenChange={setPenaltyModalOpen}
+        entityId={selectedPenaltyDriverId}
+        entityType="DRIVER"
       />
     </div>
   );

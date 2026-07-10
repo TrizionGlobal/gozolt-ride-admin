@@ -34,9 +34,9 @@ export default function NotificationsPage() {
         </div>
         <Button
           onClick={() => setComposeOpen(true)}
-          className="bg-[#FACC15] text-black hover:bg-[#E5B800] font-semibold"
+          className="bg-[#FACC15] text-black hover:bg-[#E5B800] font-semibold text-xs h-8 w-26"
         >
-          <Plus className="mr-2 h-4 w-4" />
+          <Plus className="h-2" />
           Compose
         </Button>
       </div>

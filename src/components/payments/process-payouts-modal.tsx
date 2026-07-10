@@ -104,7 +104,7 @@ export function ProcessPayoutsModal({
       toast.success(
         `Payout of €${numAmount.toFixed(2)} transferred to ${selectedSupplier.companyName}`,
       );
-      
+
       // Mocking the receipt since the current API response only gives id and status
       // We will refresh the balance to show the remaining.
       const newBal = await paymentService.getSettledBalance(supplierId);
@@ -114,7 +114,7 @@ export function ProcessPayoutsModal({
         remainingPendingAfterThis: Math.max(0, newBal.totalPendingBalance - newBal.availableToPayout),
         transferId: `tr_${Math.random().toString(36).substr(2, 9)}`, // Mock stripe transfer ID for UI receipt
       });
-      
+
       onSuccess();
     } catch (error: any) {
       const msg = error.response?.data?.message || error.message || 'Failed to process payout. Ensure Supplier has Stripe connected.';
@@ -249,6 +249,10 @@ export function ProcessPayoutsModal({
                   <div className="flex justify-between text-sm">
                     <span className="text-[#9CA3AF]">Total Earned</span>
                     <span className="text-white">€{(balance.totalEarnedAllTime || 0).toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm text-[#9CA3AF]">
+                    <span>User Cancellation Fees</span>
+                    <span className="text-white">€{(balance.totalPenaltyEarned || 0).toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-[#9CA3AF]">Total Paid Out</span>

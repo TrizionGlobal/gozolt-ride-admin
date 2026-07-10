@@ -15,6 +15,7 @@ import {
   User,
   FileText,
   ExternalLink,
+  AlertTriangle,
 } from 'lucide-react';
 import {
   Dialog,
@@ -28,6 +29,7 @@ import { driverService } from '@/services/admin/driver.service';
 import { getDriverStatusDisplay } from '@/services/admin/driver.types';
 import type { DriverDetail, DriverDetailExtended } from '@/services/admin/driver.types';
 import { toast } from 'sonner';
+import { PenaltyDetailsModal } from '@/components/shared/penalty-details-modal';
 
 type Tab = 'profile' | 'supplier' | 'earnings' | 'documents';
 
@@ -42,6 +44,7 @@ export function DriverDetailDrawer({ driverId, open, onOpenChange }: DriverDetai
   const [driver, setDriver] = useState<DriverDetail | null>(null);
   const [extended, setExtended] = useState<DriverDetailExtended | null>(null);
   const [loading, setLoading] = useState(false);
+  const [penaltyModalOpen, setPenaltyModalOpen] = useState(false);
 
   useEffect(() => {
     if (driverId && open) {
@@ -396,12 +399,42 @@ export function DriverDetailDrawer({ driverId, open, onOpenChange }: DriverDetai
                   <p className="text-lg font-semibold text-white">{extended.earnings?.ridesCompleted ?? 0}</p>
                 </div>
               </div>
+              
+              {driver?.userCancellationFees !== undefined && (
+                <div className="mt-4 bg-[#0A0A0A] border border-[#2A2A2A] rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <AlertTriangle className="h-4 w-4 text-amber-500" />
+                      <h4 className="text-sm font-medium text-white">User Cancellation Fees</h4>
+                    </div>
+                    <button
+                      onClick={() => setPenaltyModalOpen(true)}
+                      className="text-xs text-[#FACC15] hover:underline"
+                    >
+                      View Details
+                    </button>
+                  </div>
+                  <div className="flex items-center justify-between bg-[#141414] border border-[#2A2A2A] rounded-lg p-3 mt-2">
+                    <span className="text-xs text-[#6B7280]">Total Earnings from Cancellations</span>
+                    <span className="text-sm font-medium text-green-400">
+                      &euro;{driver.userCancellationFees.toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
 
         </div>
       </DialogContent>
+
+      <PenaltyDetailsModal
+        open={penaltyModalOpen}
+        onOpenChange={setPenaltyModalOpen}
+        entityId={driverId}
+        entityType="DRIVER"
+      />
     </Dialog>
   );
 }

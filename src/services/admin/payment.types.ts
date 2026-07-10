@@ -26,6 +26,7 @@ export interface UnifiedTransaction {
 export interface SettledBalanceResponse {
   availableToPayout: number;
   totalSettledEarned: number;
+  totalPenaltyEarned: number;
   totalCashCollected: number;
   totalAlreadyPaid: number;
   totalEarnedAllTime: number;
@@ -69,6 +70,7 @@ export interface SettlementListItem {
   companyName: string;
   email: string;
   totalSettledEarned: number;
+  totalPenaltyEarned: number;
   totalAlreadyPaid: number;
   availableToPayout: number;
   totalEarnedAllTime: number;

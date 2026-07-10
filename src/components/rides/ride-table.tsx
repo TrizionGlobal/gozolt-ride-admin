@@ -43,12 +43,12 @@ export function RideTable({
     {
       key: 'user',
       title: 'User',
-      render: (r) => <span className="text-sm text-white whitespace-nowrap">{[r.user.firstName, r.user.lastName].filter(Boolean).join(' ') || '—'}</span>,
+      render: (r) => <span className="text-sm text-white whitespace-nowrap">{[r.user.firstName, r.user.lastName].filter(Boolean).join(' ') || ''}</span>,
     },
     {
       key: 'driver',
       title: 'Driver',
-      render: (r) => <span className="text-sm text-white whitespace-nowrap">{r.driver ? `${r.driver.firstName} ${r.driver.lastName}` : '—'}</span>,
+      render: (r) => <span className="text-sm text-white whitespace-nowrap">{r.driver ? `${r.driver.firstName} ${r.driver.lastName}` : ''}</span>,
     },
     {
       key: 'pickup',
@@ -100,13 +100,13 @@ export function RideTable({
     {
       key: 'payment',
       title: 'Payment',
-      render: (r) => <span className="text-sm text-[#9CA3AF]">{r.driver ? (r.paymentMethod === 'CARD' ? 'Card' : r.paymentMethod === 'CASH' ? 'Cash' : 'Wallet') : '—'}</span>,
+      render: (r) => <span className="text-sm text-[#9CA3AF]">{r.driver ? (r.paymentMethod === 'CARD' ? 'Card' : r.paymentMethod === 'CASH' ? 'Cash' : 'Wallet') : ''}</span>,
     },
-    {
-      key: 'duration',
-      title: 'Duration',
-      render: (r) => <span className="text-sm text-[#9CA3AF]">{r.durationMinutes ? `${r.durationMinutes} min` : '—'}</span>,
-    },
+    // {
+    //   key: 'duration',
+    //   title: 'Duration',
+    //   render: (r) => <span className="text-sm text-[#9CA3AF]">{r.durationMinutes ? `${r.durationMinutes} min` : '—'}</span>,
+    // },
   ];
 
   return (

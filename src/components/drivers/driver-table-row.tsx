@@ -12,9 +12,10 @@ interface DriverTableRowProps {
   onSuspend: (id: string) => void;
   onRefetch: () => void;
   onViewDetail?: (id: string) => void;
+  onViewPenalties?: (id: string) => void;
 }
 
-export function DriverTableRow({ driver, onSuspend, onRefetch, onViewDetail }: DriverTableRowProps) {
+export function DriverTableRow({ driver, onSuspend, onRefetch, onViewDetail, onViewPenalties }: DriverTableRowProps) {
   const fullName = `${driver.firstName} ${driver.lastName}`;
   const vehicle = driver.vehicleAssignment?.vehicle;
   const earnings = driver._computed?.totalEarnings ?? 0;
@@ -35,6 +36,11 @@ export function DriverTableRow({ driver, onSuspend, onRefetch, onViewDetail }: D
       {/* Supplier */}
       <TableCell className="text-sm text-[#9CA3AF]">
         {driver.supplier.companyName}
+      </TableCell>
+
+      {/* User Cancellation Fees */}
+      <TableCell className="text-sm text-[#9CA3AF]">
+        <span>€{Number(driver.userCancellationFees || 0).toLocaleString()}</span>
       </TableCell>
 
       {/* Status */}

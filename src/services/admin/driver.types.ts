@@ -22,6 +22,7 @@ export interface DriverListItem {
   totalRides: number;
   createdAt: string;
   updatedAt: string;
+  userCancellationFees?: number;
   supplier: {
     companyName: string;
   };

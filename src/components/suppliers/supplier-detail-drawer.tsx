@@ -36,6 +36,7 @@ import { supplierService } from '@/services/admin/supplier.service';
 import { STATUS_DISPLAY, TIER_DISPLAY, SUPPLIER_DOCUMENT_TYPES } from '@/services/admin/supplier.types';
 import type { SupplierDetail, SupplierDocument } from '@/services/admin/supplier.types';
 import { toast } from 'sonner';
+import { PenaltyDetailsModal } from '@/components/shared/penalty-details-modal';
 
 interface SupplierDetailDrawerProps {
   supplierId: string | null;
@@ -47,6 +48,7 @@ export function SupplierDetailDrawer({ supplierId, open, onOpenChange }: Supplie
   const [supplier, setSupplier] = useState<SupplierDetail | null>(null);
   const [documents, setDocuments] = useState<SupplierDocument[]>([]);
   const [loading, setLoading] = useState(false);
+  const [penaltyModalOpen, setPenaltyModalOpen] = useState(false);
 
   useEffect(() => {
     if (supplierId && open) {
@@ -277,6 +279,30 @@ export function SupplierDetailDrawer({ supplierId, open, onOpenChange }: Supplie
                 </div>
               )}
 
+              {/* User Cancellation Fees Card */}
+              {supplier.userCancellationFees !== undefined && (
+                <div className="bg-[#0A0A0A] border border-[#2A2A2A] rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <AlertTriangle className="h-4 w-4 text-amber-500" />
+                      <h4 className="text-sm font-medium text-white">User Cancellation Fees</h4>
+                    </div>
+                    <button
+                      onClick={() => setPenaltyModalOpen(true)}
+                      className="text-xs text-[#FACC15] hover:underline"
+                    >
+                      View Details
+                    </button>
+                  </div>
+                  <div className="flex items-center justify-between bg-[#141414] border border-[#2A2A2A] rounded-lg p-3 mt-2">
+                    <span className="text-xs text-[#6B7280]">Total Earnings from Cancellations</span>
+                    <span className="text-sm font-medium text-green-400">
+                      &euro;{supplier.userCancellationFees.toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+              )}
+
               {/* Tip Pass-Through Card */}
               {supplier.tipSummary && (
                 <div className="bg-[#0A0A0A] border border-[#2A2A2A] rounded-lg p-4">
@@ -344,6 +370,13 @@ export function SupplierDetailDrawer({ supplierId, open, onOpenChange }: Supplie
           )}
         </div>
       </DialogContent>
+
+      <PenaltyDetailsModal
+        open={penaltyModalOpen}
+        onOpenChange={setPenaltyModalOpen}
+        entityId={supplierId}
+        entityType="SUPPLIER"
+      />
     </Dialog>
   );
 }

@@ -96,6 +96,13 @@ export function SupplierTable({
       render: (row) => <span className="text-sm text-[#9CA3AF]">{row._count.drivers}</span>,
     },
     {
+      key: 'penalties',
+      title: 'Cancellation Fees',
+      render: (row) => (
+        <span className="text-sm text-[#9CA3AF]">&euro;{Number(row.userCancellationFees || 0).toFixed(2)}</span>
+      ),
+    },
+    {
       key: 'revenue',
       title: 'Revenue',
       render: (row) => (
@@ -133,7 +140,7 @@ export function SupplierTable({
       },
     },
     {
-      key: 'actions',
+      key: 'action',
       title: 'Actions',
       render: (row) => {
         const handleActivate = async () => {

@@ -14,8 +14,8 @@ export function SystemConfigTab() {
     debugMode: false,
     supportEmail: 'support@gozolt.com',
     emergencyNumber: '+1 800 555 0199',
-    minIosVersion: '1.2.0',
-    minAndroidVersion: '1.2.0',
+    minIosVersion: '1.0.1',
+    minAndroidVersion: '1.0.1',
   });
 
   const handleSave = () => {
@@ -53,11 +53,11 @@ export function SystemConfigTab() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        
+
         {/* App States */}
         <div className="space-y-4">
           <h3 className="text-sm font-semibold text-[#9CA3AF] uppercase tracking-wider">App States</h3>
-          
+
           {/* Maintenance Mode */}
           <div className="flex items-center justify-between p-4 rounded-xl border border-[#2A2A2A] bg-[#0A0A0A]/50 hover:border-[#3A3A3A] transition-colors">
             <div className="flex items-center gap-3">
@@ -69,7 +69,7 @@ export function SystemConfigTab() {
                 <p className="text-xs text-[#6B7280]">Disable all apps with a maintenance screen</p>
               </div>
             </div>
-            <button 
+            <button
               onClick={() => toggle('maintenanceMode')}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${config.maintenanceMode ? 'bg-[#EF4444]' : 'bg-[#2A2A2A]'}`}
             >
@@ -88,7 +88,7 @@ export function SystemConfigTab() {
                 <p className="text-xs text-[#6B7280]">Accept new driver sign-ups</p>
               </div>
             </div>
-            <button 
+            <button
               onClick={() => toggle('driverRegistration')}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${config.driverRegistration ? 'bg-[#22C55E]' : 'bg-[#2A2A2A]'}`}
             >
@@ -107,7 +107,7 @@ export function SystemConfigTab() {
                 <p className="text-xs text-[#6B7280]">Force two-factor authentication for admins</p>
               </div>
             </div>
-            <button 
+            <button
               onClick={() => toggle('forceAdmin2FA')}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${config.forceAdmin2FA ? 'bg-[#22C55E]' : 'bg-[#2A2A2A]'}`}
             >
@@ -126,7 +126,7 @@ export function SystemConfigTab() {
                 <p className="text-xs text-[#6B7280]">Enable verbose system logging</p>
               </div>
             </div>
-            <button 
+            <button
               onClick={() => toggle('debugMode')}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${config.debugMode ? 'bg-[#22C55E]' : 'bg-[#2A2A2A]'}`}
             >
@@ -137,7 +137,7 @@ export function SystemConfigTab() {
 
         {/* Contact & Versions */}
         <div className="space-y-6">
-          
+
           <div className="space-y-4">
             <h3 className="text-sm font-semibold text-[#9CA3AF] uppercase tracking-wider">Contact & Legal</h3>
             <div className="space-y-3">
@@ -145,21 +145,21 @@ export function SystemConfigTab() {
                 <Mail className="h-5 w-5 text-[#6B7280]" />
                 <div className="flex-1">
                   <p className="text-xs text-[#6B7280] mb-1">Support Email</p>
-                  <input 
-                    type="email" 
+                  <input
+                    type="email"
                     value={config.supportEmail}
                     readOnly
                     className="w-full bg-transparent border-none text-[#6B7280] text-sm focus:outline-none focus:ring-0 p-0 cursor-not-allowed"
                   />
                 </div>
               </div>
-              
+
               <div className="flex items-center gap-4 p-4 rounded-xl border border-[#2A2A2A] bg-[#0A0A0A]/50">
                 <Phone className="h-5 w-5 text-[#6B7280]" />
                 <div className="flex-1">
                   <p className="text-xs text-[#6B7280] mb-1">Emergency SOS Number</p>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     value={config.emergencyNumber}
                     readOnly
                     className="w-full bg-transparent border-none text-[#6B7280] text-sm focus:outline-none focus:ring-0 p-0 cursor-not-allowed"
@@ -177,8 +177,8 @@ export function SystemConfigTab() {
                   <Smartphone className="h-4 w-4 text-[#6B7280]" />
                   <p className="text-xs text-[#6B7280]">Min iOS Version</p>
                 </div>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   value={config.minIosVersion}
                   readOnly
                   className="w-full bg-[#1A1A1A] border border-[#3A3A3A] rounded-lg text-[#6B7280] text-sm px-3 py-2 focus:outline-none cursor-not-allowed"
@@ -189,8 +189,8 @@ export function SystemConfigTab() {
                   <MonitorSmartphone className="h-4 w-4 text-[#6B7280]" />
                   <p className="text-xs text-[#6B7280]">Min Android Version</p>
                 </div>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   value={config.minAndroidVersion}
                   readOnly
                   className="w-full bg-[#1A1A1A] border border-[#3A3A3A] rounded-lg text-[#6B7280] text-sm px-3 py-2 focus:outline-none cursor-not-allowed"

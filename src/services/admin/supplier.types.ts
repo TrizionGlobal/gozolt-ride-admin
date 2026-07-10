@@ -28,6 +28,7 @@ export interface SupplierListItem {
   editBankDetails: boolean;
   stripeAccountId: string | null;
   createdAt: string;
+  userCancellationFees?: number;
   updatedAt: string;
   subscription: SupplierSubscriptionSummary | null;
   _count: {
