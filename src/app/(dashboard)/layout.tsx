@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
 import { useAuthStore } from '@/stores/auth.store';
 import { useSidebarStore } from '@/stores/sidebar.store';
 import { Sidebar } from '@/components/layout/sidebar';
@@ -9,12 +10,20 @@ import { CookieConsentBanner } from '@/components/shared/cookie-consent-banner';
 import { cn } from '@/lib/utils';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const { hydrateFromSession, isLoading } = useAuthStore();
-  const isCollapsed = useSidebarStore((s) => s.isCollapsed);
+  const { hydrateFromSession, isLoading, isAuthenticated } = useAuthStore();
+  const { isCollapsed, activeModule } = useSidebarStore();
+  const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     hydrateFromSession();
   }, [hydrateFromSession]);
+
+  useEffect(() => {
+    if (isAuthenticated && !isLoading && !activeModule && pathname !== '/module-selection') {
+      router.push('/module-selection');
+    }
+  }, [isAuthenticated, isLoading, activeModule, pathname, router]);
 
   if (isLoading) {
     return (

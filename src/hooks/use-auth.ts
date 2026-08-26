@@ -63,7 +63,7 @@ export function useAuth() {
             setUser(userObj);
           }
           
-          let redirectPath = '/';
+          let redirectPath = '/module-selection';
           if (typeof window !== 'undefined') {
             const searchParams = new URLSearchParams(window.location.search);
             const redirectVal = searchParams.get('redirect');
@@ -117,7 +117,7 @@ export function useAuth() {
           }
           useAuthStore.getState().clearTwoFactorState();
           
-          let redirectPath = '/';
+          let redirectPath = '/module-selection';
           if (typeof window !== 'undefined') {
             const searchParams = new URLSearchParams(window.location.search);
             const redirectVal = searchParams.get('redirect');

@@ -2,19 +2,21 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { PanelLeft, PanelLeftClose, LogOut } from 'lucide-react';
+import { PanelLeft, PanelLeftClose, LogOut, ArrowLeftRight } from 'lucide-react';
 import { useSidebarStore } from '@/stores/sidebar.store';
 import { useAuthStore } from '@/stores/auth.store';
 import { useAuth } from '@/hooks/use-auth';
-import { SIDEBAR_ITEMS } from '@/lib/constants';
+import { CAB_SIDEBAR_ITEMS, RENTAL_SIDEBAR_ITEMS } from '@/lib/constants';
 import { SidebarItem } from './sidebar-item';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 
 export function Sidebar() {
-  const { isCollapsed, toggle } = useSidebarStore();
+  const { isCollapsed, toggle, activeModule, setActiveModule } = useSidebarStore();
   const user = useAuthStore((s) => s.user);
   const { logout } = useAuth();
+
+  const items = activeModule === 'RENTAL' ? RENTAL_SIDEBAR_ITEMS : CAB_SIDEBAR_ITEMS;
 
   return (
     <aside
@@ -25,7 +27,7 @@ export function Sidebar() {
     >
       {/* Logo + Collapse toggle */}
       <div className={cn('flex items-center justify-between px-4 py-4', isCollapsed && 'justify-center px-2')}>
-        <Link href="/dashboard" className="flex items-center gap-2">
+        <Link href="/" className="flex items-center gap-2">
           <Image
             src="/gozolt-logo.png"
             alt="Gozolt"
@@ -59,7 +61,7 @@ export function Sidebar() {
 
       {/* Navigation */}
       <nav role="navigation" aria-label="Main navigation" className="flex-1 overflow-y-auto px-3 py-3 space-y-1">
-        {SIDEBAR_ITEMS.map((item) => (
+        {items.map((item) => (
           <SidebarItem
             key={item.href}
             label={item.label}
@@ -69,6 +71,22 @@ export function Sidebar() {
           />
         ))}
       </nav>
+
+      {/* Switch Module Button */}
+      <div className={cn("px-3 pb-3", isCollapsed && "flex justify-center")}>
+        <Link 
+          href="/module-selection" 
+          onClick={() => setActiveModule(null)}
+          className={cn(
+            "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-[#71717A] transition-colors hover:bg-[#1A1A1A] hover:text-[#FACC15]",
+            isCollapsed && "px-2 justify-center"
+          )}
+          title={isCollapsed ? "Switch Module" : undefined}
+        >
+          <ArrowLeftRight className="h-5 w-5 shrink-0" />
+          {!isCollapsed && <span>Switch Module</span>}
+        </Link>
+      </div>
 
       {/* Footer Version */}
       <div className={cn("border-t border-[#2A2A2A] px-4 py-3", isCollapsed && "px-2")}>

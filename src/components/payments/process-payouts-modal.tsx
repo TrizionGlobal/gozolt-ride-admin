@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Loader2, CheckCircle2, XCircle } from 'lucide-react';
+import { Loader2, CheckCircle2, XCircle, AlertTriangle } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -20,6 +20,7 @@ interface ProcessPayoutsModalProps {
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
   preselectedSupplierId?: string;
+  module?: 'CAB' | 'RENTAL';
 }
 
 export function ProcessPayoutsModal({
@@ -27,6 +28,7 @@ export function ProcessPayoutsModal({
   onOpenChange,
   onSuccess,
   preselectedSupplierId,
+  module = 'CAB',
 }: ProcessPayoutsModalProps) {
   const [supplierId, setSupplierId] = useState(preselectedSupplierId || '');
   const [amount, setAmount] = useState('');
@@ -35,12 +37,17 @@ export function ProcessPayoutsModal({
   const [loadingBalance, setLoadingBalance] = useState(false);
   const [receipt, setReceipt] = useState<{
     amountSent: number;
+    supplierName: string;
+    supplierBankName: string | null;
+    supplierAccountHolder: string | null;
+    supplierAccountNumber: string | null;
     totalCashCollected: number;
     remainingPendingAfterThis: number;
-    transferId: string;
+    datePaid: string;
   } | null>(null);
   const [errorDetails, setErrorDetails] = useState<string | null>(null);
   const [isCustomAmount, setIsCustomAmount] = useState(false);
+  const [isNotifying, setIsNotifying] = useState(false);
 
   const { data: supplierData, loading: loadingSuppliers } = useSuppliers({ limit: 100 }, open);
   const suppliers = supplierData?.data ?? [];
@@ -65,6 +72,7 @@ export function ProcessPayoutsModal({
 
   useEffect(() => {
     if (balance && !isCustomAmount) {
+      // Always reset amount back to default when toggling off customization
       setAmount(balance.availableToPayout > 0 ? balance.availableToPayout.toFixed(2) : '');
     }
   }, [isCustomAmount, balance]);
@@ -79,7 +87,7 @@ export function ProcessPayoutsModal({
     const fetchBalance = async () => {
       setLoadingBalance(true);
       try {
-        const bal = await paymentService.getSettledBalance(supplierId);
+        const bal = await paymentService.getSettledBalance(supplierId, module);
         setBalance(bal);
         setAmount(bal.availableToPayout.toString());
       } catch {
@@ -89,38 +97,49 @@ export function ProcessPayoutsModal({
       }
     };
     fetchBalance();
-  }, [supplierId]);
+  }, [supplierId, module]);
 
   const handleConfirm = async () => {
     if (!canSubmit || !selectedSupplier) return;
     setSubmitting(true);
     try {
-      // In a real app, the backend returns the full Payout object including details
       await paymentService.triggerPayout({
         supplierId,
         supplierName: selectedSupplier.companyName,
         amount: numAmount,
+        module,
       });
-      toast.success(
-        `Payout of €${numAmount.toFixed(2)} transferred to ${selectedSupplier.companyName}`,
-      );
 
-      // Mocking the receipt since the current API response only gives id and status
-      // We will refresh the balance to show the remaining.
-      const newBal = await paymentService.getSettledBalance(supplierId);
+      const newBal = await paymentService.getSettledBalance(supplierId, module);
       setReceipt({
         amountSent: numAmount,
+        supplierName: selectedSupplier.companyName,
+        supplierBankName: newBal.supplierBankName,
+        supplierAccountHolder: newBal.supplierAccountHolder,
+        supplierAccountNumber: newBal.supplierAccountNumber,
         totalCashCollected: balance?.totalCashCollected || 0,
         remainingPendingAfterThis: Math.max(0, newBal.totalPendingBalance - newBal.availableToPayout),
-        transferId: `tr_${Math.random().toString(36).substr(2, 9)}`, // Mock stripe transfer ID for UI receipt
+        datePaid: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
       });
-
       onSuccess();
-    } catch (error: any) {
-      const msg = error.response?.data?.message || error.message || 'Failed to process payout. Ensure Supplier has Stripe connected.';
-      setErrorDetails(msg);
+    } catch (err: any) {
+      setErrorDetails(err.response?.data?.message || 'Failed to process payout. Please try again.');
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleNotifySupplier = async () => {
+    if (!supplierId) return;
+    try {
+      setIsNotifying(true);
+      await paymentService.notifySupplierBankDetails(supplierId);
+      toast.success('Notification email sent successfully');
+      handleCancel();
+    } catch (error) {
+      toast.error('Failed to send notification email');
+    } finally {
+      setIsNotifying(false);
     }
   };
 
@@ -145,60 +164,123 @@ export function ProcessPayoutsModal({
       <DialogContent aria-describedby={undefined} className="bg-[#1A1A1A] border-[#2A2A2A] text-white max-w-md">
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold text-white">
-            {receipt ? 'Settlement Receipt' : errorDetails ? 'Settlement Failed' : 'Process 9-Day Settlement'}
+        {receipt ? 'Payment Successful' : errorDetails ? 'Payment Failed' : 'Process 9-Day Settlement'}
           </DialogTitle>
         </DialogHeader>
 
         {receipt ? (
-          <div className="space-y-4 py-4 flex flex-col items-center justify-center">
-            <CheckCircle2 className="h-16 w-16 text-green-500 mb-2" />
-            <p className="text-xl font-bold text-white">€{receipt.amountSent.toFixed(2)} Sent</p>
-            <div className="w-full bg-[#141414] p-4 rounded-lg border border-[#2A2A2A] space-y-2 text-sm">
-              <div className="flex justify-between">
+          <div className="space-y-5 py-4 flex flex-col items-center justify-center">
+            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-green-500/10 border-2 border-green-500/30">
+              <CheckCircle2 className="h-10 w-10 text-green-500" />
+            </div>
+            <div className="text-center">
+              <p className="text-2xl font-bold text-white">€{receipt.amountSent.toFixed(2)}</p>
+              <p className="text-sm text-[#9CA3AF] mt-1">Successfully sent to supplier</p>
+            </div>
+            <div className="w-full bg-[#141414] p-4 rounded-xl border border-[#2A2A2A] space-y-3 text-sm">
+              <div className="flex justify-between items-center">
                 <span className="text-[#9CA3AF]">Supplier</span>
-                <span className="text-white font-medium">{selectedSupplier?.companyName}</span>
+                <span className="text-white font-semibold">{receipt.supplierName}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-[#9CA3AF]">Stripe Transfer ID</span>
-                <span className="text-white font-medium font-mono">{receipt.transferId}</span>
+              {receipt.supplierAccountHolder && (
+                <div className="flex justify-between items-center">
+                  <span className="text-[#9CA3AF]">Account Holder</span>
+                  <span className="text-white">{receipt.supplierAccountHolder}</span>
+                </div>
+              )}
+              {receipt.supplierBankName && (
+                <div className="flex justify-between items-center">
+                  <span className="text-[#9CA3AF]">Bank</span>
+                  <span className="text-white">{receipt.supplierBankName}</span>
+                </div>
+              )}
+              {receipt.supplierAccountNumber && (
+                <div className="flex justify-between items-center">
+                  <span className="text-[#9CA3AF]">IBAN</span>
+                  <span className="text-white font-mono text-xs">{receipt.supplierAccountNumber}</span>
+                </div>
+              )}
+              <div className="flex justify-between items-center">
+                <span className="text-[#9CA3AF]">Date Paid</span>
+                <span className="text-white">{receipt.datePaid}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-[#9CA3AF]">Driver Cash Kept</span>
-                <span className="text-red-400 font-medium">€{receipt.totalCashCollected.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between pt-2 border-t border-[#2A2A2A]">
-                <span className="text-[#9CA3AF]">Remaining balance</span>
+              <div className="flex justify-between items-center pt-2 border-t border-[#2A2A2A]">
+                <span className="text-[#9CA3AF]">Remaining Balance</span>
                 <span className="text-[#FACC15] font-bold">€{receipt.remainingPendingAfterThis.toFixed(2)}</span>
               </div>
             </div>
             <Button
               onClick={handleCancel}
-              className="w-full bg-[#374151] hover:bg-[#4B5563] text-white mt-4"
+              className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold"
             >
-              Close
+              Done
             </Button>
           </div>
         ) : errorDetails ? (
-          <div className="space-y-4 py-4 flex flex-col items-center justify-center">
-            <XCircle className="h-16 w-16 text-red-500 mb-2" />
-            <p className="text-xl font-bold text-white text-center">Payout Failed</p>
-            <div className="w-full bg-[#141414] p-4 rounded-lg border border-[#2A2A2A] space-y-2 text-sm">
-              <div className="flex flex-col space-y-1">
-                <span className="text-[#9CA3AF]">Error Details</span>
-                <span className="text-red-400 font-medium">{errorDetails}</span>
+          errorDetails === 'Supplier has not connected a Stripe account for payouts.' ? (
+            <div className="space-y-4 py-4 flex flex-col items-center justify-center">
+              <AlertTriangle className="h-16 w-16 text-yellow-500 mb-2" />
+              <p className="text-xl font-bold text-white text-center">Missing Bank Details</p>
+              <div className="w-full bg-[#141414] p-4 rounded-lg border border-[#2A2A2A] space-y-3 text-sm">
+                <p className="text-[#9CA3AF] text-center">The supplier has not yet added their bank account details.</p>
+                <div className="flex flex-col space-y-2 pt-3 border-t border-[#2A2A2A]">
+                  <div className="flex justify-between">
+                    <span className="text-[#9CA3AF]">Supplier Name:</span>
+                    <span className="text-white font-medium">{selectedSupplier?.companyName}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-[#9CA3AF]">Email:</span>
+                    <span className="text-white font-medium truncate max-w-[200px]" title={selectedSupplier?.email}>{selectedSupplier?.email}</span>
+                  </div>
+                </div>
               </div>
-              <div className="flex justify-between pt-2 border-t border-[#2A2A2A] mt-2">
-                <span className="text-[#9CA3AF]">Supplier</span>
-                <span className="text-white font-medium">{selectedSupplier?.companyName}</span>
+              <div className="w-full flex space-x-3 mt-4">
+                <Button
+                  onClick={handleCancel}
+                  className="flex-1 bg-[#374151] hover:bg-[#4B5563] text-white"
+                >
+                  Close
+                </Button>
+                <Button
+                  onClick={handleNotifySupplier}
+                  disabled={isNotifying}
+                  className="flex-1 bg-[#FACC15] hover:bg-[#FACC15]/90 text-black font-semibold"
+                >
+                  {isNotifying ? (
+                    <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Notifying...</>
+                  ) : (
+                    'Notify Supplier'
+                  )}
+                </Button>
               </div>
             </div>
-            <Button
-              onClick={handleCancel}
-              className="w-full bg-[#374151] hover:bg-[#4B5563] text-white mt-4"
-            >
-              Close
-            </Button>
-          </div>
+          ) : (
+            <div className="space-y-5 py-4 flex flex-col items-center justify-center">
+              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-red-500/10 border-2 border-red-500/30">
+                <XCircle className="h-10 w-10 text-red-500" />
+              </div>
+              <div className="text-center">
+                <p className="text-xl font-bold text-white">Payout Failed</p>
+                <p className="text-xs text-[#9CA3AF] mt-1">The payment could not be processed</p>
+              </div>
+              <div className="w-full bg-[#141414] p-4 rounded-xl border border-[#2A2A2A] space-y-3 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-[#9CA3AF]">Supplier</span>
+                  <span className="text-white font-medium">{selectedSupplier?.companyName}</span>
+                </div>
+                <div className="pt-2 border-t border-[#2A2A2A]">
+                  <span className="text-[#9CA3AF] block mb-1">Reason</span>
+                  <span className="text-red-400">{errorDetails}</span>
+                </div>
+              </div>
+              <Button
+                onClick={handleCancel}
+                className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold"
+              >
+                Close
+              </Button>
+            </div>
+          )
         ) : (
           <>
             <div className="space-y-4 py-2">
@@ -273,7 +355,7 @@ export function ProcessPayoutsModal({
                     <span className="text-white">€{balance.availableToPayout.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-sm pt-2 border-t border-[#2A2A2A] font-semibold">
-                    <span className="text-white">Remaining balance</span>
+                    <span className="text-[#9CA3AF] font-normal text-xs">Future Unpaid Earnings (next cycles)</span>
                     <span className="text-[#FACC15]">€{Math.max(0, balance.totalPendingBalance - balance.availableToPayout).toFixed(2)}</span>
                   </div>
                   <p className="text-xs text-[#6B7280]">
@@ -285,31 +367,44 @@ export function ProcessPayoutsModal({
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <label className="text-sm text-[#9CA3AF]">Payout Amount (€)</label>
-                  {balance && balance.isPayable && (balance.totalPendingBalance - balance.availableToPayout > 0) && (
+                  {balance && balance.isPayable && balance.availableToPayout > 0 && (
                     <button
                       type="button"
                       onClick={() => setIsCustomAmount(!isCustomAmount)}
                       className="text-xs text-[#FACC15] hover:text-[#E5B800] transition-colors"
                     >
-                      {isCustomAmount ? 'Use Default 9-Day Settlement' : 'Customize Amount'}
+                      {isCustomAmount ? '↩ Use Default Amount' : '✏ Customize Amount'}
                     </button>
                   )}
                 </div>
                 <input
                   type="number"
                   step="0.01"
-                  disabled={!balance || !balance.isPayable || (!isCustomAmount && balance.availableToPayout > 0)}
+                  disabled={!balance || !balance.isPayable}
                   min="0.01"
                   max={balance ? balance.totalPendingBalance : undefined}
                   value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
+                  onChange={(e) => {
+                    if (isCustomAmount) setAmount(e.target.value);
+                  }}
                   readOnly={!isCustomAmount}
                   placeholder="0.00"
-                  className={`w-full h-10 rounded-md border ${balance && Number(amount) > balance.totalPendingBalance ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20' : 'border-[#2A2A2A] focus:border-[#FACC15] focus:ring-[#FACC15]/20'} bg-[#141414] px-3 text-sm text-white placeholder:text-[#6B7280] focus:outline-none focus:ring-1 ${!isCustomAmount ? 'cursor-not-allowed opacity-80' : ''}`}
+                  className={`w-full h-10 rounded-md border ${
+                    balance && Number(amount) > balance.totalPendingBalance
+                      ? 'border-red-500 focus:border-red-500'
+                      : 'border-[#2A2A2A] focus:border-[#FACC15]'
+                  } bg-[#141414] px-3 text-sm text-white placeholder:text-[#6B7280] focus:outline-none focus:ring-1 focus:ring-[#FACC15]/20 ${
+                    !isCustomAmount ? 'cursor-default select-none' : 'cursor-text'
+                  }`}
                 />
                 {balance && Number(amount) > balance.totalPendingBalance && (
                   <p className="text-xs text-red-400 mt-1">
-                    Amount cannot exceed total available funds (€{balance.totalPendingBalance.toFixed(2)})
+                    Amount cannot exceed total pending balance (€{balance.totalPendingBalance.toFixed(2)})
+                  </p>
+                )}
+                {isCustomAmount && (
+                  <p className="text-xs text-[#6B7280]">
+                    Max payable: €{(balance?.totalPendingBalance || 0).toFixed(2)} (all-time pending)
                   </p>
                 )}
               </div>
@@ -331,7 +426,8 @@ export function ProcessPayoutsModal({
                   !balance ||
                   !balance.isPayable ||
                   Number(amount) <= 0 ||
-                  Number(amount) > balance.totalPendingBalance
+                  Number(amount) > balance.totalPendingBalance ||
+                  (isCustomAmount && Number(amount) > balance.totalPendingBalance)
                 }
                 className="bg-[#FACC15] text-black hover:bg-[#E5B800] disabled:opacity-40 disabled:cursor-not-allowed"
               >

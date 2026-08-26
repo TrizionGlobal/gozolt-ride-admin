@@ -31,8 +31,14 @@ export const paymentService = {
     return data;
   },
 
-  async getSettledBalance(supplierId: string): Promise<SettledBalanceResponse> {
-    const { data } = await apiClient.get<SettledBalanceResponse>(`/admin/suppliers/${supplierId}/settled-balance`);
+  async notifySupplierBankDetails(supplierId: string): Promise<void> {
+    await apiClient.post('/admin/payouts/notify-bank-details', { supplierId });
+  },
+
+  async getSettledBalance(supplierId: string, module?: 'CAB' | 'RENTAL'): Promise<SettledBalanceResponse> {
+    const { data } = await apiClient.get<SettledBalanceResponse>(`/admin/suppliers/${supplierId}/settled-balance`, {
+      params: module ? { module } : undefined,
+    });
     return data;
   },
 

@@ -20,6 +20,7 @@ import {
   LogOut,
   Lock,
   Camera,
+  Key,
 } from 'lucide-react';
 
 export const ROUTES = {
@@ -45,9 +46,10 @@ export const ROUTES = {
   // PROMO_CODES: '/promo-codes',
   NOTIFICATIONS: '/notifications',
   SETTINGS: '/settings',
+  CAR_RENTALS: '/car-rentals',
 } as const;
 
-export const SIDEBAR_ITEMS = [
+export const CAB_SIDEBAR_ITEMS = [
   { label: 'Dashboard', href: ROUTES.DASHBOARD, icon: LayoutDashboard },
   { label: 'Supplier Management', href: ROUTES.SUPPLIER_MANAGEMENT, icon: Building2 },
   { label: 'Driver Management', href: ROUTES.DRIVER_MANAGEMENT, icon: Users },
@@ -62,6 +64,13 @@ export const SIDEBAR_ITEMS = [
   { label: 'Rewards', href: ROUTES.REWARDS, icon: Gift },
   { label: 'Notifications', href: ROUTES.NOTIFICATIONS, icon: Bell },
   { label: 'Settings', href: ROUTES.SETTINGS, icon: Settings },
+] as const;
+
+export const RENTAL_SIDEBAR_ITEMS = [
+  { label: 'Dashboard', href: '/car-rentals/dashboard', icon: LayoutDashboard },
+  { label: 'Car Rentals', href: ROUTES.CAR_RENTALS, icon: Key },
+  { label: 'Payments', href: '/car-rentals/payments', icon: CreditCard },
+  { label: 'Analytics', href: '/car-rentals/analytics', icon: BarChart3 },
 ] as const;
 
 export const SIGNOUT_ITEM = {

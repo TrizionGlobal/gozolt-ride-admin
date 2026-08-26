@@ -14,7 +14,10 @@ interface SidebarItemProps {
 
 export function SidebarItem({ label, href, icon: Icon, isCollapsed }: SidebarItemProps) {
   const pathname = usePathname();
-  const isActive = pathname === href;
+  let isActive = pathname === href || (href !== '/' && pathname.startsWith(href));
+  if (href === '/car-rentals' && (pathname.startsWith('/car-rentals/') && pathname !== '/car-rentals')) {
+    isActive = false;
+  }
 
   return (
     <Link
