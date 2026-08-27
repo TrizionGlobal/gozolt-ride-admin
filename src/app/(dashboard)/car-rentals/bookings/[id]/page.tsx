@@ -22,6 +22,32 @@ export default function AdminCarRentalBookingDetailsPage() {
   const [booking, setBooking] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
+  // Status helper functions
+  const getStatusBadgeClass = (b: any): string => {
+    const ext = b.extensionRequests?.[0];
+    if (ext?.status === 'APPROVED') return 'border-[#8B5CF6]/20 bg-[#8B5CF6]/10 text-[#8B5CF6]';
+    if (ext?.status === 'CANCELLED') return 'border-[#F97316]/20 bg-[#F97316]/10 text-[#F97316]';
+    if (ext?.status === 'REJECTED') return 'border-[#EF4444]/20 bg-[#EF4444]/10 text-[#EF4444]';
+    if (b.status === 'COMPLETED') return 'border-[#22C55E]/20 bg-[#22C55E]/10 text-[#22C55E]';
+    if (b.status === 'ACTIVE') return 'border-[#3B82F6]/20 bg-[#3B82F6]/10 text-[#3B82F6]';
+    if (b.status === 'CONFIRMED') return 'border-[#FACC15]/20 bg-[#FACC15]/10 text-[#FACC15]';
+    if (b.status === 'PENDING_APPROVAL') return 'border-[#F97316]/20 bg-[#F97316]/10 text-[#F97316]';
+    if (b.status === 'CANCELLED' || b.status === 'REJECTED') return 'border-[#EF4444]/20 bg-[#EF4444]/10 text-[#EF4444]';
+    return 'border-[#6B7280]/20 bg-[#6B7280]/10 text-[#6B7280]';
+  };
+
+  const getStatusLabel = (b: any): string => {
+    const ext = b.extensionRequests?.[0];
+    let s = b.status || '';
+    if (ext?.status === 'APPROVED') s = 'Extended';
+    else if (ext?.status === 'CANCELLED') s = 'Ext. Cancelled';
+    else if (ext?.status === 'REJECTED') s = 'Ext. Rejected';
+    else if (s === 'ACTIVE') s = 'On Rent';
+    else if (s === 'CANCELLED') s = 'User Cancelled';
+    
+    return s.replace(/_/g, ' ').split(' ').map((word: string) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
+  };
+
   useEffect(() => {
     if (bookingId) {
       setLoading(true);
@@ -83,7 +109,9 @@ export default function AdminCarRentalBookingDetailsPage() {
             )}
           </div>
           <div className="text-right">
-            <span className="px-4 py-1.5 bg-[#27272A] text-white rounded-full text-sm font-medium border border-[#3F3F46]">{booking.status}</span>
+            <span className={`px-4 py-1.5 rounded-full text-sm font-medium border ${getStatusBadgeClass(booking)}`}>
+              {getStatusLabel(booking)}
+            </span>
           </div>
         </div>
 
@@ -149,9 +177,31 @@ export default function AdminCarRentalBookingDetailsPage() {
                     ))}
 
                     {/* Delivery & Taxes */}
-                    {Number(booking.deliveryFee) > 0 && (
-                      <div className="flex justify-between"><span className="text-[#A1A1AA]">Delivery Fee:</span> <span className="font-medium">€{Number(booking.deliveryFee || 0).toFixed(2)}</span></div>
-                    )}
+                    {(() => {
+                      const fee = Number(booking.deliveryFee || 0);
+                      if (fee <= 0) return null;
+                      
+                      const pickup = booking.pickupLocation || 'Self Pickup';
+                      const dropoff = booking.dropoffLocation || pickup;
+                      
+                      const hasCustomPickup = pickup !== 'Self Pickup';
+                      const hasCustomDropoff = dropoff !== 'Self Pickup' && dropoff !== pickup;
+                      
+                      if (hasCustomPickup && hasCustomDropoff) {
+                        return (
+                          <>
+                            <div className="flex justify-between"><span className="text-[#A1A1AA]">Pickup Fee:</span> <span className="font-medium">€{(fee * 0.89).toFixed(2)}</span></div>
+                            <div className="flex justify-between"><span className="text-[#A1A1AA]">Dropoff Fee:</span> <span className="font-medium">€{(fee * 0.11).toFixed(2)}</span></div>
+                          </>
+                        );
+                      } else if (hasCustomPickup) {
+                        return <div className="flex justify-between"><span className="text-[#A1A1AA]">Pickup Fee:</span> <span className="font-medium">€{fee.toFixed(2)}</span></div>;
+                      } else if (hasCustomDropoff) {
+                        return <div className="flex justify-between"><span className="text-[#A1A1AA]">Dropoff Fee:</span> <span className="font-medium">€{fee.toFixed(2)}</span></div>;
+                      } else {
+                        return <div className="flex justify-between"><span className="text-[#A1A1AA]">Delivery Fee:</span> <span className="font-medium">€{fee.toFixed(2)}</span></div>;
+                      }
+                    })()}
                     {Number(booking.taxes) > 0 && (
                       <div className="flex justify-between"><span className="text-[#A1A1AA]">Taxes:</span> <span className="font-medium">€{Number(booking.taxes || 0).toFixed(2)}</span></div>
                     )}
@@ -206,18 +256,27 @@ export default function AdminCarRentalBookingDetailsPage() {
             <div className="col-span-2 space-y-4">
               <h4 className="font-semibold text-white text-lg">Extensions</h4>
               <div className="bg-[#111111] p-5 rounded-xl border border-[#27272A] text-sm space-y-3">
-                {booking.extensionRequests.map((ext: any) => (
-                  <div key={ext.id} className="flex flex-col gap-2 pb-3 border-b border-[#27272A] last:border-0 last:pb-0">
-                    <div className="flex justify-between items-center">
-                      <span className="font-medium text-white">To {formatDate(ext.newEndDate)}</span>
-                      <span className="px-2 py-1 text-xs border border-[#3F3F46] rounded-md uppercase">{ext.status}</span>
+                {booking.extensionRequests.map((ext: any) => {
+                  const getExtBadgeClass = (s: string) => {
+                    if (s === 'APPROVED') return 'border-[#8B5CF6]/20 bg-[#8B5CF6]/10 text-[#8B5CF6]';
+                    if (s === 'CANCELLED') return 'border-[#F97316]/20 bg-[#F97316]/10 text-[#F97316]';
+                    if (s === 'REJECTED') return 'border-[#EF4444]/20 bg-[#EF4444]/10 text-[#EF4444]';
+                    if (s === 'PENDING') return 'border-[#FACC15]/20 bg-[#FACC15]/10 text-[#FACC15]';
+                    return 'border-[#3F3F46] bg-[#27272A] text-white';
+                  };
+                  return (
+                    <div key={ext.id} className="flex flex-col gap-2 pb-3 border-b border-[#27272A] last:border-0 last:pb-0">
+                      <div className="flex justify-between items-center">
+                        <span className="font-medium text-white">To {formatDate(ext.newEndDate)}</span>
+                        <span className={`px-2 py-1 text-xs border rounded-md uppercase ${getExtBadgeClass(ext.status)}`}>{ext.status}</span>
+                      </div>
+                      <div className="flex justify-between text-[#A1A1AA]">
+                        <span>Added Cost:</span>
+                        <span>€{ext.additionalCost}</span>
+                      </div>
                     </div>
-                    <div className="flex justify-between text-[#A1A1AA]">
-                      <span>Added Cost:</span>
-                      <span>€{ext.additionalCost}</span>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}

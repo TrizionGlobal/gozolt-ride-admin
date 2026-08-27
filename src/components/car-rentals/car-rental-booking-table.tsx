@@ -38,13 +38,14 @@ function getStatusBadgeClass(booking: any): string {
   if (booking.status === 'COMPLETED') return 'border-[#22C55E]/20 bg-[#22C55E]/10 text-[#22C55E]';
   if (booking.status === 'ACTIVE') return 'border-[#3B82F6]/20 bg-[#3B82F6]/10 text-[#3B82F6]';
   if (booking.status === 'CONFIRMED') return 'border-[#FACC15]/20 bg-[#FACC15]/10 text-[#FACC15]';
+  if (booking.status === 'PENDING_APPROVAL') return 'border-[#F97316]/20 bg-[#F97316]/10 text-[#F97316]';
   if (booking.status === 'CANCELLED' || booking.status === 'REJECTED') return 'border-[#EF4444]/20 bg-[#EF4444]/10 text-[#EF4444]';
   return 'border-[#6B7280]/20 bg-[#6B7280]/10 text-[#6B7280]';
 }
 
 function getStatusLabel(booking: any): string {
   const ext = booking.extensionRequests?.[0];
-  let status = booking.status;
+  let status = booking.status || '';
   
   if (ext?.status === 'APPROVED') status = 'Extended';
   else if (ext?.status === 'CANCELLED') status = 'Ext. Cancelled';
@@ -53,6 +54,7 @@ function getStatusLabel(booking: any): string {
   else if (booking.status === 'CANCELLED') status = 'User Cancelled';
   
   return status
+    .replace(/_/g, ' ')
     .split(' ')
     .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(' ');

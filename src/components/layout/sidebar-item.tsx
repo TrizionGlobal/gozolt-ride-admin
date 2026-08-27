@@ -15,8 +15,16 @@ interface SidebarItemProps {
 export function SidebarItem({ label, href, icon: Icon, isCollapsed }: SidebarItemProps) {
   const pathname = usePathname();
   let isActive = pathname === href || (href !== '/' && pathname.startsWith(href));
-  if (href === '/car-rentals' && (pathname.startsWith('/car-rentals/') && pathname !== '/car-rentals')) {
-    isActive = false;
+  if (href === '/car-rentals') {
+    if (
+      pathname.startsWith('/car-rentals/dashboard') ||
+      pathname.startsWith('/car-rentals/payments') ||
+      pathname.startsWith('/car-rentals/analytics')
+    ) {
+      isActive = false;
+    } else {
+      isActive = true;
+    }
   }
 
   return (
