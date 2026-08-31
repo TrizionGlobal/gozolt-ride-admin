@@ -6,7 +6,7 @@ import { PanelLeft, PanelLeftClose, LogOut, ArrowLeftRight } from 'lucide-react'
 import { useSidebarStore } from '@/stores/sidebar.store';
 import { useAuthStore } from '@/stores/auth.store';
 import { useAuth } from '@/hooks/use-auth';
-import { CAB_SIDEBAR_ITEMS, RENTAL_SIDEBAR_ITEMS } from '@/lib/constants';
+import { CAB_SIDEBAR_ITEMS, RENTAL_SIDEBAR_ITEMS, BIKE_RENTAL_SIDEBAR_ITEMS } from '@/lib/constants';
 import { SidebarItem } from './sidebar-item';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
@@ -16,7 +16,7 @@ export function Sidebar() {
   const user = useAuthStore((s) => s.user);
   const { logout } = useAuth();
 
-  const items = activeModule === 'RENTAL' ? RENTAL_SIDEBAR_ITEMS : CAB_SIDEBAR_ITEMS;
+  const items = activeModule === 'RENTAL' ? RENTAL_SIDEBAR_ITEMS : activeModule === 'BIKE_RENTAL' ? BIKE_RENTAL_SIDEBAR_ITEMS : CAB_SIDEBAR_ITEMS;
 
   return (
     <aside

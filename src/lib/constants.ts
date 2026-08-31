@@ -47,6 +47,7 @@ export const ROUTES = {
   NOTIFICATIONS: '/notifications',
   SETTINGS: '/settings',
   CAR_RENTALS: '/car-rentals',
+  BIKE_RENTALS: '/bike-rentals',
 } as const;
 
 export const CAB_SIDEBAR_ITEMS = [
@@ -71,6 +72,13 @@ export const RENTAL_SIDEBAR_ITEMS = [
   { label: 'Car Rentals', href: ROUTES.CAR_RENTALS, icon: Key },
   { label: 'Payments', href: '/car-rentals/payments', icon: CreditCard },
   { label: 'Analytics', href: '/car-rentals/analytics', icon: BarChart3 },
+] as const;
+
+export const BIKE_RENTAL_SIDEBAR_ITEMS = [
+  { label: 'Dashboard', href: '/bike-rentals/dashboard', icon: LayoutDashboard },
+  { label: 'Bike Rentals', href: ROUTES.BIKE_RENTALS, icon: Key },
+  { label: 'Payments', href: '/bike-rentals/payments', icon: CreditCard },
+  { label: 'Analytics', href: '/bike-rentals/analytics', icon: BarChart3 },
 ] as const;
 
 export const SIGNOUT_ITEM = {

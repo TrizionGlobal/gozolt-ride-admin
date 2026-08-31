@@ -9,7 +9,7 @@ export default function ModuleSelectionPage() {
   const router = useRouter();
   const { setActiveModule } = useSidebarStore();
 
-  const handleSelection = (module: 'CAB' | 'RENTAL') => {
+  const handleSelection = (module: 'CAB' | 'RENTAL' | 'BIKE_RENTAL') => {
     setActiveModule(module);
     if (module === 'CAB') {
       router.push('/');
@@ -66,6 +66,25 @@ export default function ModuleSelectionPage() {
                   <h2 className="text-2xl font-bold text-white mb-2">Car Rentals</h2>
                   <p className="text-sm text-[#6B7280]">
                     Manage global supplier rental vehicles, track global rental bookings, and review rental customers.
+                  </p>
+                </div>
+              </div>
+            </button>
+
+            {/* Bike Rentals Card */}
+            <button 
+              onClick={() => handleSelection('BIKE_RENTAL')}
+              className="group relative flex flex-col items-center justify-center p-12 rounded-3xl border border-[#27272A] bg-[#111111] transition-all duration-300 hover:border-[#FACC15] hover:bg-[#1A1A1A] hover:shadow-[0_0_30px_rgba(250,204,21,0.15)] text-left"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-[#FACC15]/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 rounded-3xl" />
+              <div className="relative z-10 flex flex-col items-center gap-6">
+                <div className="flex h-32 w-32 items-center justify-center rounded-2xl overflow-hidden shadow-lg border border-[#27272A] group-hover:border-[#FACC15]/50 transition-colors bg-white">
+                  <Image src="/bike-rental-icon-v2.jpg" alt="Bike Rentals" width={128} height={128} className="object-cover w-full h-full" />
+                </div>
+                <div className="text-center">
+                  <h2 className="text-2xl font-bold text-white mb-2">Bike Rentals</h2>
+                  <p className="text-sm text-gray-400">
+                    Manage bike fleets, oversee bookings, and handle vehicle operations.
                   </p>
                 </div>
               </div>
