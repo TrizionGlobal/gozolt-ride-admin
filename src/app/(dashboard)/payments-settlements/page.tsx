@@ -3,15 +3,14 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { sanitizeSearchQuery } from '@/lib/sanitize';
 import { PaymentKpiCards } from '@/components/payments/payment-kpi-cards';
-import { PaymentTabs, type PaymentTab } from '@/components/payments/payment-tabs';
-import { BikeRentalPayoutTable } from '@/components/bike-rentals/bike-rental-payout-table';
-import { ProcessPayoutsModal } from '@/components/payments/process-payouts-modal';
+import { PaymentTab, PaymentTabs } from '@/components/payments/payment-tabs';
+import { GlobalPayoutTable } from '@/components/payments/global-payout-table';
+import { ProcessPayoutsView } from '@/components/payments/process-payouts-view';
 import { SettlementTable } from '@/components/payments/settlement-table';
-import { useBikeRentalPaymentKpis, useBikeRentalSettlements } from '@/hooks/use-bike-rental-payments';
-import { useAdminBikeRentalPayouts } from '@/hooks/use-admin-bike-rentals';
+import { useGlobalPaymentKpis, useGlobalSettlements, useGlobalPayouts } from '@/hooks/use-global-finance';
 import type { SettlementListItem } from '@/services/admin/payment.types';
 
-export default function BikeRentalPaymentsPage() {
+export default function GlobalFinancePage() {
   const [currentTab, setCurrentTab] = useState<PaymentTab>('settlement');
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -50,7 +49,7 @@ export default function BikeRentalPaymentsPage() {
     [debouncedSearch, page, payoutLimit, status]
   );
 
-  const { data: payoutData, loading: payoutLoading, refetch: refetchPayouts } = useAdminBikeRentalPayouts(
+  const { data: payoutData, loading: payoutLoading, refetch: refetchPayouts } = useGlobalPayouts(
     filterParams,
     currentTab === 'settlement'
   );
@@ -58,14 +57,14 @@ export default function BikeRentalPaymentsPage() {
     data: settlementData,
     loading: settlementLoading,
     refetch: refetchSettlements,
-  } = useBikeRentalSettlements(
+  } = useGlobalSettlements(
     page,
     settlementLimit,
     status,
     debouncedSearch,
     currentTab === 'settlement'
   );
-  const { kpis, loading: kpiLoading, refresh: refreshKpis } = useBikeRentalPaymentKpis();
+  const { kpis, loading: kpiLoading, refresh: refreshKpis } = useGlobalPaymentKpis();
 
   const handleExport = useCallback(() => {
     if (currentTab === 'settlement') {
@@ -96,13 +95,13 @@ export default function BikeRentalPaymentsPage() {
             { key: 'nextSettlementDate', label: 'Next Settlement Date' },
             { key: 'nineDaySettlement', label: '9-Day Settlement' },
           ],
-          'bike-rental-settlements'
+          'global-finance-settlements'
         );
       });
     } else {
       if (!payoutData?.data) return;
       import('@/lib/export-excel').then(({ exportToExcel }) => {
-        const rows = payoutData.data.map((t) => ({
+        const rows = payoutData.data.map((t: any) => ({
           id: t.id,
           amount: t.amount,
           status: t.status,
@@ -122,7 +121,7 @@ export default function BikeRentalPaymentsPage() {
             { key: 'periodEnd', label: 'Period End' },
             { key: 'date', label: 'Created Date' },
           ],
-          'bike-rental-payouts'
+          'Payments & Settlements'
         );
       });
     }
@@ -139,14 +138,28 @@ export default function BikeRentalPaymentsPage() {
     setPayoutOpen(true);
   };
 
+  if (payoutOpen) {
+    return (
+      <ProcessPayoutsView
+        onClose={() => {
+          setPayoutOpen(false);
+          setSelectedSupplierId(undefined);
+        }}
+        onSuccess={handlePayoutSuccess}
+        preselectedSupplierId={selectedSupplierId}
+        module="GLOBAL"
+      />
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Bike Rental Payments & Finance</h1>
+          <h1 className="text-2xl font-bold text-white">Payments & Settlements</h1>
           <p className="text-sm text-[#6B7280] mt-1">
-            Track bike rental revenue, 10-day supplier settlements, and payout history
+            Track global revenue, supplier settlements, and payout history across all modules
           </p>
         </div>
       </div>
@@ -181,7 +194,7 @@ export default function BikeRentalPaymentsPage() {
             onPaySupplier={handlePaySupplier}
           />
         ) : (
-          <BikeRentalPayoutTable
+          <GlobalPayoutTable
             data={payoutData}
             loading={payoutLoading}
             page={page}
@@ -191,18 +204,6 @@ export default function BikeRentalPaymentsPage() {
           />
         )}
       </div>
-
-      {/* Process Payouts Modal */}
-      <ProcessPayoutsModal
-        open={payoutOpen}
-        onOpenChange={(open) => {
-          setPayoutOpen(open);
-          if (!open) setSelectedSupplierId(undefined);
-        }}
-        onSuccess={handlePayoutSuccess}
-        preselectedSupplierId={selectedSupplierId}
-        module="RENTAL"
-      />
     </div>
   );
 }

@@ -29,9 +29,8 @@ export function ProfileDropdown() {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`flex items-center gap-2.5 p-1 pr-3 rounded-full border transition-all focus:outline-none focus:ring-2 focus:ring-[#FACC15]/50 ${
-          isOpen ? 'bg-[#1A1A1A] border-[#FACC15]' : 'bg-[#111111] border-[#FACC15]/50 hover:border-[#FACC15] hover:bg-[#1A1A1A]'
-        }`}
+        className={`flex items-center gap-2.5 p-1 pr-3 rounded-full border transition-all focus:outline-none focus:ring-2 focus:ring-[#FACC15]/50 ${isOpen ? 'bg-[#1A1A1A] border-[#FACC15]' : 'bg-[#111111] border-[#FACC15]/50 hover:border-[#FACC15] hover:bg-[#1A1A1A]'
+          }`}
       >
         <div className="flex h-8 w-8 overflow-hidden items-center justify-center rounded-full bg-[#FACC15]">
           <span className="text-xs font-bold text-black">{initials}</span>
@@ -52,8 +51,18 @@ export function ProfileDropdown() {
             </p>
             <div className="text-xs text-[#A1A1AA]">{user?.email}</div>
           </div>
-          
+
           <div className="py-1">
+            <button
+              onClick={() => { setIsOpen(false); window.location.href = '/payments-settlements'; }}
+              className="w-full flex items-center px-4 py-2.5 text-sm text-[#D4D4D8] hover:text-[#FACC15] hover:bg-[#1A1A1A] transition-colors border-b border-[#27272A]"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-3">
+                <rect width="20" height="14" x="2" y="5" rx="2"></rect>
+                <line x1="2" x2="22" y1="10" y2="10"></line>
+              </svg>
+              Payments & Settlements
+            </button>
             <button
               onClick={() => { setIsOpen(false); logout(); }}
               className="w-full flex items-center px-4 py-2.5 text-sm text-red-500 hover:bg-[#1A1A1A] transition-colors"

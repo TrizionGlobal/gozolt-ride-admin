@@ -35,7 +35,7 @@ export const paymentService = {
     await apiClient.post('/admin/payouts/notify-bank-details', { supplierId });
   },
 
-  async getSettledBalance(supplierId: string, module?: 'CAB' | 'RENTAL'): Promise<SettledBalanceResponse> {
+  async getSettledBalance(supplierId: string, module?: 'CAB' | 'RENTAL' | 'BIKE_RENTAL' | 'GLOBAL'): Promise<SettledBalanceResponse> {
     const { data } = await apiClient.get<SettledBalanceResponse>(`/admin/suppliers/${supplierId}/settled-balance`, {
       params: module ? { module } : undefined,
     });

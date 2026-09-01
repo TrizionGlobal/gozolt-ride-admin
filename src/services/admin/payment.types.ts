@@ -37,6 +37,11 @@ export interface SettledBalanceResponse {
   supplierBankName: string | null;
   supplierAccountHolder: string | null;
   supplierAccountNumber: string | null;
+  breakdown?: {
+    cab: any;
+    carRental: any;
+    bikeRental: any;
+  };
 }
 
 // --- Filter params for unified transactions ---
@@ -52,7 +57,7 @@ export interface TriggerPayoutPayload {
   amount: number;
   periodStart?: string;
   periodEnd?: string;
-  module?: 'CAB' | 'RENTAL';
+  module?: 'CAB' | 'RENTAL' | 'BIKE_RENTAL' | 'GLOBAL';
 }
 
 // --- Payment KPIs ---
@@ -82,6 +87,11 @@ export interface SettlementListItem {
   lastPaidDate: string | null;
   nextSettlementDate: string;
   isPayable: boolean;
+  breakdown?: {
+    cab: any;
+    carRental: any;
+    bikeRental: any;
+  };
 }
 
 export type SettlementListResponse = PaginatedResponse<SettlementListItem>;

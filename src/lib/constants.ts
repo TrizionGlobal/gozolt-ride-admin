@@ -58,7 +58,6 @@ export const CAB_SIDEBAR_ITEMS = [
   { label: 'User Management', href: ROUTES.USER_MANAGEMENT, icon: UserCircle },
   { label: 'Document Review', href: ROUTES.DOCUMENT_REVIEW, icon: FileCheck },
   { label: 'Ride Management', href: ROUTES.RIDE_MANAGEMENT, icon: MapPin },
-  { label: 'Payments', href: ROUTES.PAYMENTS, icon: CreditCard },
   { label: 'Invoices', href: ROUTES.INVOICES, icon: FileText },
   { label: 'Analytics', href: ROUTES.ANALYTICS, icon: BarChart3 },
   { label: 'Pricing Rules', href: ROUTES.PRICING_RULES, icon: DollarSign },
@@ -70,14 +69,12 @@ export const CAB_SIDEBAR_ITEMS = [
 export const RENTAL_SIDEBAR_ITEMS = [
   { label: 'Dashboard', href: '/car-rentals/dashboard', icon: LayoutDashboard },
   { label: 'Car Rentals', href: ROUTES.CAR_RENTALS, icon: Key },
-  { label: 'Payments', href: '/car-rentals/payments', icon: CreditCard },
   { label: 'Analytics', href: '/car-rentals/analytics', icon: BarChart3 },
 ] as const;
 
 export const BIKE_RENTAL_SIDEBAR_ITEMS = [
   { label: 'Dashboard', href: '/bike-rentals/dashboard', icon: LayoutDashboard },
   { label: 'Bike Rentals', href: ROUTES.BIKE_RENTALS, icon: Key },
-  { label: 'Payments', href: '/bike-rentals/payments', icon: CreditCard },
   { label: 'Analytics', href: '/bike-rentals/analytics', icon: BarChart3 },
 ] as const;
 

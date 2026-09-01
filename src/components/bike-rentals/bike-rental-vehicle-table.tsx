@@ -85,7 +85,7 @@ const columns: ColumnDef<AdminBikeRentalBike>[] = [
     render: (row) => (
       <div className="flex justify-center">
         <div className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[#2A2A2A] text-xs font-medium text-[#A1A1AA]">
-          {row._count?.addons || 0}
+          {(row._count as any)?.addons || 0}
         </div>
       </div>
     ),

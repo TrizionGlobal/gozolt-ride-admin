@@ -4,10 +4,30 @@ import { ServerSideTable, type ColumnDef } from '@/components/ui/server-side-tab
 import { Badge } from '@/components/ui/badge';
 import { formatStatusLabel } from '@/lib/utils';
 import type { PaginatedResponse } from '@/types';
-import type { AdminCarRentalPayout } from '@/hooks/use-admin-car-rentals';
 
-interface CarRentalPayoutTableProps {
-  data: PaginatedResponse<AdminCarRentalPayout> | undefined | null;
+export interface GlobalPayoutRecord {
+  id: string;
+  createdAt: string;
+  status: string;
+  amount: number | string;
+  periodStart: string | null;
+  periodEnd: string | null;
+  module?: string;
+  supplier?: {
+    companyName?: string;
+    email?: string;
+  };
+  details?: {
+    breakdown?: {
+      cab?: number;
+      carRental?: number;
+      bikeRental?: number;
+    };
+  };
+}
+
+interface GlobalPayoutTableProps {
+  data: PaginatedResponse<GlobalPayoutRecord> | undefined | null;
   loading: boolean;
   page: number;
   limit: number;
@@ -24,15 +44,15 @@ function formatDate(isoStr: string | null | undefined): string {
   return `${day}-${month}-${year}`;
 }
 
-export function CarRentalPayoutTable({
+export function GlobalPayoutTable({
   data,
   loading,
   page,
   limit,
   onPageChange,
   onLimitChange,
-}: CarRentalPayoutTableProps) {
-  const columns: ColumnDef<AdminCarRentalPayout>[] = [
+}: GlobalPayoutTableProps) {
+  const columns: ColumnDef<GlobalPayoutRecord>[] = [
     {
       key: 'createdAt',
       title: 'DATE',
@@ -91,6 +111,32 @@ export function CarRentalPayoutTable({
     },
   ];
 
+  const renderExpandedRow = (row: GlobalPayoutRecord) => {
+    const cab = Number(row.details?.breakdown?.cab || 0);
+    const carRental = Number(row.details?.breakdown?.carRental || 0);
+    const bikeRental = Number(row.details?.breakdown?.bikeRental || 0);
+
+    return (
+      <div className="p-4 bg-[#0A0A0A] border-t border-[#27272A] rounded-b-lg shadow-inner">
+        <p className="text-xs font-semibold text-[#A1A1AA] mb-3 uppercase tracking-wider">Global Payout Breakdown</p>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="bg-[#141414] border border-[#27272A] p-3 rounded-lg flex justify-between items-center">
+            <span className="text-sm text-[#D4D4D8]">Cab Bookings</span>
+            <span className="text-sm font-semibold text-white">€{cab.toFixed(2)}</span>
+          </div>
+          <div className="bg-[#141414] border border-[#27272A] p-3 rounded-lg flex justify-between items-center">
+            <span className="text-sm text-[#D4D4D8]">Car Rentals</span>
+            <span className="text-sm font-semibold text-white">€{carRental.toFixed(2)}</span>
+          </div>
+          <div className="bg-[#141414] border border-[#27272A] p-3 rounded-lg flex justify-between items-center">
+            <span className="text-sm text-[#D4D4D8]">Bike Rentals</span>
+            <span className="text-sm font-semibold text-white">€{bikeRental.toFixed(2)}</span>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <ServerSideTable
       columns={columns}
@@ -101,7 +147,8 @@ export function CarRentalPayoutTable({
       total={data?.meta?.total || 0}
       onPageChange={onPageChange}
       onLimitChange={onLimitChange}
-      emptyText="No rental payouts found."
+      emptyText="No payouts found."
+      renderExpandedRow={renderExpandedRow}
     />
   );
 }

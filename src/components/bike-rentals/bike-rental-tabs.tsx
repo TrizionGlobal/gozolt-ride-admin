@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils';
-import { Car, CalendarCheck } from 'lucide-react';
+import { Car, CalendarCheck, Bike } from 'lucide-react';
 
 export type BikeRentalTab = 'bikes' | 'bookings';
 
