@@ -348,13 +348,21 @@ export function ProcessPayoutsView({
                 <div className="p-5 bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg space-y-4">
                   <div className="flex justify-between text-base">
                     <span className="text-[#9CA3AF]">Total Earned</span>
-                    <span className="text-white font-semibold">€{(balance.totalEarnedAllTime || 0).toFixed(2)}</span>
+                    <span className="text-white font-semibold">€{(balance.totalGrossEarned || 0).toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-base text-[#9CA3AF]">
-                    <span>User Cancellation Fees</span>
-                    <span className="text-white font-semibold">€{(balance.totalPenaltyEarned || 0).toFixed(2)}</span>
+                    <span>Cancellations</span>
+                    <span className="text-white font-semibold">- €{(balance.totalCancellations || 0).toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-base text-[#9CA3AF]">
+                    <span>Refunds</span>
+                    <span className="text-[#EF4444] font-semibold">- €{(balance.totalRefunds || 0).toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-base">
+                    <span className="text-[#9CA3AF]">Net Earned</span>
+                    <span className="text-[#22C55E] font-semibold">€{(balance.totalEarnedAllTime || 0).toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-base border-t border-[#2A2A2A] pt-3">
                     <span className="text-[#9CA3AF]">Total Paid Out</span>
                     <span className="text-white font-semibold">- €{(balance.totalAlreadyPaid || 0).toFixed(2)}</span>
                   </div>
@@ -411,7 +419,7 @@ export function ProcessPayoutsView({
                           <span className="text-white">€{(balance.breakdown.cab?.totalAlreadyPaid || 0).toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between text-sm text-[#9CA3AF]">
-                          <span>Pending:</span>
+                          <span>Pending (Future):</span>
                           <span className="text-white">€{(balance.breakdown.cab?.totalPendingBalance || 0).toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between text-sm pt-2 border-t border-[#2A2A2A] mt-2">
@@ -444,7 +452,7 @@ export function ProcessPayoutsView({
                           <span className="text-white">€{(balance.breakdown.carRental?.totalAlreadyPaid || 0).toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between text-sm text-[#9CA3AF]">
-                          <span>Pending:</span>
+                          <span>Pending (Future):</span>
                           <span className="text-white">€{(balance.breakdown.carRental?.totalPendingBalance || 0).toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between text-sm pt-2 border-t border-[#2A2A2A] mt-2">
@@ -477,7 +485,7 @@ export function ProcessPayoutsView({
                           <span className="text-white">€{(balance.breakdown.bikeRental?.totalAlreadyPaid || 0).toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between text-sm text-[#9CA3AF]">
-                          <span>Pending:</span>
+                          <span>Pending (Future):</span>
                           <span className="text-white">€{(balance.breakdown.bikeRental?.totalPendingBalance || 0).toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between text-sm pt-2 border-t border-[#2A2A2A] mt-2">

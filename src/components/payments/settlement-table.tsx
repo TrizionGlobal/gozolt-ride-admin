@@ -68,11 +68,11 @@ export function SettlementTable({ data, loading, page, limit, onPageChange, onLi
       render: (row) => (
         <button
           onClick={(e) => { e.stopPropagation(); onPaySupplier(row); }}
-          disabled={!row.isPayable || row.availableToPayout <= 0}
-          className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${row.isPayable && row.availableToPayout > 0
-            ? 'bg-[#FACC15] text-black hover:bg-[#E5B800]'
-            : 'bg-[#2A2A2A] text-[#6B7280] cursor-not-allowed'
-            }`}
+        // disabled={!row.isPayable || row.availableToPayout <= 0}
+        // className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${row.isPayable && row.availableToPayout > 0
+        //   ? 'bg-[#FACC15] text-black hover:bg-[#E5B800]'
+        //   : 'bg-[#2A2A2A] text-[#6B7280] cursor-not-allowed'
+        //   }`}
         >
           Pay Settlement
         </button>
