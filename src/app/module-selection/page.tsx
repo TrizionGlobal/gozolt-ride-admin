@@ -13,8 +13,10 @@ export default function ModuleSelectionPage() {
     setActiveModule(module);
     if (module === 'CAB') {
       router.push('/');
-    } else {
-      router.push('/car-rentals');
+    } else if (module === 'RENTAL') {
+      router.push('/car-rentals/dashboard');
+    } else if (module === 'BIKE_RENTAL') {
+      router.push('/bike-rentals/dashboard');
     }
   };
 

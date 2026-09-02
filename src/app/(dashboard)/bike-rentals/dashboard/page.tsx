@@ -419,11 +419,11 @@ export default function BikeRentalDashboardPage() {
                 </div>
                 <div className="grid grid-cols-3 gap-2 pt-2 border-t border-[#2A2A2A] text-center text-xs">
                   <div>
-                    <div className="font-bold text-[#FFD700] text-sm">{sup.totalBikes}</div>
+                    <div className="font-bold text-[#FFD700] text-sm">{sup.totalVehicles}</div>
                     <div className="text-[10px] text-[#6B7280]">Total Fleet</div>
                   </div>
                   <div>
-                    <div className="font-bold text-emerald-400 text-sm">{sup.availableBikes}</div>
+                    <div className="font-bold text-emerald-400 text-sm">{sup.availableVehicles}</div>
                     <div className="text-[10px] text-[#6B7280]">Available</div>
                   </div>
                   <div>

@@ -34,8 +34,8 @@ export interface BikeRentalDashboardStats {
     supplierName: string;
     email: string;
     phone: string | null;
-    totalBikes: number;
-    availableBikes: number;
+    totalVehicles: number;
+    availableVehicles: number;
     activeRentals: number;
   }>;
 }

@@ -15,15 +15,15 @@ interface SidebarItemProps {
 export function SidebarItem({ label, href, icon: Icon, isCollapsed }: SidebarItemProps) {
   const pathname = usePathname();
   let isActive = pathname === href || (href !== '/' && pathname.startsWith(href));
-  if (href === '/car-rentals') {
+  if (href === '/car-rentals' || href === '/bike-rentals') {
     if (
-      pathname.startsWith('/car-rentals/dashboard') ||
-      pathname.startsWith('/car-rentals/payments') ||
-      pathname.startsWith('/car-rentals/analytics')
+      pathname.startsWith(`${href}/dashboard`) ||
+      pathname.startsWith(`${href}/payments`) ||
+      pathname.startsWith(`${href}/analytics`)
     ) {
       isActive = false;
     } else {
-      isActive = true;
+      isActive = pathname.startsWith(href);
     }
   }
 
