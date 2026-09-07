@@ -31,6 +31,9 @@ export interface SettledBalanceResponse {
   totalAlreadyPaid: number;
   totalEarnedAllTime: number;
   totalPendingBalance: number;
+  totalGrossEarned?: number;
+  totalCancellations?: number;
+  totalRefunds?: number;
   lastPaidDate: string | null;
   nextSettlementDate: string;
   isPayable: boolean;
