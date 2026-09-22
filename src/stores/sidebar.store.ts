@@ -2,24 +2,39 @@
 
 import { create } from 'zustand';
 
+export type AdminModule =
+  | 'CAB'
+  | 'RENTAL'
+  | 'BIKE_RENTAL'
+  | 'AIRPORT_TRANSFER'
+  | 'QUICK_SERVICES'
+  | 'FOOD_GROCERY';
+
 interface SidebarState {
   isCollapsed: boolean;
-  activeModule: 'CAB' | 'RENTAL' | 'BIKE_RENTAL' | null;
+  activeModule: AdminModule | null;
   toggle: () => void;
   setCollapsed: (collapsed: boolean) => void;
-  setActiveModule: (module: 'CAB' | 'RENTAL' | 'BIKE_RENTAL' | null) => void;
-}
+  setActiveModule: (module: AdminModule | null) => void;
 
+}const VALID_MODULES: AdminModule[] = [
+  'CAB',
+  'RENTAL',
+  'BIKE_RENTAL',
+  'AIRPORT_TRANSFER',
+  'QUICK_SERVICES',
+  'FOOD_GROCERY',
+];
 export const useSidebarStore = create<SidebarState>((set) => {
   // Hydrate from localStorage on init (client-side only)
   let initialCollapsed = false;
-  let initialModule: 'CAB' | 'RENTAL' | 'BIKE_RENTAL' | null = null;
+  let initialModule: AdminModule | null = null;
   if (typeof window !== 'undefined') {
     const stored = localStorage.getItem('gozolt-sidebar-collapsed');
     initialCollapsed = stored === 'true';
     
-    const storedModule = localStorage.getItem('gozolt-admin-active-module');
-    if (storedModule === 'CAB' || storedModule === 'RENTAL') {
+    const storedModule = localStorage.getItem('gozolt-admin-active-module') as AdminModule | null;
+    if (storedModule && VALID_MODULES.includes(storedModule)) {
       initialModule = storedModule;
     }
   }

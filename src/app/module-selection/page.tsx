@@ -1,96 +1,139 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import { useSidebarStore } from '@/stores/sidebar.store';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { useSidebarStore, type AdminModule, } from '@/stores/sidebar.store';
 import { Topbar } from '@/components/layout/topbar';
+
+interface ModuleCard {
+  module: AdminModule;
+  title: string;
+  description: string;
+  image: string;
+  route: string;
+}
+
+const MODULES: ModuleCard[] = [
+  {
+    module: 'CAB',
+    title: 'Cab Booking',
+    description:
+      'Centrally manage platform-wide fleet operations, driver accounts, and passenger rides.',
+    image: '/cab-booking-icon.png',
+    route: '/',
+  },
+  {
+    module: 'RENTAL',
+    title: 'Car Rentals',
+    description:
+      'Centrally manage vehicle inventory, suppliers, customer bookings, and rental operations.',
+    image: '/car-rental-icon.png',
+    route: '/car-rentals/dashboard',
+  },
+  {
+    module: 'BIKE_RENTAL',
+    title: 'Bike Rentals',
+    description:
+      'Centrally manage bike fleets, supplier accounts, customer bookings, and reservations.',
+    image: '/bike-rental-icon.png',
+    route: '/bike-rentals/dashboard',
+  },
+  {
+    module: 'AIRPORT_TRANSFER',
+    title: 'Airport Transfers',
+    description:
+      'Manage transfer bookings, passengers, flights, vehicles, suppliers, and scheduled journeys.',
+    image: '/airport-transfers-icon.png',
+    route: '/airport-transfers/dashboard',
+  },
+  {
+    module: 'QUICK_SERVICES',
+    title: 'Quick Services',
+    description:
+      'Manage service categories, customer requests, professionals, assignments, and bookings.',
+    image: '/quick-services-icon.png',
+    route: '/quick-services/dashboard',
+  },
+  {
+    module: 'FOOD_GROCERY',
+    title: 'Food & Groceries',
+    description:
+      'Manage restaurants, grocery partners, menus, products, orders, and delivery operations.',
+    image: '/food-groceries-icon.png',
+    route: '/food-groceries/dashboard',
+  },
+];
 
 export default function ModuleSelectionPage() {
   const router = useRouter();
-  const { setActiveModule } = useSidebarStore();
+  const setActiveModule = useSidebarStore(
+    (state) => state.setActiveModule,
+  );
 
-  const handleSelection = (module: 'CAB' | 'RENTAL' | 'BIKE_RENTAL') => {
+  const handleSelection = (
+    module: AdminModule,
+    route: string,
+  ) => {
     setActiveModule(module);
-    if (module === 'CAB') {
-      router.push('/');
-    } else if (module === 'RENTAL') {
-      router.push('/car-rentals/dashboard');
-    } else if (module === 'BIKE_RENTAL') {
-      router.push('/bike-rentals/dashboard');
-    }
+    router.push(route);
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] flex flex-col">
+    <div className="flex min-h-screen flex-col bg-[#0A0A0A]">
       <Topbar />
-      <div className="flex-1 flex items-center justify-center p-6">
-        <div className="max-w-6xl w-full text-center space-y-12">
+
+      <div className="flex flex-1 items-center justify-center p-6">
+        <div className="w-full max-w-6xl space-y-12 text-center">
           <div className="space-y-4">
-            <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight">
-              Welcome to the <span className="text-[#FFD700]">Admin Portal</span>
+            <h1 className="text-4xl font-black tracking-tight text-white md:text-5xl">
+              Welcome to the{' '}
+              <span className="text-[#FFD700]">
+                Admin Portal
+              </span>
             </h1>
-            <p className="text-[#6B7280] text-lg max-w-2xl mx-auto">
-              Select the module you wish to manage today. You can always switch between modules later from the sidebar.
+
+            <p className="mx-auto max-w-2xl text-lg text-[#6B7280]">
+              Select the module you wish to manage today. You
+              can always switch between modules later from the
+              sidebar.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
-            {/* Cab Booking Card */}
-            <button 
-              onClick={() => handleSelection('CAB')}
-              className="group relative flex flex-col items-center justify-start p-8 rounded-3xl border border-[#2A2A2A] bg-[#141414] transition-all duration-300 hover:border-[#FFD700] hover:bg-[#1A1A1A] hover:shadow-[0_0_30px_rgba(255,215,0,0.15)] text-center h-full"
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-[#FFD700]/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 rounded-3xl" />
-              <div className="relative z-10 flex flex-col items-center gap-4">
-                <div className="flex h-20 w-20 items-center justify-center rounded-2xl overflow-hidden shadow-lg border border-[#2A2A2A] group-hover:border-[#FFD700]/50 transition-colors">
-                  <Image src="/cab-icon.jpg" alt="Cab Booking" width={80} height={80} className="object-cover w-full h-full" />
-                </div>
-                <div>
-                  <h2 className="text-xl font-bold text-white mb-2">Cab Booking</h2>
-                  <p className="text-xs text-[#6B7280] leading-relaxed">
-                    Centrally manage platform-wide fleet operations, driver accounts, and passenger rides.
-                  </p>
-                </div>
-              </div>
-            </button>
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {MODULES.map((item) => (
+              <button
+                key={item.module}
+                type="button"
+                onClick={() =>
+                  handleSelection(item.module, item.route)
+                }
+                className="group relative flex h-full min-h-[255px] flex-col items-center justify-start overflow-hidden rounded-3xl border border-[#2A2A2A] bg-[#141414] p-8 text-center transition-all duration-300 hover:-translate-y-1 hover:border-[#FFD700] hover:bg-[#1A1A1A] hover:shadow-[0_0_30px_rgba(255,215,0,0.15)]"
+              >
+                <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-[#FFD700]/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
-            {/* Car Rentals Card */}
-            <button 
-              onClick={() => handleSelection('RENTAL')}
-              className="group relative flex flex-col items-center justify-start p-8 rounded-3xl border border-[#2A2A2A] bg-[#141414] transition-all duration-300 hover:border-[#FFD700] hover:bg-[#1A1A1A] hover:shadow-[0_0_30px_rgba(255,215,0,0.15)] text-center h-full"
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-[#FFD700]/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 rounded-3xl" />
-              <div className="relative z-10 flex flex-col items-center gap-4">
-                <div className="flex h-20 w-20 items-center justify-center rounded-2xl overflow-hidden shadow-lg border border-[#2A2A2A] group-hover:border-[#FFD700]/50 transition-colors">
-                  <Image src="/rental-icon.jpg" alt="Car Rentals" width={80} height={80} className="object-cover w-full h-full" />
-                </div>
-                <div>
-                  <h2 className="text-xl font-bold text-white mb-2">Car Rentals</h2>
-                  <p className="text-xs text-[#6B7280] leading-relaxed">
-                    Centrally manage global vehicle inventory, suppliers, and customer bookings.
-                  </p>
-                </div>
-              </div>
-            </button>
+                <div className="relative z-10 flex flex-col items-center gap-4">
+                  <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-2xl border border-[#2A2A2A] bg-[#0A0A0A] shadow-lg transition-colors group-hover:border-[#FFD700]/50">
+                    <Image
+                      src={item.image}
+                      alt={item.title}
+                      width={80}
+                      height={80}
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
 
-            {/* Bike Rentals Card */}
-            <button 
-              onClick={() => handleSelection('BIKE_RENTAL')}
-              className="group relative flex flex-col items-center justify-start p-8 rounded-3xl border border-[#27272A] bg-[#111111] transition-all duration-300 hover:border-[#FACC15] hover:bg-[#1A1A1A] hover:shadow-[0_0_30px_rgba(250,204,21,0.15)] text-center h-full"
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-[#FACC15]/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 rounded-3xl" />
-              <div className="relative z-10 flex flex-col items-center gap-4">
-                <div className="flex h-20 w-20 items-center justify-center rounded-2xl overflow-hidden shadow-lg border border-[#27272A] group-hover:border-[#FACC15]/50 transition-colors bg-white">
-                  <Image src="/bike-rental-icon-v2.jpg" alt="Bike Rentals" width={80} height={80} className="object-cover w-full h-full" />
+                  <div>
+                    <h2 className="mb-2 text-xl font-bold text-white">
+                      {item.title}
+                    </h2>
+
+                    <p className="text-xs leading-relaxed text-[#6B7280]">
+                      {item.description}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h2 className="text-xl font-bold text-white mb-2">Bike Rentals</h2>
-                  <p className="text-xs text-gray-400 leading-relaxed">
-                    Centrally manage global bike fleets, supplier accounts, and reservations.
-                  </p>
-                </div>
-              </div>
-            </button>
+              </button>
+            ))}
           </div>
         </div>
       </div>

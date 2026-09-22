@@ -48,6 +48,23 @@ export const ROUTES = {
   SETTINGS: '/settings',
   CAR_RENTALS: '/car-rentals',
   BIKE_RENTALS: '/bike-rentals',
+
+  AIRPORT_TRANSFERS_DASHBOARD:
+    '/airport-transfers/dashboard',
+
+  QUICK_SERVICES_DASHBOARD:
+    '/quick-services/dashboard',
+  QUICK_SERVICES_SUPPLIERS:
+    '/quick-services/supplier-management',
+  QUICK_SERVICES_USERS:
+    '/quick-services/user-management',
+  QUICK_SERVICES_BOOKINGS:
+    '/quick-services/booking-management',
+  QUICK_SERVICES_ANALYTICS:
+    '/quick-services/analytics',
+
+  FOOD_GROCERIES_DASHBOARD:
+    '/food-groceries/dashboard',
 } as const;
 
 export const CAB_SIDEBAR_ITEMS = [
@@ -76,6 +93,50 @@ export const BIKE_RENTAL_SIDEBAR_ITEMS = [
   { label: 'Dashboard', href: '/bike-rentals/dashboard', icon: LayoutDashboard },
   { label: 'Bike Rentals', href: ROUTES.BIKE_RENTALS, icon: Key },
   { label: 'Analytics', href: '/bike-rentals/analytics', icon: BarChart3 },
+] as const;
+
+export const AIRPORT_TRANSFER_SIDEBAR_ITEMS = [
+  {
+    label: 'Dashboard',
+    href: ROUTES.AIRPORT_TRANSFERS_DASHBOARD,
+    icon: LayoutDashboard,
+  },
+] as const;
+
+export const QUICK_SERVICES_SIDEBAR_ITEMS = [
+  {
+    label: 'Dashboard',
+    href: ROUTES.QUICK_SERVICES_DASHBOARD,
+    icon: LayoutDashboard,
+  },
+  {
+    label: 'Supplier Management',
+    href: ROUTES.QUICK_SERVICES_SUPPLIERS,
+    icon: Building2,
+  },
+  {
+    label: 'User Management',
+    href: ROUTES.QUICK_SERVICES_USERS,
+    icon: UserCircle,
+  },
+  {
+    label: 'Booking Management',
+    href: ROUTES.QUICK_SERVICES_BOOKINGS,
+    icon: FileText,
+  },
+  {
+    label: 'Analytics',
+    href: ROUTES.QUICK_SERVICES_ANALYTICS,
+    icon: BarChart3,
+  },
+] as const;
+
+export const FOOD_GROCERY_SIDEBAR_ITEMS = [
+  {
+    label: 'Dashboard',
+    href: ROUTES.FOOD_GROCERIES_DASHBOARD,
+    icon: LayoutDashboard,
+  },
 ] as const;
 
 export const SIGNOUT_ITEM = {

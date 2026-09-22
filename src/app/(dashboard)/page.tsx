@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { RotateCw } from 'lucide-react';
 import { useDashboard } from '@/hooks/use-dashboard';
 import { KpiGrid } from '@/components/dashboard/kpi-grid';
@@ -27,31 +28,61 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-white">Dashboard</h1>
-          <p className="text-sm text-[#6B7280] mt-0.5">
-            Operations command center &middot; Live data
-          </p>
-        </div>
-        
-        <div className="flex items-center gap-3">
-          <button
-            onClick={refresh}
-            disabled={isLoading || isRefreshing}
-            className="flex items-center gap-2 rounded-lg border border-[#2A2A2A] bg-[#141414] hover:bg-[#1A1A1A] text-white px-3.5 py-2 text-xs font-medium transition-all hover:border-[#444444] active:scale-95 disabled:opacity-50 disabled:pointer-events-none"
-            id="dashboard-refresh-btn"
-          >
-            <RotateCw className={`h-3.5 w-3.5 text-[#FACC15] ${isRefreshing ? 'animate-spin' : ''}`} />
-            <span>{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
-          </button>
 
-          <div className="flex items-center gap-2 rounded-full bg-[#22C55E]/10 px-3 py-1.5">
-            <span className="h-2 w-2 rounded-full bg-[#22C55E] animate-pulse" />
-            <span className="text-xs font-medium text-[#22C55E]">System Online</span>
-          </div>
-        </div>
-      </div>
+      {/* Cab Booking Dashboard Header */}
+<div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
+  <div className="flex items-center gap-4">
+    <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-[#2A2A2A] bg-[#141414]">
+      <Image
+        src="/cab-booking-icon.png"
+        alt="Cab Booking"
+        width={64}
+        height={64}
+        className="h-full w-full object-cover"
+        priority
+      />
+    </div>
+
+    <div>
+      <h1 className="text-2xl font-bold text-white">
+        Cab Booking Dashboard
+      </h1>
+
+      <p className="mt-1 text-sm text-[#6B7280]">
+        Manage live rides, drivers, passengers, suppliers and
+        platform-wide cab operations.
+      </p>
+    </div>
+  </div>
+
+  <div className="flex items-center gap-3">
+    <button
+      type="button"
+      onClick={refresh}
+      disabled={isLoading || isRefreshing}
+      className="flex items-center gap-2 rounded-lg border border-[#2A2A2A] bg-[#141414] px-3.5 py-2 text-xs font-medium text-white transition-all hover:border-[#444444] hover:bg-[#1A1A1A] active:scale-95 disabled:pointer-events-none disabled:opacity-50"
+      id="dashboard-refresh-btn"
+    >
+      <RotateCw
+        className={`h-3.5 w-3.5 text-[#FACC15] ${
+          isRefreshing ? 'animate-spin' : ''
+        }`}
+      />
+
+      <span>
+        {isRefreshing ? 'Refreshing...' : 'Refresh'}
+      </span>
+    </button>
+
+    <div className="flex items-center gap-2 rounded-full bg-[#22C55E]/10 px-3 py-1.5">
+      <span className="h-2 w-2 animate-pulse rounded-full bg-[#22C55E]" />
+
+      <span className="text-xs font-medium text-[#22C55E]">
+        System Online
+      </span>
+    </div>
+  </div>
+</div>
 
       {/* KPI Cards */}
       <KpiGrid kpis={kpis} isLoading={isLoading} />

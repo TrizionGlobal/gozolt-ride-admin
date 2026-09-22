@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     let user = {
       id: payload.sub,
       email: payload.email || '',
-      firstName: payload.firstName || 'System',
+      firstName: payload.firstName || 'Super',
       lastName: payload.lastName || 'Admin',
       role: payload.role,
     };
