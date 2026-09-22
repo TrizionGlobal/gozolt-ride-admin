@@ -42,7 +42,7 @@ export function useAuth() {
 
         if (isAuthSuccess(response)) {
           // Ensure the email is preserved even if the backend doesn't return it
-          const userObj = { ...(response.user || {}), email: response.user?.email || payload.email };
+          const userObj = { ...(response.user || {}), firstName: response.user?.firstName || 'Super', lastName: response.user?.lastName || 'Admin', email: response.user?.email || payload.email };
 
           if (DEV_BYPASS) {
             // In dev mode, store user in localStorage and set a cookie marker
@@ -97,7 +97,7 @@ export function useAuth() {
 
         if (isAuthSuccess(response)) {
           // Ensure the email is preserved even if the backend doesn't return it
-          const userObj = { ...(response.user || {}), email: response.user?.email || twoFactorState.email };
+          const userObj = { ...(response.user || {}), firstName: response.user?.firstName || 'Super', lastName: response.user?.lastName || 'Admin', email: response.user?.email || twoFactorState.email };
 
           if (DEV_BYPASS) {
             localStorage.setItem('gozolt-dev-user', JSON.stringify(userObj));

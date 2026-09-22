@@ -11,9 +11,21 @@ export function ProfileDropdown() {
   const user = useAuthStore((s) => s.user);
   const { logout } = useAuth();
 
-  const initials = user && user.firstName && user.lastName
-    ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`
-    : 'SA';
+  const displayName = [
+  user?.firstName,
+  user?.lastName,
+]
+  .filter(Boolean)
+  .join(' ')
+  .trim() || 'Super Admin';
+
+const initials = [
+  user?.firstName?.charAt(0),
+  user?.lastName?.charAt(0),
+]
+  .filter(Boolean)
+  .join('')
+  .toUpperCase() || 'SA';
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -37,7 +49,7 @@ export function ProfileDropdown() {
         </div>
         <div className="hidden sm:flex items-center gap-2">
           <span className="text-sm font-medium text-white leading-tight">
-            {user ? `${user.firstName} ${user.lastName}` : 'Super Admin'}
+            {displayName}
           </span>
           <ChevronDown className={`h-4 w-4 text-[#A1A1AA] transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
         </div>

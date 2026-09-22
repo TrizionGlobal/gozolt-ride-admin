@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -46,34 +47,62 @@ export default function CarRentalDashboardPage() {
   return (
     <div className="space-y-6">
       {/* Header with Live Pulse Badge */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-white">Car Rentals Operational Dashboard</h1>
-            <span className="relative flex h-3 w-3">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
-            </span>
-          </div>
-          <p className="text-sm text-[#6B7280] mt-1">
-            Real-time fleet utilization, supplier fulfillment, activity trends, and rental lifecycle pipeline
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <Button
-            onClick={refresh}
-            className="bg-[#1F1F1F] border border-[#2A2A2A] text-white hover:bg-[#2A2A2A] transition-all"
-          >
-            <Activity className="mr-2 h-4 w-4 text-[#FFD700]" /> Refresh Operations
-          </Button>
-          <Button
-            onClick={() => router.push('/car-rentals')}
-            className="bg-[#FFD700] text-black font-semibold hover:bg-[#E6C200] transition-all"
-          >
-            <Key className="mr-2 h-4 w-4" /> Manage All Fleet
-          </Button>
-        </div>
+      
+      {/* Car Rental Dashboard Header */}
+<div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
+  <div className="flex items-center gap-4">
+    <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-[#2A2A2A] bg-[#141414]">
+      <Image
+        src="/car-rental-icon.png"
+        alt="Car Rentals"
+        width={64}
+        height={64}
+        className="h-full w-full object-cover"
+        priority
+      />
+    </div>
+
+    <div>
+      <div className="flex items-center gap-3">
+        <h1 className="text-2xl font-bold text-white">
+          Car Rentals Dashboard
+        </h1>
+
+        <span className="relative flex h-3 w-3">
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+          <span className="relative inline-flex h-3 w-3 rounded-full bg-emerald-500" />
+        </span>
       </div>
+
+      <p className="mt-1 text-sm text-[#6B7280]">
+        Manage car rental bookings, vehicle inventory, suppliers,
+        handovers and rental operations.
+      </p>
+    </div>
+  </div>
+
+  <div className="flex items-center gap-3">
+    <Button
+      type="button"
+      onClick={refresh}
+      className="border border-[#2A2A2A] bg-[#1F1F1F] text-white transition-all hover:bg-[#2A2A2A]"
+    >
+      <Activity className="mr-2 h-4 w-4 text-[#FFD700]" />
+
+      Refresh Operations
+    </Button>
+
+    <Button
+      type="button"
+      onClick={() => router.push('/car-rentals')}
+      className="bg-[#FFD700] font-semibold text-black transition-all hover:bg-[#E6C200]"
+    >
+      <Key className="mr-2 h-4 w-4" />
+
+      Manage All Fleet
+    </Button>
+  </div>
+</div>
 
       {/* Top Operational KPI Stream */}
       {loading ? (
