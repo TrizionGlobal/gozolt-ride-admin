@@ -114,11 +114,7 @@ export const QUICK_SERVICES_SIDEBAR_ITEMS = [
     href: ROUTES.QUICK_SERVICES_SUPPLIERS,
     icon: Building2,
   },
-  {
-    label: 'User Management',
-    href: ROUTES.QUICK_SERVICES_USERS,
-    icon: UserCircle,
-  },
+
   {
     label: 'Booking Management',
     href: ROUTES.QUICK_SERVICES_BOOKINGS,
