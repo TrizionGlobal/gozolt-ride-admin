@@ -60,3 +60,31 @@ export function useCarRentalSettlements(
 
   return { data, loading: enabled ? loading : false, refetch: fetch };
 }
+
+export function useCarRentalTransactions(params: any, enabled: boolean = true) {
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(enabled);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetch = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      setData(null); 
+      const result = await carRentalPaymentService.listTransactions(params);
+      setData(result);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load transactions');
+    } finally {
+      setLoading(false);
+    }
+  }, [params.type, params.search, params.page, params.limit, params.status]);
+
+  useEffect(() => {
+    if (enabled) {
+      fetch();
+    }
+  }, [fetch, enabled]);
+
+  return { data, loading: enabled ? loading : false, error, refetch: fetch };
+}

@@ -20,7 +20,7 @@ export function useSuppliers(params: SupplierFilterParams, enabled: boolean = tr
     } finally {
       setLoading(false);
     }
-  }, [params.status, params.search, params.page, params.limit, params.tier]);
+  }, [params.status, params.search, params.page, params.limit, params.tier, params.serviceType]);
 
   useEffect(() => {
     if (enabled) {

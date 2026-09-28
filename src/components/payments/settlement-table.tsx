@@ -25,12 +25,12 @@ export function SettlementTable({ data, loading, page, limit, onPageChange, onLi
     {
       key: 'totalEarnedAllTime',
       title: 'Total Earned',
-      render: (row) => <span className="text-white text-sm">&euro;{Number(row.totalEarnedAllTime || 0).toFixed(2)}</span>,
+      render: (row) => <span className="text-white text-sm">&euro;{Number(row.totalGrossEarned ?? row.totalEarnedAllTime ?? 0).toFixed(2)}</span>,
     },
     {
       key: 'penaltyEarned',
       title: 'Cancellation Fees',
-      render: (row) => <span className="text-white text-sm">&euro;{Number(row.totalPenaltyEarned || 0).toFixed(2)}</span>,
+      render: (row) => <span className="text-white text-sm">&euro;{Number(row.totalCancellations ?? row.totalPenaltyEarned ?? 0).toFixed(2)}</span>,
     },
     {
       key: 'totalAlreadyPaid',
@@ -40,7 +40,7 @@ export function SettlementTable({ data, loading, page, limit, onPageChange, onLi
     {
       key: 'remainingBalance',
       title: 'Remaining Balance',
-      render: (row) => <span className="text-[#FACC15] font-medium text-sm">&euro;{Math.max(0, Number(row.totalPendingBalance || 0) - Number(row.availableToPayout || 0)).toFixed(2)}</span>,
+      render: (row) => <span className="text-[#FACC15] font-medium text-sm">&euro;{Number(row.totalPendingBalance || 0).toFixed(2)}</span>,
     },
     {
       key: 'lastPaidDate',

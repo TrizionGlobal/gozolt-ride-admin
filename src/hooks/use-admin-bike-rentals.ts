@@ -85,7 +85,7 @@ export function useAdminBikeRentalBikes(params: AdminBikeRentalFilter, skip = fa
         }
       }
 
-      const response = await apiClient.get<PaginatedResponse<AdminBikeRentalBike>>(`/admin/bike-rentals/bikes?${queryStr}`);
+      const response = await apiClient.get<PaginatedResponse<AdminBikeRentalBike>>(`/admin/bike-rentals/vehicles?${queryStr}`);
       bikeCache.set(queryStr, { data: response.data, timestamp: Date.now() });
       setData(response.data);
     } catch (err: any) {

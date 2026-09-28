@@ -26,18 +26,14 @@ export const paymentService = {
     }
   },
 
-  async triggerPayout(payload: TriggerPayoutPayload): Promise<{ id: string; status: string }> {
+  async triggerPayout(payload: TriggerPayoutPayload & { module?: string }): Promise<{ id: string; status: string }> {
     const { data } = await apiClient.post<{ id: string; status: string }>('/admin/payouts', payload);
     return data;
   },
 
-  async notifySupplierBankDetails(supplierId: string): Promise<void> {
-    await apiClient.post('/admin/payouts/notify-bank-details', { supplierId });
-  },
-
-  async getSettledBalance(supplierId: string, module?: 'CAB' | 'RENTAL' | 'BIKE_RENTAL' | 'GLOBAL'): Promise<SettledBalanceResponse> {
+  async getSettledBalance(supplierId: string, module?: string): Promise<SettledBalanceResponse> {
     const { data } = await apiClient.get<SettledBalanceResponse>(`/admin/suppliers/${supplierId}/settled-balance`, {
-      params: module ? { module } : undefined,
+      params: { module }
     });
     return data;
   },

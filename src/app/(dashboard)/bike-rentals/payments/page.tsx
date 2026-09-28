@@ -1,16 +1,28 @@
 'use client';
 
 import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { Download, CreditCard } from 'lucide-react';
 import { sanitizeSearchQuery } from '@/lib/sanitize';
+import { Button } from '@/components/ui/button';
 import { PaymentKpiCards } from '@/components/payments/payment-kpi-cards';
-import { PaymentTab, PaymentTabs } from '@/components/payments/payment-tabs';
-import { GlobalPayoutTable } from '@/components/payments/global-payout-table';
-import { ProcessPayoutsView } from '@/components/payments/process-payouts-view';
+import { PaymentTabs, type PaymentTab } from '@/components/payments/payment-tabs';
+import { PaymentTable } from '@/components/payments/payment-table';
+import { ProcessPayoutsModal } from '@/components/payments/process-payouts-modal';
 import { SettlementTable } from '@/components/payments/settlement-table';
-import { useGlobalPaymentKpis, useGlobalSettlements, useGlobalPayouts } from '@/hooks/use-global-finance';
-import type { SettlementListItem } from '@/services/admin/payment.types';
+import { useBikeRentalTransactions, useBikeRentalPaymentKpis, useBikeRentalSettlements } from '@/hooks/use-bike-rental-payments';
+import type { TransactionFilterParams, TransactionType, SettlementListItem } from '@/services/admin/payment.types';
+import { toast } from 'sonner';
 
-export default function GlobalFinancePage() {
+const TAB_TYPE_MAP: Record<PaymentTab, TransactionType | undefined> = {
+  ride: 'ride',
+  payout: 'payout',
+  refund: 'refund',
+  tip: 'tip',
+  settlement: undefined,
+};
+
+export default function PaymentsPage() {
   const [currentTab, setCurrentTab] = useState<PaymentTab>('settlement');
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -31,104 +43,97 @@ export default function GlobalFinancePage() {
     };
   }, [search]);
 
-  const setTab = useCallback((tab: PaymentTab) => {
-    setCurrentTab(tab);
-    setPage(1);
-    setStatus('ALL');
-    setSearch('');
-    setDebouncedSearch('');
-  }, []);
+  const setTab = useCallback(
+    (tab: PaymentTab) => {
+      setCurrentTab(tab);
+      setPage(1);
+      setStatus('ALL');
+      setSearch('');
+      setDebouncedSearch('');
+    },
+    [],
+  );
 
-  const filterParams = useMemo(
+  const filterParams = useMemo<TransactionFilterParams>(
     () => ({
+      type: TAB_TYPE_MAP[currentTab],
       search: debouncedSearch || undefined,
       status: status !== 'ALL' ? status : undefined,
       page,
       limit: payoutLimit,
     }),
-    [debouncedSearch, page, payoutLimit, status]
+    [currentTab, debouncedSearch, page, payoutLimit, status],
   );
 
-  const { data: payoutData, loading: payoutLoading, refetch: refetchPayouts } = useGlobalPayouts(
-    filterParams,
-    currentTab === 'settlement'
-  );
-  const {
-    data: settlementData,
-    loading: settlementLoading,
-    refetch: refetchSettlements,
-  } = useGlobalSettlements(
-    page,
-    settlementLimit,
-    status,
-    debouncedSearch,
-    currentTab === 'settlement'
-  );
-  const { kpis, loading: kpiLoading, refresh: refreshKpis } = useGlobalPaymentKpis();
-
+  const { data, loading, refetch } = useBikeRentalTransactions(filterParams, currentTab !== 'settlement');
+  const { data: settlementData, loading: settlementLoading, refetch: refetchSettlements } = useBikeRentalSettlements(page, settlementLimit, status, debouncedSearch, currentTab === 'settlement');
+  const { kpis, loading: kpiLoading, refresh: refreshKpis } = useBikeRentalPaymentKpis();
+  
   const handleExport = useCallback(() => {
     if (currentTab === 'settlement') {
       if (!settlementData?.data) return;
       import('@/lib/export-excel').then(({ exportToExcel }) => {
-        const rows = settlementData.data.map((s) => ({
+        const rows = settlementData.data.map((s: any) => ({
           companyName: s.companyName,
-          totalEarned: s.totalEarnedAllTime,
+          totalEarned: s.totalGrossEarned ?? s.totalEarnedAllTime,
           totalPaidOut: s.totalAlreadyPaid,
-          remainingBalance: Math.max(
-            0,
-            Number(s.totalPendingBalance || 0) - Number(s.availableToPayout || 0)
-          ),
+          cancellationFees: s.totalCancellations ?? s.totalPenaltyEarned,
+          remainingBalance: Math.max(0, Number(s.totalPendingBalance || 0) - Number(s.availableToPayout || 0)),
           lastPaidDate: s.lastPaidDate ? new Date(s.lastPaidDate).toLocaleDateString() : 'Never',
-          nextSettlementDate: s.nextSettlementDate
-            ? new Date(s.nextSettlementDate).toLocaleDateString()
-            : 'Invalid Date',
+          nextSettlementDate: s.nextSettlementDate ? new Date(s.nextSettlementDate).toLocaleDateString() : 'Invalid Date',
           nineDaySettlement: s.availableToPayout,
         }));
         exportToExcel(
-          rows,
+          rows, 
           [
             { key: 'companyName', label: 'Company Name' },
             { key: 'totalEarned', label: 'Total Earned' },
+            { key: 'cancellationFees', label: 'Cancellation Fees' },
             { key: 'totalPaidOut', label: 'Total Paid Out' },
             { key: 'remainingBalance', label: 'Remaining Balance' },
             { key: 'lastPaidDate', label: 'Last Paid Date' },
             { key: 'nextSettlementDate', label: 'Next Settlement Date' },
-            { key: 'nineDaySettlement', label: '9-Day Settlement' },
-          ],
-          'global-finance-settlements'
+            { key: 'nineDaySettlement', label: '9-Day Settlement' }
+          ], 
+          'settlements'
         );
       });
     } else {
-      if (!payoutData?.data) return;
+      if (!data?.data) return;
       import('@/lib/export-excel').then(({ exportToExcel }) => {
-        const rows = payoutData.data.map((t: any) => ({
+        const rows = data.data.map((t: any) => ({
           id: t.id,
+          type: t.type,
+          description: t.description,
           amount: t.amount,
+          commission: t.commission,
           status: t.status,
-          periodStart: t.periodStart,
-          periodEnd: t.periodEnd,
-          date: t.createdAt,
-          supplier: t.supplier?.companyName,
+          date: t.date || (t as any).createdAt || new Date().toISOString(),
+          supplier: t.supplier,
+          method: t.method,
         }));
         exportToExcel(
           rows,
           [
             { key: 'id', label: 'ID' },
-            { key: 'supplier', label: 'Supplier' },
+            { key: 'type', label: 'Type' },
+            { key: 'description', label: 'Description' },
             { key: 'amount', label: 'Amount' },
+            { key: 'commission', label: 'Commission' },
             { key: 'status', label: 'Status' },
-            { key: 'periodStart', label: 'Period Start' },
-            { key: 'periodEnd', label: 'Period End' },
-            { key: 'date', label: 'Created Date' },
+            { key: 'date', label: 'Date' },
+            { key: 'supplier', label: 'Supplier' },
+            { key: 'method', label: 'Method' }
           ],
-          'Payments & Settlements'
+          'payments'
         );
       });
     }
-  }, [currentTab, settlementData, payoutData]);
+  }, [currentTab, settlementData, data]);
+
 
   const handlePayoutSuccess = () => {
-    refetchPayouts();
+    refetch();
     refetchSettlements();
     refreshKpis();
   };
@@ -138,28 +143,14 @@ export default function GlobalFinancePage() {
     setPayoutOpen(true);
   };
 
-  if (payoutOpen) {
-    return (
-      <ProcessPayoutsView
-        onClose={() => {
-          setPayoutOpen(false);
-          setSelectedSupplierId(undefined);
-        }}
-        onSuccess={handlePayoutSuccess}
-        preselectedSupplierId={selectedSupplierId}
-        module="GLOBAL"
-      />
-    );
-  }
-
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Payments & Settlements</h1>
+          <h1 className="text-2xl font-bold text-white">Bike Rental Payments</h1>
           <p className="text-sm text-[#6B7280] mt-1">
-            Track global revenue, supplier settlements, and payout history across all modules
+            Track revenue, payouts, and refunds
           </p>
         </div>
       </div>
@@ -174,10 +165,7 @@ export default function GlobalFinancePage() {
         search={search}
         onSearchChange={(v: string) => setSearch(sanitizeSearchQuery(v))}
         status={status}
-        onStatusChange={(v: string) => {
-          setStatus(v);
-          setPage(1);
-        }}
+        onStatusChange={(v: string) => { setStatus(v); setPage(1); }}
         onExport={handleExport}
       />
 
@@ -194,9 +182,9 @@ export default function GlobalFinancePage() {
             onPaySupplier={handlePaySupplier}
           />
         ) : (
-          <GlobalPayoutTable
-            data={payoutData}
-            loading={payoutLoading}
+          <PaymentTable
+            data={data}
+            loading={loading}
             page={page}
             limit={payoutLimit}
             onPageChange={setPage}
@@ -204,6 +192,18 @@ export default function GlobalFinancePage() {
           />
         )}
       </div>
+
+      {/* Process Payouts Modal */}
+      <ProcessPayoutsModal
+        open={payoutOpen}
+        onOpenChange={(open) => {
+          setPayoutOpen(open);
+          if (!open) setSelectedSupplierId(undefined);
+        }}
+        onSuccess={handlePayoutSuccess}
+        preselectedSupplierId={selectedSupplierId}
+        module="BIKE_RENTAL"
+      />
     </div>
   );
 }

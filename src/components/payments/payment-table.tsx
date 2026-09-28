@@ -39,17 +39,11 @@ export function PaymentTable({
     {
       key: 'date',
       title: 'Date',
-      render: (row, expanded) => {
-        const hasDetails = row.type === 'payout' && !!row.details;
-        return (
-          <div className="flex items-center gap-2 text-sm text-[#9CA3AF]">
-            {formatDate(row.date || (row as any).createdAt || new Date().toISOString())}
-            {hasDetails && (
-              expanded ? <ChevronDown className="h-4 w-4 text-[#6B7280]" /> : <ChevronRight className="h-4 w-4 text-[#6B7280]" />
-            )}
-          </div>
-        );
-      },
+      render: (row) => (
+        <div className="flex items-center gap-2 text-sm text-[#9CA3AF]">
+          {formatDate(row.date || (row as any).createdAt || new Date().toISOString())}
+        </div>
+      ),
     },
     {
       key: 'description',
@@ -62,19 +56,9 @@ export function PaymentTable({
       render: (row) => <span className="text-sm text-[#9CA3AF]">{row.supplier || 'N/A'}</span>,
     },
     {
-      key: 'method',
-      title: 'Method',
-      render: (row) => <span className="text-sm text-[#9CA3AF]">{row.method}</span>,
-    },
-    {
       key: 'amount',
       title: 'Amount',
       render: (row) => <span className="text-sm font-medium text-white">&euro;{Number(row.amount || 0).toFixed(2)}</span>,
-    },
-    {
-      key: 'commission',
-      title: 'Commission',
-      render: (row) => <span className="text-sm font-medium text-green-400">&euro;{Number((row as any).platformFee ?? row.commission ?? 0).toFixed(2)}</span>,
     },
     {
       key: 'status',
@@ -85,40 +69,6 @@ export function PaymentTable({
       },
     },
   ];
-
-  const renderExpandedRow = (txn: UnifiedTransaction) => {
-    if (txn.type !== 'payout' || !txn.details) return null;
-    return (
-      <div className="p-4 ml-8 flex flex-col md:flex-row gap-6 items-start justify-between">
-        <div className="flex items-start gap-3">
-          <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5" />
-          <div>
-            <h4 className="text-white font-semibold text-sm">Settlement Receipt</h4>
-            <p className="text-xs text-[#9CA3AF]">Stripe Transfer ID: <span className="font-mono text-[#FACC15]">{txn.details?.transferId || 'N/A'}</span></p>
-          </div>
-        </div>
-        
-        <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-          <div className="space-y-1">
-            <p className="text-[#6B7280] text-xs">Gross Settled Revenue</p>
-            <p className="text-white font-medium">&euro;{Number(txn.details?.totalSettledEarned || 0).toFixed(2)}</p>
-          </div>
-          <div className="space-y-1">
-            <p className="text-[#6B7280] text-xs">Past Payouts</p>
-            <p className="text-white font-medium">&euro;{Number(txn.details?.totalAlreadyPaid || 0).toFixed(2)}</p>
-          </div>
-          <div className="space-y-1">
-            <p className="text-[#6B7280] text-xs">Driver Cash Kept</p>
-            <p className="text-red-400 font-medium">&euro;{Number(txn.details?.totalCashCollected || 0).toFixed(2)}</p>
-          </div>
-          <div className="space-y-1">
-            <p className="text-[#6B7280] text-xs">Remaining Pending</p>
-            <p className="text-[#FACC15] font-medium">&euro;{Number(txn.details?.remainingPendingAfterThis || 0).toFixed(2)}</p>
-          </div>
-        </div>
-      </div>
-    );
-  };
 
   return (
     <div className="rounded-lg border border-[#2A2A2A] bg-[#0A0A0A] overflow-hidden">
@@ -132,7 +82,6 @@ export function PaymentTable({
         onPageChange={onPageChange}
         onLimitChange={onLimitChange || (() => {})}
         emptyText="No transactions found."
-        renderExpandedRow={(row) => (row.type === 'payout' && !!row.details) ? renderExpandedRow(row) : undefined}
       />
     </div>
   );

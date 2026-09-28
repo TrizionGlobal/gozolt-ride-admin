@@ -6,6 +6,14 @@ import type {
 } from './payment.types';
 
 export const bikeRentalPaymentService = {
+  async listTransactions(params: any): Promise<import('./payment.types').TransactionListResponse> {
+    try {
+      const { data } = await apiClient.get<import('./payment.types').TransactionListResponse>('/admin/bike-rentals/payments', { params });
+      return data;
+    } catch {
+      return { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 1 } };
+    }
+  },
   async listSettlements(params: { page?: number; limit?: number; status?: string; search?: string }): Promise<SettlementListResponse> {
     try {
       const { data } = await apiClient.get<SettlementListResponse>('/admin/bike-rentals/payments/settlements', { params });

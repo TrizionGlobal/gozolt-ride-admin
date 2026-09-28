@@ -11,8 +11,9 @@ interface PaymentKpiCardsProps {
 
 function fmt(n: number | undefined | null): string {
   const num = Number(n);
-  if (isNaN(num)) return '0.00';
-  return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  if (isNaN(num)) return '0';
+  if (num >= 1000) return `${(num / 1000).toFixed(1).replace(/\.0$/, '')}k`;
+  return num.toLocaleString();
 }
 
 export function PaymentKpiCards({ kpis, loading }: PaymentKpiCardsProps) {
@@ -84,10 +85,10 @@ export function PaymentKpiCards({ kpis, loading }: PaymentKpiCardsProps) {
         </div>
       )}
 
-      {/* Card 4 — Overdue Payouts */}
+      {/* Card 4 — Forget to pay overdue */}
       {loading ? (
         <KpiCard
-          label="Overdue Payouts"
+          label="Forget to pay overdue"
           value="—"
           icon={AlertTriangle}
           prefix="€"
@@ -109,7 +110,7 @@ export function PaymentKpiCards({ kpis, loading }: PaymentKpiCardsProps) {
           <p className="text-xl font-bold text-white mt-1">
             €{kpis ? fmt(kpis.overduePayoutsAmount) : '—'}
           </p>
-          <p className="text-xs text-[#6B7280] mt-0.5">Overdue Payouts</p>
+          <p className="text-xs text-[#6B7280] mt-0.5">Forget to pay overdue</p>
         </div>
       )}
     </div>

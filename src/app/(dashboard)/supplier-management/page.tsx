@@ -10,6 +10,7 @@ import { SupplierApprovalChecklist } from '@/components/suppliers/supplier-appro
 import { SupplierRejectModal } from '@/components/suppliers/supplier-reject-modal';
 import { SupplierSuspendModal } from '@/components/suppliers/supplier-suspend-modal';
 import type { SupplierFilterParams, SupplierListItem } from '@/services/admin/supplier.types';
+import { usePathname } from 'next/navigation';
 
 const TAB_STATUS_MAP: Record<SupplierTab, SupplierStatus | undefined> = {
   all: undefined,
@@ -20,6 +21,13 @@ const TAB_STATUS_MAP: Record<SupplierTab, SupplierStatus | undefined> = {
 };
 
 export default function SupplierManagementPage() {
+  const pathname = usePathname();
+  const serviceType = pathname.includes('/car-rentals') 
+    ? 'RENTAL' 
+    : pathname.includes('/bike-rentals') 
+      ? 'BIKE_RENTAL' 
+      : 'CAB';
+
   // Tab state — managed locally, no URL changes (avoids Next.js RSC refetch on tab switch)
   const [activeTab, setActiveTab] = useState<SupplierTab>('all');
   const [page, setPage] = useState(1);
@@ -45,8 +53,9 @@ export default function SupplierManagementPage() {
       status: TAB_STATUS_MAP[activeTab],
       page,
       limit,
+      serviceType,
     }),
-    [activeTab, page, limit],
+    [activeTab, page, limit, serviceType],
   );
 
 

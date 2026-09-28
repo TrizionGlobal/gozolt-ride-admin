@@ -85,6 +85,7 @@ export interface SupplierDocument {
 export interface SupplierFilterParams extends PaginatedQuery {
   status?: SupplierStatus;
   tier?: SubscriptionTier;
+  serviceType?: string;
 }
 
 // --- Mutation payloads ---

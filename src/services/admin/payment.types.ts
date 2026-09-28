@@ -31,20 +31,9 @@ export interface SettledBalanceResponse {
   totalAlreadyPaid: number;
   totalEarnedAllTime: number;
   totalPendingBalance: number;
-  totalGrossEarned?: number;
-  totalCancellations?: number;
-  totalRefunds?: number;
   lastPaidDate: string | null;
   nextSettlementDate: string;
   isPayable: boolean;
-  supplierBankName: string | null;
-  supplierAccountHolder: string | null;
-  supplierAccountNumber: string | null;
-  breakdown?: {
-    cab: any;
-    carRental: any;
-    bikeRental: any;
-  };
 }
 
 // --- Filter params for unified transactions ---
@@ -60,7 +49,6 @@ export interface TriggerPayoutPayload {
   amount: number;
   periodStart?: string;
   periodEnd?: string;
-  module?: 'CAB' | 'RENTAL' | 'BIKE_RENTAL' | 'GLOBAL';
 }
 
 // --- Payment KPIs ---
@@ -90,11 +78,9 @@ export interface SettlementListItem {
   lastPaidDate: string | null;
   nextSettlementDate: string;
   isPayable: boolean;
-  breakdown?: {
-    cab: any;
-    carRental: any;
-    bikeRental: any;
-  };
+  totalGrossEarned?: number;
+  totalCancellations?: number;
+  totalRefunds?: number;
 }
 
 export type SettlementListResponse = PaginatedResponse<SettlementListItem>;
@@ -113,14 +99,15 @@ export function getTransactionTypeDisplay(type: string | undefined) {
   return map[type] || { label: type, className: 'bg-gray-500/20 text-gray-400 border-gray-500/30' };
 }
 
+// --- Payment status display (lowercase colored text, not pill badges) ---
 export function getPaymentStatusDisplay(status: string) {
   const map: Record<string, { label: string; className: string }> = {
-    completed: { label: 'Completed', className: 'text-green-400' },
-    pending: { label: 'Pending', className: 'text-yellow-400' },
-    authorized: { label: 'Authorized', className: 'text-blue-400' },
-    failed: { label: 'Failed', className: 'text-red-400' },
-    processing: { label: 'Processing', className: 'text-blue-400' },
-    refunded: { label: 'Refunded', className: 'text-orange-400' },
+    completed: { label: 'completed', className: 'text-green-400' },
+    pending: { label: 'pending', className: 'text-yellow-400' },
+    authorized: { label: 'authorized', className: 'text-blue-400' },
+    failed: { label: 'failed', className: 'text-red-400' },
+    processing: { label: 'processing', className: 'text-blue-400' },
+    refunded: { label: 'refunded', className: 'text-orange-400' },
   };
-  return map[status] ?? { label: status.charAt(0).toUpperCase() + status.slice(1).toLowerCase(), className: 'text-gray-400' };
+  return map[status] ?? { label: status, className: 'text-gray-400' };
 }

@@ -19,7 +19,8 @@ export function SidebarItem({ label, href, icon: Icon, isCollapsed }: SidebarIte
     if (
       pathname.startsWith(`${href}/dashboard`) ||
       pathname.startsWith(`${href}/payments`) ||
-      pathname.startsWith(`${href}/analytics`)
+      pathname.startsWith(`${href}/analytics`) ||
+      pathname.startsWith(`${href}/supplier-management`)
     ) {
       isActive = false;
     } else {
