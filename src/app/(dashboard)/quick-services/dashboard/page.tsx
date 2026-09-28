@@ -29,15 +29,15 @@ import { useState, useEffect, useMemo } from 'react';
 export default function QuickServicesDashboardPage() {
   const router = useRouter();
   const suppliers = useActiveSuppliers();
-  
+
   // Fetch up to 500 recent bookings to generate accurate stats across all services
   const { data: recentBookings, loading } = useAdminQuickServiceBookings({ page: 1, limit: 500 });
-  
+
   // Aggregate data by service category
   const serviceStats = useMemo(() => {
     if (!recentBookings) return [];
     const stats: Record<string, { count: number; revenue: number; pending: number }> = {};
-    
+
     recentBookings.forEach((b: any) => {
       const category = b.serviceCategory || b.serviceTitle || 'Unknown Service';
       if (!stats[category]) {
@@ -108,7 +108,7 @@ export default function QuickServicesDashboardPage() {
       color: 'from-orange-500/20 to-orange-500/5',
       border: 'border-orange-500/20',
       text: 'text-orange-400',
-      subServices: ['Refrigerator', 'Air Conditioner', 'Washing Machine', 'Television', 'Fan', 'Mixer', 'Gas Stove', 'Water Purifier', 'Others']
+      subServices: []
     },
     {
       name: 'Beautician /Wellness',
@@ -132,7 +132,7 @@ export default function QuickServicesDashboardPage() {
       color: 'from-purple-500/20 to-purple-500/5',
       border: 'border-purple-500/20',
       text: 'text-purple-400',
-      subServices: ['Male', 'Female', 'Others']
+      subServices: []
     },
     {
       name: 'Security/Bouncer',
@@ -140,7 +140,7 @@ export default function QuickServicesDashboardPage() {
       color: 'from-slate-500/20 to-slate-500/5',
       border: 'border-slate-500/20',
       text: 'text-slate-400',
-      subServices: ['Event Security', 'Bouncer / Door Security', 'Others']
+      subServices: []
     },
     {
       name: 'Other Services',
@@ -156,19 +156,19 @@ export default function QuickServicesDashboardPage() {
   const matrixData = masterCategories.map(cat => {
     let catTotal = 0;
     let catPending = 0;
-    
+
     const subs = cat.subServices.map(sub => {
-      const relatedBookings = recentBookings?.filter(b => 
+      const relatedBookings = recentBookings?.filter(b =>
         (b.serviceCategory === cat.name && b.serviceTitle === sub) ||
         b.serviceTitle === sub
       ) || [];
-      
+
       const subCount = relatedBookings.length;
       const subPending = relatedBookings.filter(b => b.status === 'PENDING').length;
-      
+
       catTotal += subCount;
       catPending += subPending;
-      
+
       return { name: sub, count: subCount, pending: subPending };
     }).sort((a, b) => b.count - a.count);
 
@@ -406,7 +406,7 @@ export default function QuickServicesDashboardPage() {
             </h2>
             <p className="text-xs text-[#6B7280]">Top performing categories generating the most volume</p>
           </div>
-          
+
           <div className="p-5 flex-1 flex flex-col justify-center gap-4">
             {loading ? (
               <div className="space-y-6">
@@ -437,8 +437,8 @@ export default function QuickServicesDashboardPage() {
                         <span className="text-[#FFD700] font-bold">{percentage}% <span className="text-[#6B7280] font-normal">({stat.count})</span></span>
                       </div>
                       <div className="h-2.5 w-full bg-[#1A1A1A] rounded-full overflow-hidden border border-[#2A2A2A]">
-                        <div 
-                          className="h-full bg-gradient-to-r from-[#FFD700] to-[#F59E0B] rounded-full transition-all duration-1000" 
+                        <div
+                          className="h-full bg-gradient-to-r from-[#FFD700] to-[#F59E0B] rounded-full transition-all duration-1000"
                           style={{ width: `${percentage}%` }}
                         />
                       </div>
@@ -458,7 +458,7 @@ export default function QuickServicesDashboardPage() {
             </h2>
             <p className="text-xs text-[#6B7280]">Recent unassigned requests</p>
           </div>
-          
+
           <div className="p-0 overflow-y-auto max-h-[300px]">
             {loading ? (
               <div className="divide-y divide-[#2A2A2A]">
@@ -485,15 +485,15 @@ export default function QuickServicesDashboardPage() {
                   </div>
                 );
               }
-              
+
               return pendingBookings.slice(0, 5).map((booking: any, i: number) => (
                 <div key={i} className="p-4 border-b border-[#2A2A2A] hover:bg-[#1A1A1A] transition-colors flex items-center justify-between">
                   <div>
                     <p className="text-sm font-bold text-white">{booking.serviceTitle || booking.serviceCategory}</p>
                     <p className="text-xs text-[#9CA3AF] mt-0.5">{booking.userName}</p>
                   </div>
-                  <Button 
-                    size="sm" 
+                  <Button
+                    size="sm"
                     className="h-7 text-[10px] bg-amber-500 hover:bg-amber-600 text-black px-3"
                     onClick={() => router.push(`/quick-services/booking-management/${booking._id || booking.id}`)}
                   >
