@@ -32,15 +32,17 @@ export default function QuickServicesSupplierManagementPage() {
   const [limit, setLimit] = useState(20);
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearch = useDebounce(searchTerm, 500);
-  
+
   // We use the global supplier hook since it retrieves all registered supplier businesses
   const { data: supplierData, loading, refetch } = useSuppliers({ page, limit, search: debouncedSearch });
-  
+
   const suppliers = supplierData?.data || [];
 
-  const registeredCount = suppliers.length;
-  const newRegistrations = suppliers.filter(s => s.status === 'PENDING_VERIFICATION').length;
-  const activeSubs = suppliers.filter(s => s.status === 'ACTIVE').length;
+  const totalSuppliers = suppliers.length;
+  const approvedSuppliers = suppliers.filter(s => s.status === 'ACTIVE').length;
+  const pendingSuppliers = suppliers.filter(s => s.status === 'PENDING_VERIFICATION').length;
+  const subscribedSuppliers = suppliers.filter(s => s.subscription !== null).length;
+  const nonSubscribedSuppliers = suppliers.filter(s => s.subscription === null).length;
 
   const handleApprove = async (id: string) => {
     try {
@@ -79,29 +81,40 @@ export default function QuickServicesSupplierManagementPage() {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         <SummaryCard
-          title="Registered Suppliers"
-          value={registeredCount}
-          description="Total active service partners"
+          title="Total Suppliers"
+          value={totalSuppliers}
           icon={<Building2 className="h-5 w-5" />}
           color="blue"
           isLoading={loading}
         />
         <SummaryCard
-          title="New Registrations"
-          value={newRegistrations}
-          description="Awaiting documentation review"
-          icon={<UserPlus className="h-5 w-5" />}
+          title="Approved Suppliers"
+          value={approvedSuppliers}
+          icon={<CheckCircle2 className="h-5 w-5" />}
+          color="emerald"
+          isLoading={loading}
+        />
+        <SummaryCard
+          title="Pending Suppliers"
+          value={pendingSuppliers}
+          icon={<Clock className="h-5 w-5" />}
           color="amber"
           isLoading={loading}
         />
         <SummaryCard
-          title="Active Subscriptions"
-          value={activeSubs}
-          description="Suppliers with verified billing"
+          title="With Subscription"
+          value={subscribedSuppliers}
           icon={<CreditCard className="h-5 w-5" />}
           color="emerald"
+          isLoading={loading}
+        />
+        <SummaryCard
+          title="Without Subscription"
+          value={nonSubscribedSuppliers}
+          icon={<UserPlus className="h-5 w-5" />}
+          color="blue"
           isLoading={loading}
         />
       </div>
@@ -118,20 +131,17 @@ export default function QuickServicesSupplierManagementPage() {
                 Manage the catalog of independent professionals and companies providing Quick Services.
               </p>
             </div>
-            
+
             <div className="flex items-center gap-3">
               <div className="relative w-64">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#6B7280]" />
-                <Input 
-                  placeholder="Search supplier, email, phone..." 
-                  className="pl-9 bg-[#0A0A0A] border-[#2A2A2A] text-sm h-9 focus-visible:ring-[#FFD700]"
+                <Input
+                  placeholder="Search supplier, email, phone..."
+                  className="pl-9 bg-[#0A0A0A] border-transparent text-sm h-9 focus-visible:ring-0 focus-visible:ring-offset-0"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
-              <Button variant="outline" className="h-9 border-[#2A2A2A] bg-[#1A1A1A] text-white">
-                <Filter className="h-4 w-4 mr-2 text-[#6B7280]" /> Filters
-              </Button>
             </div>
           </div>
         </div>
@@ -164,30 +174,18 @@ export default function QuickServicesSupplierManagementPage() {
                 render: (row) => (
                   <div className="flex flex-wrap gap-1.5 max-w-[320px]">
                     {row.quickServicesOffered && row.quickServicesOffered.length > 0 ? (
-                      <>
-                        {row.quickServicesOffered.map((cat, idx) => {
-                          const colors = [
-                            'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-                            'bg-orange-500/10 text-orange-400 border-orange-500/20',
-                            'bg-blue-500/10 text-blue-400 border-blue-500/20',
-                            'bg-purple-500/10 text-purple-400 border-purple-500/20',
-                            'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
-                          ];
-                          const colorClass = colors[idx % colors.length];
-                          return (
-                            <Badge key={cat.category} variant="outline" className={`${colorClass} font-medium text-[10px]`}>
-                              {cat.category} ({cat.services.length})
-                            </Badge>
-                          );
-                        })}
-                        <Badge 
-                          variant="outline" 
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-white">
+                          {row.quickServicesOffered.reduce((acc, cat) => acc + (cat.services?.length || 0), 0)} Services
+                        </span>
+                        <Badge
+                          variant="outline"
                           className="bg-[#1A1A1A] text-[#6B7280] border-[#2A2A2A] font-medium text-[10px] cursor-pointer hover:bg-[#2A2A2A] transition-colors"
                           onClick={(e) => { e.stopPropagation(); setViewDetailsId(row.id); }}
                         >
-                          + View Catalog
+                          View Catalog
                         </Badge>
-                      </>
+                      </div>
                     ) : (
                       <span className="text-xs text-[#6B7280]">No services configured</span>
                     )}
@@ -274,12 +272,12 @@ export default function QuickServicesSupplierManagementPage() {
         </div>
       </div>
 
-      <QuickServicesSupplierDetailDrawer 
-        supplierId={viewDetailsId} 
-        open={!!viewDetailsId} 
-        onOpenChange={(open) => !open && setViewDetailsId(null)} 
+      <QuickServicesSupplierDetailDrawer
+        supplierId={viewDetailsId}
+        open={!!viewDetailsId}
+        onOpenChange={(open) => !open && setViewDetailsId(null)}
       />
-      
+
       {suspendModalSupplier && (
         <SupplierSuspendModal
           supplierId={suspendModalSupplier.id}
@@ -296,13 +294,12 @@ export default function QuickServicesSupplierManagementPage() {
 interface SummaryCardProps {
   title: string;
   value: number;
-  description: string;
   icon: React.ReactNode;
   color?: 'blue' | 'amber' | 'emerald';
   isLoading?: boolean;
 }
 
-function SummaryCard({ title, value, description, icon, color = 'blue', isLoading = false }: SummaryCardProps) {
+function SummaryCard({ title, value, icon, color = 'blue', isLoading = false }: SummaryCardProps) {
   const colorMap = {
     blue: 'bg-blue-500/10 text-blue-400 group-hover:border-blue-500/40',
     amber: 'bg-amber-500/10 text-amber-400 group-hover:border-amber-500/40',
@@ -311,37 +308,33 @@ function SummaryCard({ title, value, description, icon, color = 'blue', isLoadin
 
   if (isLoading) {
     return (
-      <div className="group rounded-xl border border-[#2A2A2A] bg-[#141414] p-5">
-        <div className="flex items-center justify-between">
-          <Skeleton className="h-4 w-32 bg-[#2A2A2A]" />
-          <Skeleton className="h-10 w-10 rounded-full bg-[#2A2A2A]" />
+      <div className="group rounded-xl border border-[#2A2A2A] bg-[#141414] p-4">
+        <div className="flex items-center gap-4">
+          <Skeleton className="h-12 w-12 rounded-xl bg-[#2A2A2A]" />
+          <div className="space-y-2">
+            <Skeleton className="h-3 w-24 bg-[#2A2A2A]" />
+            <Skeleton className="h-6 w-12 bg-[#2A2A2A]" />
+          </div>
         </div>
-        <div className="mt-4 flex items-center h-9">
-          <Skeleton className="h-8 w-16 bg-[#2A2A2A]" />
-        </div>
-        <Skeleton className="mt-2.5 h-3 w-48 bg-[#2A2A2A]" />
       </div>
     );
   }
 
   return (
-    <div className={`group rounded-xl border border-[#2A2A2A] bg-[#141414] p-5 transition-all duration-300 hover:shadow-lg ${colorMap[color].split(' group-hover:')[1]}`}>
-      <div className="flex items-center justify-between">
-        <p className="text-xs font-semibold uppercase tracking-wider text-[#6B7280] group-hover:text-[#9CA3AF] transition-colors">
+    <div className={`group flex items-center gap-4 rounded-xl border border-[#2A2A2A] bg-[#141414] p-4 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 ${colorMap[color].split(' group-hover:')[1]}`}>
+      <div className={`shrink-0 rounded-xl p-3 transition-transform group-hover:scale-110 ${colorMap[color].split(' group-hover:')[0]}`}>
+        {icon}
+      </div>
+      <div className="flex-1">
+        <p className="text-xs font-semibold capitalize text-[#6B7280] group-hover:text-[#9CA3AF] transition-colors leading-tight">
           {title}
         </p>
-        <div className={`rounded-full p-2.5 transition-transform group-hover:scale-110 ${colorMap[color].split(' group-hover:')[0]}`}>
-          {icon}
+        <div className="flex flex-col mt-1">
+          <p className="text-2xl font-bold text-white leading-none">
+            {value}
+          </p>
         </div>
       </div>
-      <div className="mt-4 flex items-center h-9">
-        <p className="text-3xl font-extrabold text-white">
-          {value}
-        </p>
-      </div>
-      <p className="mt-1.5 text-xs text-[#6B7280] font-medium">
-        {description}
-      </p>
     </div>
   );
 }

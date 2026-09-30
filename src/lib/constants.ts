@@ -26,7 +26,7 @@ import {
 export const ROUTES = {
   LOGIN: '/login',
   VERIFY_2FA: '/verify-2fa',
-  DASHBOARD: '/',
+  DASHBOARD: '/dashboard',
   SUPPLIER_MANAGEMENT: '/supplier-management',
   DRIVER_MANAGEMENT: '/driver-management',
   VEHICLE_MANAGEMENT: '/vehicle-management',
@@ -60,6 +60,8 @@ export const ROUTES = {
     '/quick-services/user-management',
   QUICK_SERVICES_BOOKINGS:
     '/quick-services/booking-management',
+  QUICK_SERVICES_PAYMENTS:
+    '/quick-services/payments',
   QUICK_SERVICES_ANALYTICS:
     '/quick-services/analytics',
 
@@ -124,6 +126,11 @@ export const QUICK_SERVICES_SIDEBAR_ITEMS = [
     label: 'Booking Management',
     href: ROUTES.QUICK_SERVICES_BOOKINGS,
     icon: FileText,
+  },
+  {
+    label: 'Payments & Settlements',
+    href: ROUTES.QUICK_SERVICES_PAYMENTS,
+    icon: CreditCard,
   },
   {
     label: 'Analytics',

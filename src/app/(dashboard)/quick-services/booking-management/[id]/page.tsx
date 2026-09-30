@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Clock, CheckCircle2, XCircle, UserPlus, Loader2 } from 'lucide-react';
 import { getQuickServiceBookingDetails, useActiveSuppliers } from '@/hooks/use-admin-quick-services';
 import { apiClient as adminApi } from '@/lib/api-client';
+import { getExpertVisitName, getQuickServiceHourlyRate } from '@/lib/quick-services-pricing';
 
 const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleDateString('en-US', {
@@ -343,6 +344,10 @@ export default function AdminQuickServiceBookingDetailsPage() {
               <div className="flex justify-between">
                 <span className="text-[#A1A1AA]">Upfront Fee:</span>
                 <span className="text-white font-medium">€{Number(booking.upfrontFee || 0).toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-[#A1A1AA]">{getExpertVisitName(booking.serviceTitle || '')}:</span>
+                <span className="text-white font-medium">€{getQuickServiceHourlyRate(booking.serviceTitle || '').toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[#A1A1AA]">Materials Included:</span>

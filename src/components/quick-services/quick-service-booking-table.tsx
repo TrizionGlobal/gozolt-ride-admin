@@ -35,6 +35,8 @@ export function QuickServiceBookingTable({
   const [assigningId, setAssigningId] = useState<string | null>(null);
   const [selectedSupplier, setSelectedSupplier] = useState<string>('');
 
+  const [optimisticAssignments, setOptimisticAssignments] = useState<Record<string, string>>({});
+
   const handleAssign = async (bookingId: string) => {
     if (!selectedSupplier) {
       toast.error('Please select a supplier first');
@@ -46,6 +48,8 @@ export function QuickServiceBookingTable({
         supplierId: selectedSupplier
       });
       toast.success('Successfully assigned booking to supplier');
+      const supplierName = suppliers.find(s => s.id === selectedSupplier)?.companyName || 'Assigned';
+      setOptimisticAssignments(prev => ({ ...prev, [bookingId]: supplierName }));
       if (onAssignSuccess) onAssignSuccess();
       setSelectedSupplier('');
     } catch (error) {
@@ -72,7 +76,8 @@ export function QuickServiceBookingTable({
       title: 'Service',
       render: (row) => (
         <div>
-          <p className="text-sm font-medium text-white">{row.serviceTitle}</p>
+          <p className="text-sm font-medium text-white">{row.serviceCategory || 'Quick Service'}</p>
+          <p className="text-xs text-[#FCD223]">{row.serviceTitle || 'General'}</p>
         </div>
       ),
     },
@@ -95,27 +100,31 @@ export function QuickServiceBookingTable({
       title: 'Status',
       className: 'text-center',
       render: (row) => {
+        // If optimistically assigned, show Assigned status locally
+        const isOptimistic = !!optimisticAssignments[row.id];
+        const status = isOptimistic ? 'ASSIGNED' : row.status;
+
         let colorClass = 'bg-gray-900/40 text-gray-400 border-gray-800';
         let Icon = Clock;
-        let displayStatus = row.status ? row.status.charAt(0).toUpperCase() + row.status.slice(1).toLowerCase() : 'Unknown';
+        let displayStatus = status ? status.charAt(0).toUpperCase() + status.slice(1).toLowerCase() : 'Unknown';
 
-        if (row.status === 'COMPLETED') {
+        if (status === 'COMPLETED') {
           colorClass = 'bg-green-900/40 text-green-400 border-green-800';
           Icon = CheckCircle2;
           displayStatus = 'Completed';
-        } else if (row.status === 'ASSIGNED') {
+        } else if (status === 'ASSIGNED') {
           colorClass = 'bg-blue-900/40 text-blue-400 border-blue-800';
           Icon = CheckCircle2;
           displayStatus = 'Assigned';
-        } else if (row.status === 'IN_PROGRESS') {
+        } else if (status === 'IN_PROGRESS') {
           colorClass = 'bg-purple-900/40 text-purple-400 border-purple-800';
           Icon = Clock;
           displayStatus = 'In Progress';
-        } else if (row.status === 'PENDING') {
+        } else if (status === 'PENDING') {
           colorClass = 'bg-yellow-900/40 text-yellow-400 border-yellow-800';
           Icon = Clock;
           displayStatus = 'Pending';
-        } else if (row.status === 'CANCELLED') {
+        } else if (status === 'CANCELLED') {
           colorClass = 'bg-red-900/40 text-red-400 border-red-800';
           Icon = XCircle;
           displayStatus = 'Cancelled';
@@ -135,9 +144,39 @@ export function QuickServiceBookingTable({
       key: 'actions',
       title: 'Assign Supplier',
       render: (row) => {
-        if (row.status !== 'PENDING') {
-          return <span className="text-gray-500 text-xs">{row.supplier?.companyName || 'Assigned'}</span>;
+        const assignedName = optimisticAssignments[row.id] || (row.status !== 'PENDING' ? (row.supplier?.companyName || 'Assigned') : null);
+        
+        if (assignedName) {
+          return <span className="text-gray-500 text-xs">{assignedName}</span>;
         }
+
+        const filteredSuppliers = suppliers.filter((sup) => {
+          if (!sup.quickServicesOffered) return false;
+          
+          const jsonStr = JSON.stringify(sup.quickServicesOffered).toLowerCase();
+          
+          const categoryTitle = (row.serviceCategory || '').toLowerCase();
+          const serviceTitle = (row.serviceTitle || '').toLowerCase();
+          
+          const snakeCategory = categoryTitle.replace(/\s+/g, '_');
+          const snakeService = serviceTitle.replace(/\s+/g, '_');
+          
+          // Try direct matches
+          if (categoryTitle && jsonStr.includes(categoryTitle)) return true;
+          if (serviceTitle && jsonStr.includes(serviceTitle)) return true;
+          if (snakeCategory && jsonStr.includes(snakeCategory)) return true;
+          if (snakeService && jsonStr.includes(snakeService)) return true;
+          if (snakeCategory.endsWith('s') && jsonStr.includes(snakeCategory.slice(0, -1))) return true;
+          
+          // Try word matches
+          const words = [...new Set([...serviceTitle.split(/\s+/), ...categoryTitle.split(/\s+/)])].filter(w => w.length > 3);
+          let matchCount = 0;
+          for (const word of words) {
+            if (jsonStr.includes(word)) matchCount++;
+          }
+          
+          return words.length > 0 && matchCount >= Math.min(2, words.length);
+        });
 
         return (
           <div className="flex items-center gap-2">
@@ -146,11 +185,17 @@ export function QuickServiceBookingTable({
                 <SelectValue placeholder="Select Supplier" />
               </SelectTrigger>
               <SelectContent className="bg-[#1A1A1A] border-[#333]">
-                {suppliers.map((sup) => (
-                  <SelectItem key={sup.id} value={sup.id} className="text-white text-xs hover:bg-[#333]">
-                    {sup.companyName}
-                  </SelectItem>
-                ))}
+                {filteredSuppliers.length === 0 ? (
+                  <div className="px-2 py-3 text-xs text-center text-gray-500">
+                    No registered suppliers
+                  </div>
+                ) : (
+                  filteredSuppliers.map((sup) => (
+                    <SelectItem key={sup.id} value={sup.id} className="text-white text-xs hover:bg-[#333]">
+                      {sup.companyName}
+                    </SelectItem>
+                  ))
+                )}
               </SelectContent>
             </Select>
             <Button

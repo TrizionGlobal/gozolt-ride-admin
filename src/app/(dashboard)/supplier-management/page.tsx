@@ -23,7 +23,7 @@ const TAB_STATUS_MAP: Record<SupplierTab, SupplierStatus | undefined> = {
 export default function SupplierManagementPage() {
   const pathname = usePathname();
   const serviceType = pathname.includes('/car-rentals') 
-    ? 'RENTAL' 
+    ? 'CAR_RENTAL' 
     : pathname.includes('/bike-rentals') 
       ? 'BIKE_RENTAL' 
       : 'CAB';

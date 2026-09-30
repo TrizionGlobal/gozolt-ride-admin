@@ -195,12 +195,12 @@ export function QuickServicesSupplierDetailDrawer({ supplierId, open, onOpenChan
               )}
 
               {/* Quick Services Offered Breakdown */}
-              {supplier.quickServicesOffered && supplier.quickServicesOffered.length > 0 && (
-                <div className="bg-[#0A0A0A] border border-[#2A2A2A] rounded-lg p-4 mt-4">
-                  <div className="flex items-center gap-2 mb-4">
-                    <Building2 className="h-4 w-4 text-[#FACC15]" />
-                    <h4 className="text-sm font-medium text-white">Quick Services Catalog</h4>
-                  </div>
+              <div className="bg-[#0A0A0A] border border-[#2A2A2A] rounded-lg p-4 mt-4">
+                <div className="flex items-center gap-2 mb-4">
+                  <Building2 className="h-4 w-4 text-[#FACC15]" />
+                  <h4 className="text-sm font-medium text-white">Quick Services Catalog</h4>
+                </div>
+                {supplier.quickServicesOffered && supplier.quickServicesOffered.length > 0 ? (
                   <div className="space-y-4">
                     {supplier.quickServicesOffered.map((cat, idx) => (
                       <div key={idx} className="bg-[#141414] border border-[#2A2A2A] rounded-lg p-4">
@@ -217,8 +217,10 @@ export function QuickServicesSupplierDetailDrawer({ supplierId, open, onOpenChan
                       </div>
                     ))}
                   </div>
-                </div>
-              )}
+                ) : (
+                  <p className="text-sm text-[#6B7280]">No services configured</p>
+                )}
+              </div>
 
               {/* Revenue Summary Card */}
               {supplier.revenueSummary && (
