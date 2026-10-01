@@ -43,6 +43,11 @@ export function SettlementTable({ data, loading, page, limit, onPageChange, onLi
       render: (row) => <span className="text-[#FACC15] font-medium text-sm">&euro;{Number(row.totalPendingBalance || 0).toFixed(2)}</span>,
     },
     {
+      key: 'totalCashCollected',
+      title: 'Cash Collected (Kept)',
+      render: (row) => <span className="text-[#A855F7] font-medium text-sm">&euro;{Number(row.totalCashCollected || 0).toFixed(2)}</span>,
+    },
+    {
       key: 'lastPaidDate',
       title: 'Last Paid Date',
       render: (row) => <span className="text-[#9CA3AF] text-sm">{row.lastPaidDate ? new Date(row.lastPaidDate).toLocaleDateString() : 'Never'}</span>,

@@ -65,7 +65,6 @@ export default function QuickServicesBookingManagementPage() {
     { label: 'Assigned', value: 'ASSIGNED' },
     { label: 'In Progress', value: 'IN_PROGRESS' },
     { label: 'Completed', value: 'COMPLETED' },
-    { label: 'Cancelled', value: 'CANCELLED' },
   ];
 
   return (

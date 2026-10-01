@@ -33,11 +33,12 @@ export function QuickServiceBookingTable({
   const router = useRouter();
   const suppliers = useActiveSuppliers();
   const [assigningId, setAssigningId] = useState<string | null>(null);
-  const [selectedSupplier, setSelectedSupplier] = useState<string>('');
+  const [selectedSuppliers, setSelectedSuppliers] = useState<Record<string, string>>({});
 
   const [optimisticAssignments, setOptimisticAssignments] = useState<Record<string, string>>({});
 
   const handleAssign = async (bookingId: string) => {
+    const selectedSupplier = selectedSuppliers[bookingId];
     if (!selectedSupplier) {
       toast.error('Please select a supplier first');
       return;
@@ -48,10 +49,15 @@ export function QuickServiceBookingTable({
         supplierId: selectedSupplier
       });
       toast.success('Successfully assigned booking to supplier');
-      const supplierName = suppliers.find(s => s.id === selectedSupplier)?.companyName || 'Assigned';
+      const supplierObj = suppliers.find(s => s.id === selectedSupplier);
+      const supplierName = supplierObj ? (supplierObj.tradingName || supplierObj.companyName || supplierObj.ownerName) : 'Assigned';
       setOptimisticAssignments(prev => ({ ...prev, [bookingId]: supplierName }));
       if (onAssignSuccess) onAssignSuccess();
-      setSelectedSupplier('');
+      setSelectedSuppliers(prev => {
+        const next = { ...prev };
+        delete next[bookingId];
+        return next;
+      });
     } catch (error) {
       toast.error('Failed to assign supplier');
     } finally {
@@ -102,7 +108,11 @@ export function QuickServiceBookingTable({
       render: (row) => {
         // If optimistically assigned, show Assigned status locally
         const isOptimistic = !!optimisticAssignments[row.id];
-        const status = isOptimistic ? 'ASSIGNED' : row.status;
+        let status = isOptimistic ? 'ASSIGNED' : row.status;
+
+        if (!isOptimistic && (row.serviceStatus === 'IN_PROGRESS' || row.serviceStatus === 'COMPLETED')) {
+          status = row.serviceStatus;
+        }
 
         let colorClass = 'bg-gray-900/40 text-gray-400 border-gray-800';
         let Icon = Clock;
@@ -144,10 +154,16 @@ export function QuickServiceBookingTable({
       key: 'actions',
       title: 'Assign Supplier',
       render: (row) => {
-        const assignedName = optimisticAssignments[row.id] || (row.status !== 'PENDING' ? (row.supplier?.companyName || 'Assigned') : null);
+        const sup = row.supplier;
+        const dbSupplierName = sup ? (sup.tradingName || sup.companyName || sup.ownerName) : null;
+        const assignedName = optimisticAssignments[row.id] || (row.status !== 'PENDING' ? (dbSupplierName || 'Assigned') : null);
         
         if (assignedName) {
-          return <span className="text-gray-500 text-xs">{assignedName}</span>;
+          return (
+            <span className="inline-flex items-center rounded-md bg-[#FACC15]/10 px-2.5 py-1 text-xs font-medium text-[#FACC15] ring-1 ring-inset ring-[#FACC15]/20">
+              {assignedName}
+            </span>
+          );
         }
 
         const filteredSuppliers = suppliers.filter((sup) => {
@@ -180,19 +196,22 @@ export function QuickServiceBookingTable({
 
         return (
           <div className="flex items-center gap-2">
-            <Select onValueChange={setSelectedSupplier}>
+            <Select 
+              onValueChange={(val) => setSelectedSuppliers(prev => ({ ...prev, [row.id]: val }))}
+              disabled={assigningId !== null}
+            >
               <SelectTrigger className="w-[140px] h-8 text-xs bg-[#1A1A1A] border-[#333]">
                 <SelectValue placeholder="Select Supplier" />
               </SelectTrigger>
               <SelectContent className="bg-[#1A1A1A] border-[#333]">
                 {filteredSuppliers.length === 0 ? (
                   <div className="px-2 py-3 text-xs text-center text-gray-500">
-                    No registered suppliers
+                    Supplier not found
                   </div>
                 ) : (
                   filteredSuppliers.map((sup) => (
                     <SelectItem key={sup.id} value={sup.id} className="text-white text-xs hover:bg-[#333]">
-                      {sup.companyName}
+                      {sup.tradingName || sup.companyName || sup.ownerName}
                     </SelectItem>
                   ))
                 )}
@@ -201,10 +220,14 @@ export function QuickServiceBookingTable({
             <Button
               size="sm"
               onClick={() => handleAssign(row.id)}
-              disabled={assigningId === row.id}
-              className="h-8 bg-[#FACC15] text-black hover:bg-[#E5B800] text-xs font-semibold px-3"
+              disabled={!selectedSuppliers[row.id] || assigningId !== null}
+              className={`h-8 text-xs font-semibold px-3 ${
+                selectedSuppliers[row.id] && assigningId === null
+                  ? 'bg-[#FACC15] text-black hover:bg-[#E5B800]' 
+                  : 'bg-[#333] text-gray-400 cursor-not-allowed hover:bg-[#333]'
+              }`}
             >
-              {assigningId === row.id ? '...' : 'Assign'}
+              {assigningId === row.id ? 'Assigning...' : 'Assign'}
             </Button>
           </div>
         );

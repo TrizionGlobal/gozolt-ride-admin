@@ -1,5 +1,6 @@
 'use client';
 
+import * as React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { PanelLeft, PanelLeftClose, LogOut, ArrowLeftRight } from 'lucide-react';
@@ -24,7 +25,12 @@ export function Sidebar() {
   const { isCollapsed, toggle, activeModule, setActiveModule } = useSidebarStore();
   const user = useAuthStore((s) => s.user);
   const { logout } = useAuth();
+  
+  const [isMounted, setIsMounted] = React.useState(false);
 
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const getSidebarItems = () => {
   switch (activeModule) {
@@ -49,7 +55,19 @@ export function Sidebar() {
   }
 };
 
-const items = getSidebarItems();
+  const items = getSidebarItems();
+
+  if (!isMounted) {
+    return (
+      <aside
+        className={cn(
+          'fixed left-0 top-0 z-40 flex h-screen flex-col border-r border-[#27272A] bg-[#0A0A0A] transition-all duration-300',
+          'w-[240px]' // Default to open for SSR
+        )}
+      >
+      </aside>
+    );
+  }
 
   return (
     <aside
