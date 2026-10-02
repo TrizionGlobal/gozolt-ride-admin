@@ -62,6 +62,8 @@ export const ROUTES = {
     '/quick-services/booking-management',
   QUICK_SERVICES_PAYMENTS:
     '/quick-services/payments',
+  QUICK_SERVICES_PRICING_RULES:
+    '/quick-services/pricing-rules',
   QUICK_SERVICES_ANALYTICS:
     '/quick-services/analytics',
 
@@ -121,7 +123,6 @@ export const QUICK_SERVICES_SIDEBAR_ITEMS = [
     href: ROUTES.QUICK_SERVICES_SUPPLIERS,
     icon: Building2,
   },
-
   {
     label: 'Booking Management',
     href: ROUTES.QUICK_SERVICES_BOOKINGS,
@@ -131,6 +132,11 @@ export const QUICK_SERVICES_SIDEBAR_ITEMS = [
     label: 'Payments & Settlements',
     href: ROUTES.QUICK_SERVICES_PAYMENTS,
     icon: CreditCard,
+  },
+  {
+    label: 'Pricing Rules',
+    href: ROUTES.QUICK_SERVICES_PRICING_RULES,
+    icon: DollarSign,
   },
   {
     label: 'Analytics',
