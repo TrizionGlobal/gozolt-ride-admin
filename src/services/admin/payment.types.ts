@@ -34,6 +34,8 @@ export interface SettledBalanceResponse {
   lastPaidDate: string | null;
   nextSettlementDate: string;
   isPayable: boolean;
+  totalMaterial?: number;
+  totalGrossEarned?: number;
 }
 
 // --- Filter params for unified transactions ---

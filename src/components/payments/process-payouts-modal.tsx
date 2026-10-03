@@ -258,9 +258,15 @@ export function ProcessPayoutsModal({
               ) : balance ? (
                 <div className="p-4 bg-[#141414] border border-[#2A2A2A] rounded-md space-y-3">
                   <div className="flex justify-between text-sm">
-                    <span className="text-[#9CA3AF]">Total Earned</span>
+                    <span className="text-[#9CA3AF]">Supplier Net Earned (Total - Upfront)</span>
                     <span className="text-white">€{(balance.totalEarnedAllTime || 0).toFixed(2)}</span>
                   </div>
+                  {balance.totalMaterial !== undefined && (
+                    <div className="flex justify-between text-sm text-[#9CA3AF]">
+                      <span>Material Included</span>
+                      <span className="text-emerald-400 font-medium">€{(balance.totalMaterial || 0).toFixed(2)}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between text-sm text-[#9CA3AF]">
                     <span>User Cancellation Fees</span>
                     <span className="text-white">€{(balance.totalPenaltyEarned || 0).toFixed(2)}</span>

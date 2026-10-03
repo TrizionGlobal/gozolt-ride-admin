@@ -45,6 +45,10 @@ export default function QuickServicesAnalyticsPage() {
     if (!bookings || bookings.length === 0) return null;
 
     let totalRevenue = 0;
+    let totalUpfront = 0;
+    let totalMaterial = 0;
+    let totalRemaining = 0;
+    let totalRefunded = 0;
     let completedCount = 0;
     
     const categoryMap: Record<string, number> = {};
@@ -64,7 +68,7 @@ export default function QuickServicesAnalyticsPage() {
       });
     }
 
-    const trendMap: Record<string, { date: string; revenue: number; bookings: number; ts: number }> = {};
+    const trendMap: Record<string, { date: string; revenue: number; refunded: number; bookings: number; ts: number }> = {};
     
     // Pre-fill exactly 7 days leading up to the maxDate
     for (let i = 6; i >= 0; i--) {
@@ -73,12 +77,43 @@ export default function QuickServicesAnalyticsPage() {
       d.setHours(0, 0, 0, 0);
       const ts = d.getTime();
       const dateStr = d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
-      trendMap[dateStr] = { date: dateStr, revenue: 0, bookings: 0, ts };
+      trendMap[dateStr] = { date: dateStr, revenue: 0, refunded: 0, bookings: 0, ts };
     }
 
     bookings.forEach((b: any) => {
-      const amount = Number(b.totalAmount) || 0;
+      let rawAmount = Number(b.totalAmount) || 0;
+      let upfront = Number(b.upfrontFee) || 0;
+      let material = Number(b.materialCost) || 0;
+      let remaining = Math.max(0, rawAmount - upfront - material);
+      let amount = upfront + material + remaining;
+      let refunded = 0;
+
+      if (b.status === 'CANCELLED') {
+        remaining = 0; // Service was not performed
+        if (b.paymentStatus === 'PARTIALLY_REFUNDED') {
+          refunded = material;
+          material = 0; // it was refunded, so not retained
+          amount -= refunded;
+        } else if (b.paymentStatus === 'REFUNDED') {
+          refunded = upfront + material;
+          upfront = 0;
+          material = 0;
+          amount = 0;
+        } else {
+          // Cancelled but no refund issued yet. Admin keeps upfront.
+          // Remaining is 0, Material might not be provided, but keeping it simple:
+          if (b.paymentStatus !== 'PAID') {
+            material = 0;
+            amount = upfront;
+          }
+        }
+      }
+
       totalRevenue += amount;
+      totalUpfront += upfront;
+      totalMaterial += material;
+      totalRemaining += remaining;
+      totalRefunded += refunded;
       
       const status = b.status || 'PENDING';
       statusMap[status] = (statusMap[status] || 0) + 1;
@@ -93,8 +128,9 @@ export default function QuickServicesAnalyticsPage() {
         const ts = d.getTime();
         const dateStr = d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
         
-        if (!trendMap[dateStr]) trendMap[dateStr] = { date: dateStr, revenue: 0, bookings: 0, ts };
+        if (!trendMap[dateStr]) trendMap[dateStr] = { date: dateStr, revenue: 0, refunded: 0, bookings: 0, ts };
         trendMap[dateStr].revenue += amount;
+        trendMap[dateStr].refunded += refunded;
         trendMap[dateStr].bookings += 1;
       }
     });
@@ -111,9 +147,13 @@ export default function QuickServicesAnalyticsPage() {
 
     return {
       totalRevenue,
+      totalUpfront,
+      totalMaterial,
+      totalRemaining,
+      totalRefunded,
       totalBookings: bookings.length,
-      avgValue: totalRevenue / bookings.length,
-      completionRate: (completedCount / bookings.length) * 100,
+      avgValue: bookings.length > 0 ? totalRevenue / bookings.length : 0,
+      completionRate: bookings.length > 0 ? (completedCount / bookings.length) * 100 : 0,
       categoriesData,
       statusData,
       trendData
@@ -177,25 +217,53 @@ export default function QuickServicesAnalyticsPage() {
       {/* Top Stats Grid */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
-          title="Total Revenue"
+          title="Total Gross Amount"
           value={analytics ? `€${analytics.totalRevenue.toFixed(2)}` : '€0.00'}
-          sub="All time service revenue"
+          sub="Upfront + Material + Final"
           icon={DollarSign}
           color="[#FFD700]"
+        />
+        <StatCard
+          title="Total Upfront (Admin)"
+          value={analytics ? `€${analytics.totalUpfront.toFixed(2)}` : '€0.00'}
+          sub="Platform retained"
+          icon={Activity}
+          color="purple-400"
+        />
+        <StatCard
+          title="Material Included"
+          value={analytics ? `€${analytics.totalMaterial.toFixed(2)}` : '€0.00'}
+          sub="Paid for materials"
+          icon={CheckCircle2}
+          color="emerald-400"
+        />
+        <StatCard
+          title="Final Service Charge"
+          value={analytics ? `€${analytics.totalRemaining.toFixed(2)}` : '€0.00'}
+          sub="Supplier remaining balance"
+          icon={TrendingUp}
+          color="blue-400"
+        />
+        <StatCard
+          title="Total Refunded"
+          value={analytics ? `€${analytics.totalRefunded.toFixed(2)}` : '€0.00'}
+          sub="Cancelled & refunded amounts"
+          icon={Activity}
+          color="red-400"
         />
         <StatCard
           title="Total Bookings"
           value={analytics?.totalBookings || 0}
           sub="Requested services"
-          icon={Activity}
-          color="emerald-400"
+          icon={BarChart3}
+          color="amber-400"
         />
         <StatCard
           title="Avg. Booking Value"
           value={analytics ? `€${analytics.avgValue.toFixed(2)}` : '€0.00'}
           sub="Revenue per booking"
-          icon={TrendingUp}
-          color="blue-400"
+          icon={PieChartIcon}
+          color="cyan-400"
         />
         <StatCard
           title="Completion Rate"
@@ -233,7 +301,8 @@ export default function QuickServicesAnalyticsPage() {
                     itemStyle={{ color: '#E5E7EB' }}
                   />
                   <Legend wrapperStyle={{ paddingTop: '20px' }} />
-                  <Line yAxisId="left" type="monotone" dataKey="revenue" name="Revenue (€)" stroke="#FFD700" strokeWidth={3} dot={{ r: 4, fill: '#1A1A1A', strokeWidth: 2 }} activeDot={{ r: 6 }} />
+                  <Line yAxisId="left" type="monotone" dataKey="revenue" name="Net Revenue (€)" stroke="#FFD700" strokeWidth={3} dot={{ r: 4, fill: '#1A1A1A', strokeWidth: 2 }} activeDot={{ r: 6 }} />
+                  <Line yAxisId="left" type="monotone" dataKey="refunded" name="Refunds (€)" stroke="#EF4444" strokeWidth={2} strokeDasharray="4 4" dot={{ r: 4, fill: '#1A1A1A', strokeWidth: 2 }} activeDot={{ r: 6 }} />
                   <Line yAxisId="right" type="monotone" dataKey="bookings" name="Bookings" stroke="#3B82F6" strokeWidth={3} dot={{ r: 4, fill: '#1A1A1A', strokeWidth: 2 }} activeDot={{ r: 6 }} />
                 </LineChart>
               </ResponsiveContainer>

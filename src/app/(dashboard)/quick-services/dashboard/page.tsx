@@ -43,8 +43,16 @@ export default function QuickServicesDashboardPage() {
       if (!stats[category]) {
         stats[category] = { count: 0, revenue: 0, pending: 0 };
       }
+      
+      let upfront = Number(b.upfrontFee || 0);
+      if (b.status === 'CANCELLED') {
+        if (b.paymentStatus === 'REFUNDED') {
+          upfront = 0;
+        }
+      }
+      
       stats[category].count += 1;
-      stats[category].revenue += Number(b.totalAmount || 0);
+      stats[category].revenue += upfront;
       if (b.status === 'PENDING') stats[category].pending += 1;
     });
 
@@ -57,7 +65,38 @@ export default function QuickServicesDashboardPage() {
   const totalRequests = recentBookings?.length || 0;
   const pendingCount = recentBookings?.filter(b => b.status === 'PENDING').length || 0;
   const inProgressCount = recentBookings?.filter(b => b.status === 'IN_PROGRESS').length || 0;
-  const totalRevenue = recentBookings?.reduce((sum, b) => sum + Number(b.totalAmount || 0), 0) || 0;
+  const totalGrossVolume = recentBookings?.reduce((sum, b) => {
+    let rawAmount = Number(b.totalAmount) || 0;
+    let upfront = Number(b.upfrontFee) || 0;
+    let material = Number(b.materialCost) || 0;
+    let remaining = Math.max(0, rawAmount - upfront - material);
+    let amount = upfront + material + remaining;
+    if (b.status === 'CANCELLED') {
+      remaining = 0;
+      if (b.paymentStatus === 'PARTIALLY_REFUNDED') {
+        material = 0;
+        amount -= Number(b.materialCost || 0);
+      } else if (b.paymentStatus === 'REFUNDED') {
+        upfront = 0;
+        material = 0;
+        amount = 0;
+      } else if (b.paymentStatus !== 'PAID') {
+        material = 0;
+        amount = upfront;
+      }
+    }
+    return sum + amount;
+  }, 0) || 0;
+
+  const adminPlatformRevenue = recentBookings?.reduce((sum, b) => {
+    let upfront = Number(b.upfrontFee || 0);
+    if (b.status === 'CANCELLED') {
+      if (b.paymentStatus === 'REFUNDED') {
+        upfront = 0;
+      }
+    }
+    return sum + upfront;
+  }, 0) || 0;
 
   // The predefined quick service types from the app to ensure we show a rich dashboard
   // The predefined quick service types from the app to ensure we show a rich dashboard
@@ -232,8 +271,8 @@ export default function QuickServicesDashboardPage() {
 
       {/* Top Level KPIs */}
       {loading ? (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {[...Array(4)].map((_, i) => (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          {[...Array(5)].map((_, i) => (
             <div key={i} className="rounded-lg border border-[#2A2A2A] bg-[#141414] p-5">
               <div className="flex items-center justify-between">
                 <Skeleton className="h-4 w-32 bg-[#1F1F1F]" />
@@ -245,7 +284,7 @@ export default function QuickServicesDashboardPage() {
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
           {/* Total Requests */}
           <div className="group rounded-lg border border-[#2A2A2A] bg-[#141414] p-5 hover:border-emerald-500/40 transition-all duration-300">
             <div className="flex items-center justify-between">
@@ -310,6 +349,22 @@ export default function QuickServicesDashboardPage() {
               {suppliers.length}
             </div>
             <p className="mt-1 text-xs text-[#FFD700]/70 font-medium">Verified partner companies</p>
+          </div>
+
+          {/* Admin Platform Revenue */}
+          <div className="group rounded-lg border border-[#2A2A2A] bg-[#141414] p-5 hover:border-purple-500/40 transition-all duration-300">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium uppercase tracking-wider text-[#6B7280]">
+                Admin Revenue
+              </span>
+              <div className="rounded-full bg-purple-500/10 p-2 text-purple-400 group-hover:scale-110 transition-transform">
+                <TrendingUp className="h-5 w-5" />
+              </div>
+            </div>
+            <div className="mt-3 text-3xl font-extrabold text-white">
+              €{adminPlatformRevenue.toFixed(2)}
+            </div>
+            <p className="mt-1 text-xs text-purple-400 font-medium">Platform Upfront Fees</p>
           </div>
         </div>
       )}

@@ -23,9 +23,14 @@ export function SettlementTable({ data, loading, page, limit, onPageChange, onLi
 
     },
     {
-      key: 'totalEarnedAllTime',
-      title: 'Total Earned',
+      key: 'totalGrossEarned',
+      title: 'Supplier Net Earned',
       render: (row) => <span className="text-white text-sm">&euro;{Number(row.totalGrossEarned ?? row.totalEarnedAllTime ?? 0).toFixed(2)}</span>,
+    },
+    {
+      key: 'totalMaterial',
+      title: 'Total Material',
+      render: (row) => <span className="text-emerald-400 font-medium text-sm">&euro;{Number(row.totalMaterial || 0).toFixed(2)}</span>,
     },
     {
       key: 'penaltyEarned',

@@ -345,14 +345,29 @@ export default function AdminQuickServiceBookingDetailsPage() {
                 <span className="text-[#A1A1AA]">Upfront Fee:</span>
                 <span className="text-white font-medium">€{Number(booking.upfrontFee || 0).toFixed(2)}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-[#A1A1AA]">{getExpertVisitName(booking.serviceTitle || '')}:</span>
-                <span className="text-white font-medium">€{getQuickServiceHourlyRate(booking.serviceTitle || '').toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-[#A1A1AA]">Materials Included:</span>
-                <span className="text-white font-medium">€{Number(booking.materialCost || 0).toFixed(2)}</span>
-              </div>
+              
+              {features.finalDurationHrs !== undefined ? (
+                <div className="flex justify-between">
+                  <span className="text-[#A1A1AA]">
+                    {getExpertVisitName(booking.serviceTitle || '')} ({Number(features.finalDurationHrs).toFixed(1)} hrs):
+                  </span>
+                  <span className="text-white font-medium">
+                    €{Number(features.finalHourlyCost || 0).toFixed(2)}
+                  </span>
+                </div>
+              ) : (
+                <div className="flex justify-between">
+                  <span className="text-[#A1A1AA]">{getExpertVisitName(booking.serviceTitle || '')} (Estimated):</span>
+                  <span className="text-white font-medium">€{getQuickServiceHourlyRate(booking.serviceTitle || '').toFixed(2)} / hr</span>
+                </div>
+              )}
+
+              {Number(booking.materialCost || 0) > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-[#A1A1AA]">Materials Included:</span>
+                  <span className="text-white font-medium">€{Number(booking.materialCost || 0).toFixed(2)}</span>
+                </div>
+              )}
               {Number(booking.discountAmount) > 0 && (
                 <div className="flex justify-between">
                   <span className="text-[#A1A1AA]">GoCoins Discount:</span>
@@ -366,9 +381,34 @@ export default function AdminQuickServiceBookingDetailsPage() {
                 </div>
               )}
               <div className="flex justify-between border-t border-[#27272A] pt-3 font-bold">
-                <span className="text-white">Total Amount:</span>
-                <span className="text-[#FACC15]">€{Number(booking.totalAmount || 0).toFixed(2)}</span>
+                <span className="text-white">Total Amount (Gross):</span>
+                <span className="text-white">€{Number(booking.totalAmount || 0).toFixed(2)}</span>
               </div>
+              
+              {booking.status === 'COMPLETED' && (
+                <div className="mt-4 p-3 bg-[#1A1A1A] rounded-lg border border-[#27272A] space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-[#A1A1AA]">Initial Booking Payment (Paid):</span>
+                    <span className="text-white">€{(Number(booking.upfrontFee || 0) + Number(booking.materialCost || 0)).toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm font-bold">
+                    <span className="text-white">Final Service Charge (Paid):</span>
+                    <span className="text-[#FACC15]">€{(Number(booking.totalAmount || 0) - (Number(booking.upfrontFee || 0) + Number(booking.materialCost || 0))).toFixed(2)}</span>
+                  </div>
+                </div>
+              )}
+              {booking.status === 'CANCELLED' && booking.paymentStatus === 'PARTIALLY_REFUNDED' && (
+                <div className="flex justify-between text-red-400 mt-2">
+                  <span>Refunded (Materials):</span>
+                  <span className="font-bold">-€{Number(booking.materialCost || 0).toFixed(2)}</span>
+                </div>
+              )}
+              {booking.status === 'CANCELLED' && booking.paymentStatus === 'PARTIALLY_REFUNDED' && (
+                <div className="flex justify-between text-green-400 font-bold">
+                  <span>Platform Retained (Upfront Fee):</span>
+                  <span>€{Number(booking.upfrontFee || 0).toFixed(2)}</span>
+                </div>
+              )}
             </div>
             {booking.paymentMethodType && (
               <div className="mt-4 pt-4 border-t border-[#27272A]">
