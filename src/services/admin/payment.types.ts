@@ -84,6 +84,8 @@ export interface SettlementListItem {
   totalCancellations?: number;
   totalRefunds?: number;
   totalCashCollected?: number;
+  totalMaterial?: number;
+  totalServiceCharge?: number;
 }
 
 export type SettlementListResponse = PaginatedResponse<SettlementListItem>;
