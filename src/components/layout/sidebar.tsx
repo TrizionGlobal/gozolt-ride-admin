@@ -21,16 +21,42 @@ import { SidebarItem } from './sidebar-item';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 
+import { usePathname } from 'next/navigation';
+
 export function Sidebar() {
   const { isCollapsed, toggle, activeModule, setActiveModule } = useSidebarStore();
   const user = useAuthStore((s) => s.user);
   const { logout } = useAuth();
+  const pathname = usePathname();
   
   const [isMounted, setIsMounted] = React.useState(false);
 
   React.useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  React.useEffect(() => {
+    if (!pathname) return;
+
+    let expectedModule: typeof activeModule = 'CAB';
+    if (pathname.startsWith('/quick-services')) {
+      expectedModule = 'QUICK_SERVICES';
+    } else if (pathname.startsWith('/airport-transfer')) {
+      expectedModule = 'AIRPORT_TRANSFER';
+    } else if (pathname.startsWith('/bike-rentals')) {
+      expectedModule = 'BIKE_RENTAL';
+    } else if (pathname.startsWith('/car-rentals')) {
+      expectedModule = 'RENTAL';
+    } else if (pathname.startsWith('/food-grocery')) {
+      expectedModule = 'FOOD_GROCERY';
+    } else if (pathname === '/module-selection') {
+      expectedModule = null;
+    }
+
+    if (activeModule !== expectedModule && expectedModule !== null) {
+      setActiveModule(expectedModule);
+    }
+  }, [pathname, activeModule, setActiveModule]);
 
   const getSidebarItems = () => {
   switch (activeModule) {

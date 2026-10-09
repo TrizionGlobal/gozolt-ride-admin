@@ -34,7 +34,7 @@ export default function QuickServicesSupplierManagementPage() {
   const debouncedSearch = useDebounce(searchTerm, 500);
 
   // We use the global supplier hook since it retrieves all registered supplier businesses
-  const { data: supplierData, loading, refetch } = useSuppliers({ page, limit, search: debouncedSearch });
+  const { data: supplierData, loading, refetch } = useSuppliers({ page, limit, search: debouncedSearch, serviceType: 'QUICK_SERVICES' });
 
   const suppliers = supplierData?.data || [];
 

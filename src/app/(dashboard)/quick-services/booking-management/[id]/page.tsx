@@ -242,7 +242,9 @@ export default function AdminQuickServiceBookingDetailsPage() {
             <h3 className="font-semibold text-white text-lg mb-4">Features Selection</h3>
             {Object.keys(features).length > 0 ? (
               <div className="space-y-3">
-                {Object.entries(features).map(([key, val]) => (
+                {Object.entries(features)
+                  .filter(([key]) => !['isValidated', 'validationPin', 'beautyTreatmentsSubtotal'].includes(key))
+                  .map(([key, val]) => (
                   <div key={key} className="flex flex-col gap-1 border-b border-[#27272A] pb-3 last:border-0 last:pb-0">
                     <span className="text-[#A1A1AA] font-medium">{key}</span>
                     {Array.isArray(val) ? (
@@ -346,7 +348,14 @@ export default function AdminQuickServiceBookingDetailsPage() {
                 <span className="text-white font-medium">€{Number(booking.upfrontFee || 0).toFixed(2)}</span>
               </div>
               
-              {features.finalDurationHrs !== undefined ? (
+              {(booking.serviceCategory?.toLowerCase().includes('beauty') || booking.serviceCategory?.toLowerCase().includes('wellness') || booking.serviceTitle?.toLowerCase().includes('beauty') || booking.serviceTitle?.toLowerCase().includes('wellness')) ? (
+                <div className="flex justify-between">
+                  <span className="text-[#A1A1AA]">Selected Treatments:</span>
+                  <span className="text-white font-medium">
+                    €{Number(features.beautyTreatmentsSubtotal || 0).toFixed(2)}
+                  </span>
+                </div>
+              ) : features.finalDurationHrs !== undefined ? (
                 <div className="flex justify-between">
                   <span className="text-[#A1A1AA]">
                     {getExpertVisitName(booking.serviceTitle || '')} ({Number(features.finalDurationHrs).toFixed(1)} hrs):
@@ -389,11 +398,11 @@ export default function AdminQuickServiceBookingDetailsPage() {
                 <div className="mt-4 p-3 bg-[#1A1A1A] rounded-lg border border-[#27272A] space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-[#A1A1AA]">Initial Booking Payment (Paid):</span>
-                    <span className="text-white">€{(Number(booking.upfrontFee || 0) + Number(booking.materialCost || 0)).toFixed(2)}</span>
+                    <span className="text-white">€{(Number(booking.upfrontFee || 0) + Number(booking.materialCost || 0) - Number(booking.discountAmount || 0)).toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-sm font-bold">
                     <span className="text-white">Final Service Charge (Paid):</span>
-                    <span className="text-[#FACC15]">€{(Number(booking.totalAmount || 0) - (Number(booking.upfrontFee || 0) + Number(booking.materialCost || 0))).toFixed(2)}</span>
+                    <span className="text-[#FACC15]">€{(Number(booking.totalAmount || 0) - (Number(booking.upfrontFee || 0) + Number(booking.materialCost || 0) - Number(booking.discountAmount || 0))).toFixed(2)}</span>
                   </div>
                 </div>
               )}
