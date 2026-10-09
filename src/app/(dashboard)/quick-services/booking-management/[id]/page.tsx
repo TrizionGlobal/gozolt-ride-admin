@@ -103,7 +103,7 @@ export default function AdminQuickServiceBookingDetailsPage() {
   return (
     <div className="max-w-4xl mx-auto py-8">
       {/* Header */}
-      <div className="mb-6 flex items-center justify-between border-b border-[#27272A] pb-4">
+      <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#27272A] pb-4">
         <div className="flex items-center gap-4">
           <button onClick={() => router.back()} className="rounded-lg border border-[#27272A] bg-[#111111] p-2 text-white hover:bg-[#1A1A1A] transition-colors">
             <ArrowLeft className="h-4 w-4" />
@@ -113,12 +113,43 @@ export default function AdminQuickServiceBookingDetailsPage() {
             <p className="text-sm text-[#A1A1AA]">ID: {bookingId}</p>
           </div>
         </div>
+        
+        {!booking.supplier && booking.status === 'PENDING' && (
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-medium text-white whitespace-nowrap">Assign a Supplier:</span>
+            <div className="flex flex-col">
+              <div className="flex gap-2">
+                <select
+                  className="w-48 rounded-md border border-[#2A2A2A] bg-[#1A1A1A] px-3 py-1.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-[#FFD700]"
+                  value={selectedSupplier}
+                  onChange={(e) => setSelectedSupplier(e.target.value)}
+                >
+                  <option value="">Select supplier...</option>
+                  {suppliers.map((s) => (
+                    <option key={s._id} value={s._id}>
+                      {s.companyName}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  onClick={handleAssign}
+                  disabled={assigning || !selectedSupplier}
+                  className="flex items-center justify-center rounded-md bg-amber-500 px-4 py-1.5 text-sm font-bold text-black hover:bg-amber-600 disabled:opacity-50 transition-colors"
+                >
+                  {assigning ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserPlus className="h-4 w-4" />}
+                  <span className="ml-2 hidden sm:inline">Assign</span>
+                </button>
+              </div>
+              {assignError && <p className="text-red-400 text-xs mt-1 text-right">{assignError}</p>}
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column: Customer & Supplier */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className={`grid grid-cols-1 ${booking.supplier ? 'md:grid-cols-2' : ''} gap-6`}>
             <div className="bg-[#111111] rounded-xl border border-[#27272A] p-5">
               <h3 className="font-semibold text-white text-lg mb-4">Customer Info</h3>
               <div className="space-y-3">
@@ -137,10 +168,10 @@ export default function AdminQuickServiceBookingDetailsPage() {
               </div>
             </div>
 
-            <div className="bg-[#111111] rounded-xl border border-[#27272A] p-5 flex flex-col justify-between">
-              <div>
-                <h3 className="font-semibold text-white text-lg mb-4">Supplier Info</h3>
-                {booking.supplier ? (
+            {booking.supplier && (
+              <div className="bg-[#111111] rounded-xl border border-[#27272A] p-5 flex flex-col justify-between">
+                <div>
+                  <h3 className="font-semibold text-white text-lg mb-4">Supplier Info</h3>
                   <div className="space-y-3">
                     <div className="flex flex-col">
                       <span className="text-[#A1A1AA] text-xs">Company Name</span>
@@ -155,41 +186,9 @@ export default function AdminQuickServiceBookingDetailsPage() {
                       <span className="text-white font-medium">{booking.supplier.contactPhone || 'N/A'}</span>
                     </div>
                   </div>
-                ) : (
-                  <div className="text-[#A1A1AA] text-sm">
-                    No supplier assigned yet.
-                  </div>
-                )}
-              </div>
-              
-              {!booking.supplier && booking.status === 'PENDING' && (
-                <div className="mt-4 pt-4 border-t border-[#2A2A2A]">
-                  <p className="text-xs text-[#A1A1AA] mb-2 font-medium">Assign a Supplier</p>
-                  <div className="flex gap-2">
-                    <select
-                      className="flex-1 rounded-md border border-[#2A2A2A] bg-[#1A1A1A] px-3 py-1.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-[#FFD700]"
-                      value={selectedSupplier}
-                      onChange={(e) => setSelectedSupplier(e.target.value)}
-                    >
-                      <option value="">Select supplier...</option>
-                      {suppliers.map((s) => (
-                        <option key={s._id} value={s._id}>
-                          {s.companyName} ({s.email})
-                        </option>
-                      ))}
-                    </select>
-                    <button
-                      onClick={handleAssign}
-                      disabled={assigning || !selectedSupplier}
-                      className="flex items-center justify-center rounded-md bg-amber-500 px-3 py-1.5 text-sm font-bold text-black hover:bg-amber-600 disabled:opacity-50 transition-colors"
-                    >
-                      {assigning ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserPlus className="h-4 w-4" />}
-                    </button>
-                  </div>
-                  {assignError && <p className="text-red-400 text-xs mt-2">{assignError}</p>}
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
 
           <div className="bg-[#111111] rounded-xl border border-[#27272A] p-5">
