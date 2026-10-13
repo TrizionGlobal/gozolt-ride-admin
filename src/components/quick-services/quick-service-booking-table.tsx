@@ -8,6 +8,7 @@ import { apiClient as adminApi } from '@/lib/api-client';
 import { useActiveSuppliers } from '@/hooks/use-admin-quick-services';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
+import { filterSuppliersForQuickService } from '@/lib/quick-services';
 
 interface QuickServiceBookingTableProps {
   data: any[];
@@ -174,33 +175,7 @@ export function QuickServiceBookingTable({
           );
         }
 
-        const filteredSuppliers = suppliers.filter((sup) => {
-          if (!sup.quickServicesOffered) return false;
-          
-          const jsonStr = JSON.stringify(sup.quickServicesOffered).toLowerCase();
-          
-          const categoryTitle = (row.serviceCategory || '').toLowerCase();
-          const serviceTitle = (row.serviceTitle || '').toLowerCase();
-          
-          const snakeCategory = categoryTitle.replace(/\s+/g, '_');
-          const snakeService = serviceTitle.replace(/\s+/g, '_');
-          
-          // Try direct matches
-          if (categoryTitle && jsonStr.includes(categoryTitle)) return true;
-          if (serviceTitle && jsonStr.includes(serviceTitle)) return true;
-          if (snakeCategory && jsonStr.includes(snakeCategory)) return true;
-          if (snakeService && jsonStr.includes(snakeService)) return true;
-          if (snakeCategory.endsWith('s') && jsonStr.includes(snakeCategory.slice(0, -1))) return true;
-          
-          // Try word matches
-          const words = [...new Set([...serviceTitle.split(/\s+/), ...categoryTitle.split(/\s+/)])].filter(w => w.length > 3);
-          let matchCount = 0;
-          for (const word of words) {
-            if (jsonStr.includes(word)) matchCount++;
-          }
-          
-          return words.length > 0 && matchCount >= Math.min(2, words.length);
-        });
+        const filteredSuppliers = filterSuppliersForQuickService(suppliers, row);
 
         return (
           <div className="flex items-center gap-2">

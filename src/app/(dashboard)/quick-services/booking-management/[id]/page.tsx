@@ -6,6 +6,7 @@ import { ArrowLeft, Clock, CheckCircle2, XCircle, UserPlus, Loader2 } from 'luci
 import { getQuickServiceBookingDetails, useActiveSuppliers } from '@/hooks/use-admin-quick-services';
 import { apiClient as adminApi } from '@/lib/api-client';
 import { getExpertVisitName, getQuickServiceHourlyRate } from '@/lib/quick-services-pricing';
+import { filterSuppliersForQuickService } from '@/lib/quick-services';
 
 const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleDateString('en-US', {
@@ -119,18 +120,27 @@ export default function AdminQuickServiceBookingDetailsPage() {
             <span className="text-sm font-medium text-white whitespace-nowrap">Assign a Supplier:</span>
             <div className="flex flex-col">
               <div className="flex gap-2">
-                <select
-                  className="w-48 rounded-md border border-[#2A2A2A] bg-[#1A1A1A] px-3 py-1.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-[#FFD700]"
-                  value={selectedSupplier}
-                  onChange={(e) => setSelectedSupplier(e.target.value)}
-                >
-                  <option value="">Select supplier...</option>
-                  {suppliers.map((s) => (
-                    <option key={s._id} value={s._id}>
-                      {s.companyName}
-                    </option>
-                  ))}
-                </select>
+                {(() => {
+                  const eligibleSuppliers = filterSuppliersForQuickService(suppliers, booking || {});
+                  return (
+                    <select
+                      className="w-48 rounded-md border border-[#2A2A2A] bg-[#1A1A1A] px-3 py-1.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-[#FFD700]"
+                      value={selectedSupplier}
+                      onChange={(e) => setSelectedSupplier(e.target.value)}
+                    >
+                      <option value="">Select supplier...</option>
+                      {eligibleSuppliers.length === 0 ? (
+                        <option value="" disabled>Supplier not found</option>
+                      ) : (
+                        eligibleSuppliers.map((s) => (
+                          <option key={s.id} value={s.id}>
+                            {s.tradingName || s.companyName || s.ownerName}
+                          </option>
+                        ))
+                      )}
+                    </select>
+                  );
+                })()}
                 <button
                   onClick={handleAssign}
                   disabled={assigning || !selectedSupplier}

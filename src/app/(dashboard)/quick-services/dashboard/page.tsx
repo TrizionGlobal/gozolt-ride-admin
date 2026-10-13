@@ -107,7 +107,7 @@ export default function QuickServicesDashboardPage() {
       color: 'from-emerald-500/20 to-emerald-500/5',
       border: 'border-emerald-500/20',
       text: 'text-emerald-400',
-      subServices: ['Home Cleaning', 'Pest Control', 'Gardening', 'Plumbing', 'Carpenter']
+      subServices: ['Home Cleaning', 'Pest Control', 'Gardening', 'Plumbing', 'Carpenter', 'Painter']
     },
     {
       name: 'PC & Mobile Repair',
@@ -187,7 +187,7 @@ export default function QuickServicesDashboardPage() {
       color: 'from-zinc-500/20 to-zinc-500/5',
       border: 'border-zinc-500/20',
       text: 'text-zinc-400',
-      subServices: ['Painter', 'Event Organisers', 'Suppliers']
+      subServices: ['Event Organisers', 'Suppliers']
     },
   ];
 
