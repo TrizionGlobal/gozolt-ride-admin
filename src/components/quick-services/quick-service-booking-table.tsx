@@ -110,18 +110,26 @@ export function QuickServiceBookingTable({
         const isOptimistic = !!optimisticAssignments[row.id];
         let status = isOptimistic ? 'ASSIGNED' : row.status;
 
-        if (!isOptimistic && (row.serviceStatus === 'IN_PROGRESS' || row.serviceStatus === 'COMPLETED')) {
-          status = row.serviceStatus;
+        if (!isOptimistic && row.serviceStatus === 'IN_PROGRESS') {
+          status = 'IN_PROGRESS';
+        }
+
+        if (row.status === 'AWAITING_PAYMENT') {
+          status = 'AWAITING_PAYMENT';
         }
 
         let colorClass = 'bg-gray-900/40 text-gray-400 border-gray-800';
         let Icon = Clock;
-        let displayStatus = status ? status.charAt(0).toUpperCase() + status.slice(1).toLowerCase() : 'Unknown';
+        let displayStatus = status ? status.charAt(0).toUpperCase() + status.slice(1).toLowerCase().replaceAll('_', ' ') : 'Unknown';
 
         if (status === 'COMPLETED') {
           colorClass = 'bg-green-900/40 text-green-400 border-green-800';
           Icon = CheckCircle2;
           displayStatus = 'Completed';
+        } else if (status === 'AWAITING_PAYMENT') {
+          colorClass = 'bg-amber-900/40 text-amber-400 border-amber-800';
+          Icon = Clock;
+          displayStatus = 'Awaiting Payment';
         } else if (status === 'ASSIGNED') {
           colorClass = 'bg-blue-900/40 text-blue-400 border-blue-800';
           Icon = CheckCircle2;

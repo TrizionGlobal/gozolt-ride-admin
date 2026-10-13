@@ -237,12 +237,50 @@ export default function AdminQuickServiceBookingDetailsPage() {
             </div>
           )}
           
+          {(features.startedAt || features.endedAt || features.finalDurationHrs !== undefined) && (
+            <div className="bg-[#111111] rounded-xl border border-[#27272A] p-5">
+              <h3 className="font-semibold text-white text-lg mb-4 flex items-center gap-2">
+                <Clock className="w-5 h-5 text-[#FACC15]" />
+                Work Timing & Duration
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {features.startedAt && (
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[#A1A1AA] text-xs">Work Started</span>
+                    <span className="text-white font-medium">{formatDate(features.startedAt)}</span>
+                  </div>
+                )}
+                {features.endedAt && (
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[#A1A1AA] text-xs">Work Ended</span>
+                    <span className="text-white font-medium">{formatDate(features.endedAt)}</span>
+                  </div>
+                )}
+                {features.finalDurationHrs !== undefined && (
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[#A1A1AA] text-xs">Billed Duration</span>
+                    <span className="text-[#FACC15] font-medium">{Math.max(1, Math.ceil(Number(features.finalDurationHrs)))} hour(s)</span>
+                  </div>
+                )}
+                {features.finalHourlyCost !== undefined && (
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[#A1A1AA] text-xs">Service Charge</span>
+                    <span className="text-emerald-400 font-medium">€{Number(features.finalHourlyCost).toFixed(2)}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           <div className="bg-[#111111] rounded-xl border border-[#27272A] p-5">
             <h3 className="font-semibold text-white text-lg mb-4">Features Selection</h3>
             {Object.keys(features).length > 0 ? (
               <div className="space-y-3">
                 {Object.entries(features)
-                  .filter(([key]) => !['isValidated', 'validationPin', 'beautyTreatmentsSubtotal'].includes(key))
+                  .filter(([key]) => {
+                    const norm = key.toLowerCase().replace(/[^a-z0-9]/g, '');
+                    return !['isvalidated', 'validationpin', 'beautytreatmentssubtotal', 'startedat', 'endedat', 'finalhourlycost', 'finaldurationhrs', 'durationhours', 'durationminutes', 'hourlyrate', 'serviceamount', 'alreadypaid', 'upfrontfee', 'materialcost', 'issuedescription', 'requirements'].includes(norm);
+                  })
                   .map(([key, val]) => (
                   <div key={key} className="flex flex-col gap-1 border-b border-[#27272A] pb-3 last:border-0 last:pb-0">
                     <span className="text-[#A1A1AA] font-medium">{key}</span>
@@ -342,94 +380,164 @@ export default function AdminQuickServiceBookingDetailsPage() {
           <div className="bg-[#111111] rounded-xl border border-[#27272A] p-5">
             <h3 className="font-semibold text-white text-lg mb-4">Payment Summary</h3>
             <div className="space-y-3 text-sm">
-              <div className="flex justify-between">
-                <span className="text-[#A1A1AA]">Upfront Fee:</span>
-                <span className="text-white font-medium">€{Number(booking.upfrontFee || 0).toFixed(2)}</span>
+              {/* 1. Already Paid Online Section */}
+              <div className="p-3 bg-white/5 rounded-lg border border-white/5 space-y-2">
+                <span className="text-xs uppercase tracking-wider text-[#A1A1AA] font-semibold block mb-1">
+                  Already Paid Online
+                </span>
+                <div className="flex justify-between">
+                  <span className="text-[#A1A1AA]">Upfront Booking Fee:</span>
+                  <span className="text-white font-medium">€{Number(booking.upfrontFee || 0).toFixed(2)}</span>
+                </div>
+                {Number(booking.materialCost || 0) > 0 && (
+                  <div className="flex justify-between">
+                    <span className="text-[#A1A1AA]">Materials Included:</span>
+                    <span className="text-white font-medium">€{Number(booking.materialCost || 0).toFixed(2)}</span>
+                  </div>
+                )}
+                {Number(booking.discountAmount) > 0 && (
+                  <div className="flex justify-between">
+                    <span className="text-[#A1A1AA]">GoCoins Discount:</span>
+                    <span className="text-[#FACC15] font-medium">-€{Number(booking.discountAmount).toFixed(2)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between pt-1.5 border-t border-white/10 font-medium text-xs">
+                  <span className="text-gray-300">Total Settled Online:</span>
+                  <span className="text-emerald-400 font-bold">
+                    €{(Number(booking.upfrontFee || 0) + Number(booking.materialCost || 0) - Number(booking.discountAmount || 0)).toFixed(2)}
+                  </span>
+                </div>
               </div>
-              
-              {(booking.serviceCategory?.toLowerCase().includes('beauty') || booking.serviceCategory?.toLowerCase().includes('wellness') || booking.serviceTitle?.toLowerCase().includes('beauty') || booking.serviceTitle?.toLowerCase().includes('wellness')) ? (
-                <div className="flex justify-between">
-                  <span className="text-[#A1A1AA]">Selected Treatments:</span>
-                  <span className="text-white font-medium">
-                    €{Number(features.beautyTreatmentsSubtotal || 0).toFixed(2)}
-                  </span>
-                </div>
-              ) : features.finalDurationHrs !== undefined ? (
-                <div className="flex justify-between">
-                  <span className="text-[#A1A1AA]">
-                    {getExpertVisitName(booking.serviceTitle || '')} ({Number(features.finalDurationHrs).toFixed(1)} hrs):
-                  </span>
-                  <span className="text-white font-medium">
-                    €{Number(features.finalHourlyCost || 0).toFixed(2)}
-                  </span>
-                </div>
-              ) : (
-                <div className="flex justify-between">
-                  <span className="text-[#A1A1AA]">{getExpertVisitName(booking.serviceTitle || '')} (Estimated):</span>
-                  <span className="text-white font-medium">€{getQuickServiceHourlyRate(booking.serviceTitle || '').toFixed(2)} / hr</span>
+
+              {/* 2. Service Amount Section */}
+              <div className="p-3 bg-white/5 rounded-lg border border-white/5 space-y-2">
+                <span className="text-xs uppercase tracking-wider text-[#A1A1AA] font-semibold block mb-1">
+                  Service Work Charge
+                </span>
+                {(booking.serviceCategory?.toLowerCase().includes('beauty') || booking.serviceCategory?.toLowerCase().includes('wellness') || booking.serviceTitle?.toLowerCase().includes('beauty') || booking.serviceTitle?.toLowerCase().includes('wellness')) ? (
+                  <div className="flex justify-between items-center">
+                    <span className="text-[#A1A1AA]">Selected Treatments:</span>
+                    <span className="text-emerald-400 font-bold">
+                      €{Number(features.beautyTreatmentsSubtotal || 0).toFixed(2)}
+                    </span>
+                  </div>
+                ) : features.finalDurationHrs !== undefined ? (
+                  <div className="flex justify-between items-center">
+                    <span className="text-[#A1A1AA]">
+                      {getExpertVisitName(booking.serviceTitle || '')} ({Number(features.finalDurationHrs).toFixed(1)} hrs):
+                    </span>
+                    <span className="text-emerald-400 font-bold">
+                      €{Number(features.finalHourlyCost || 0).toFixed(2)}
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex justify-between items-center">
+                    <span className="text-[#A1A1AA]">{getExpertVisitName(booking.serviceTitle || '')} (Rate):</span>
+                    <span className="text-white font-medium">€{getQuickServiceHourlyRate(booking.serviceTitle || '').toFixed(2)} / hr</span>
+                  </div>
+                )}
+              </div>
+
+              {/* 3. Estimated Spare Price (Informational Only) */}
+              {booking.estimatedPrice && (
+                <div className="flex justify-between items-center py-2 px-3 rounded-lg bg-amber-500/5 border border-amber-500/15 text-xs">
+                  <span className="text-[#A1A1AA]">Estimated Spare Price:</span>
+                  <div className="text-right">
+                    <span className="text-amber-400 font-medium block">{booking.estimatedPrice}</span>
+                    <span className="text-[10px] text-gray-400 block">(Estimate only, not included in total)</span>
+                  </div>
                 </div>
               )}
 
-              {Number(booking.materialCost || 0) > 0 && (
-                <div className="flex justify-between">
-                  <span className="text-[#A1A1AA]">Materials Included:</span>
-                  <span className="text-white font-medium">€{Number(booking.materialCost || 0).toFixed(2)}</span>
-                </div>
-              )}
-              {Number(booking.discountAmount) > 0 && (
-                <div className="flex justify-between">
-                  <span className="text-[#A1A1AA]">GoCoins Discount:</span>
-                  <span className="text-[#FACC15] font-medium">-€{Number(booking.discountAmount).toFixed(2)}</span>
-                </div>
-              )}
-              {booking.estimatedPrice && (
-                <div className="flex justify-between">
-                  <span className="text-[#A1A1AA]">Estimated Spare Price:</span>
-                  <span className="text-white font-medium">{booking.estimatedPrice}</span>
-                </div>
-              )}
-              <div className="flex justify-between border-t border-[#27272A] pt-3 font-bold">
-                <span className="text-white">Total Amount (Gross):</span>
-                <span className="text-white">€{Number(booking.totalAmount || 0).toFixed(2)}</span>
+              {/* 4. Payment Breakdown (Separated, Not Combined) */}
+              <div className="pt-2 border-t border-[#27272A] space-y-2.5">
+                {booking.status === 'COMPLETED' ? (
+                  <>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-[#A1A1AA]">Already Paid Online:</span>
+                      <span className="text-emerald-400 font-semibold">
+                        €{(Number(booking.upfrontFee || 0) + Number(booking.materialCost || 0) - Number(booking.discountAmount || 0)).toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-[#A1A1AA]">Service Amount:</span>
+                      <span className="text-white font-semibold">
+                        €{Number(features.finalHourlyCost || (Number(booking.totalAmount || 0) - (Number(booking.upfrontFee || 0) + Number(booking.materialCost || 0)))).toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center font-semibold text-xs text-emerald-400 bg-emerald-500/10 p-2.5 rounded-lg border border-emerald-500/20">
+                      <span>Service Charge Status:</span>
+                      <span>Paid (€{Number(features.finalHourlyCost || (Number(booking.totalAmount || 0) - (Number(booking.upfrontFee || 0) + Number(booking.materialCost || 0)))).toFixed(2)})</span>
+                    </div>
+                  </>
+                ) : booking.status === 'AWAITING_PAYMENT' ? (
+                  <>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-[#A1A1AA]">Already Paid Online:</span>
+                      <span className="text-emerald-400 font-semibold">
+                        €{(Number(booking.upfrontFee || 0) + Number(booking.materialCost || 0) - Number(booking.discountAmount || 0)).toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-[#A1A1AA]">Service Amount:</span>
+                      <span className="text-amber-400 font-semibold">
+                        €{Number(features.finalHourlyCost || Math.max(0, Number(booking.totalAmount || 0) - (Number(booking.upfrontFee || 0) + Number(booking.materialCost || 0) - Number(booking.discountAmount || 0)))).toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center font-bold text-sm text-amber-400 bg-amber-500/10 p-3 rounded-lg border border-amber-500/20">
+                      <span>Service Amount Due:</span>
+                      <span className="text-base">
+                        €{Number(features.finalHourlyCost || Math.max(0, Number(booking.totalAmount || 0) - (Number(booking.upfrontFee || 0) + Number(booking.materialCost || 0) - Number(booking.discountAmount || 0)))).toFixed(2)}
+                      </span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="flex justify-between font-bold text-base">
+                      <span className="text-white">Amount Paid Online:</span>
+                      <span className="text-[#FACC15]">
+                        €{(Number(booking.upfrontFee || 0) + Number(booking.materialCost || 0) - Number(booking.discountAmount || 0)).toFixed(2)}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-[#71717A] italic">
+                      Service charge is separate and will be billed upon completion.
+                    </p>
+                  </>
+                )}
+
+                {booking.status === 'CANCELLED' && booking.paymentStatus === 'PARTIALLY_REFUNDED' && (
+                  <div className="flex justify-between text-red-400 mt-2 text-xs">
+                    <span>Refunded (Materials):</span>
+                    <span className="font-bold">-€{Number(booking.materialCost || 0).toFixed(2)}</span>
+                  </div>
+                )}
+                {booking.status === 'CANCELLED' && booking.paymentStatus === 'PARTIALLY_REFUNDED' && (
+                  <div className="flex justify-between text-green-400 font-bold text-xs">
+                    <span>Platform Retained (Upfront Fee):</span>
+                    <span>€{Number(booking.upfrontFee || 0).toFixed(2)}</span>
+                  </div>
+                )}
               </div>
-              
-              {booking.status === 'COMPLETED' && (
-                <div className="mt-4 p-3 bg-[#1A1A1A] rounded-lg border border-[#27272A] space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-[#A1A1AA]">Initial Booking Payment (Paid):</span>
-                    <span className="text-white">€{(Number(booking.upfrontFee || 0) + Number(booking.materialCost || 0) - Number(booking.discountAmount || 0)).toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between text-sm font-bold">
-                    <span className="text-white">Final Service Charge (Paid):</span>
-                    <span className="text-[#FACC15]">€{(Number(booking.totalAmount || 0) - (Number(booking.upfrontFee || 0) + Number(booking.materialCost || 0) - Number(booking.discountAmount || 0))).toFixed(2)}</span>
-                  </div>
-                </div>
-              )}
-              {booking.status === 'CANCELLED' && booking.paymentStatus === 'PARTIALLY_REFUNDED' && (
-                <div className="flex justify-between text-red-400 mt-2">
-                  <span>Refunded (Materials):</span>
-                  <span className="font-bold">-€{Number(booking.materialCost || 0).toFixed(2)}</span>
-                </div>
-              )}
-              {booking.status === 'CANCELLED' && booking.paymentStatus === 'PARTIALLY_REFUNDED' && (
-                <div className="flex justify-between text-green-400 font-bold">
-                  <span>Platform Retained (Upfront Fee):</span>
-                  <span>€{Number(booking.upfrontFee || 0).toFixed(2)}</span>
-                </div>
-              )}
-            </div>
-            {booking.paymentMethodType && (
-              <div className="mt-4 pt-4 border-t border-[#27272A]">
-                <div className="flex justify-between text-sm">
+
+              {/* 5. Payment Method & Status */}
+              <div className="mt-4 pt-3 border-t border-[#27272A] space-y-2 text-xs">
+                <div className="flex justify-between">
                   <span className="text-[#A1A1AA]">Payment Method:</span>
-                  <span className="text-white font-medium uppercase">{booking.paymentMethodType}</span>
+                  <span className="text-white font-medium uppercase">{booking.paymentMethodType || 'CARD'}</span>
                 </div>
-                <div className="flex justify-between text-sm mt-2">
+                <div className="flex justify-between">
                   <span className="text-[#A1A1AA]">Payment Status:</span>
-                  <span className="text-white font-medium uppercase">{booking.paymentStatus}</span>
+                  <span className={`font-semibold uppercase ${
+                    booking.status === 'COMPLETED' ? 'text-emerald-400' :
+                    booking.status === 'AWAITING_PAYMENT' ? 'text-amber-400' : 'text-blue-400'
+                  }`}>
+                    {booking.status === 'COMPLETED' ? 'PAID (COMPLETED)' :
+                     booking.status === 'AWAITING_PAYMENT' ? 'PARTIALLY PAID (AWAITING SERVICE FEE)' :
+                     (booking.paymentStatus || 'PAID (UPFRONT)')}
+                  </span>
                 </div>
               </div>
-            )}
+            </div>
           </div>
         </div>
       </div>
