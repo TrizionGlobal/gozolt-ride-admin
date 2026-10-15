@@ -75,9 +75,8 @@ export default function PaymentsPage() {
       import('@/lib/export-excel').then(({ exportToExcel }) => {
         const rows = settlementData.data.map((s) => ({
           companyName: s.companyName,
-          totalEarned: s.totalGrossEarned ?? s.totalEarnedAllTime,
+          totalEarned: s.totalEarnedAllTime,
           totalPaidOut: s.totalAlreadyPaid,
-          cancellationFees: s.totalCancellations ?? s.totalPenaltyEarned,
           remainingBalance: Math.max(0, Number(s.totalPendingBalance || 0) - Number(s.availableToPayout || 0)),
           lastPaidDate: s.lastPaidDate ? new Date(s.lastPaidDate).toLocaleDateString() : 'Never',
           nextSettlementDate: s.nextSettlementDate ? new Date(s.nextSettlementDate).toLocaleDateString() : 'Invalid Date',
@@ -88,7 +87,6 @@ export default function PaymentsPage() {
           [
             { key: 'companyName', label: 'Company Name' },
             { key: 'totalEarned', label: 'Total Earned' },
-            { key: 'cancellationFees', label: 'Cancellation Fees' },
             { key: 'totalPaidOut', label: 'Total Paid Out' },
             { key: 'remainingBalance', label: 'Remaining Balance' },
             { key: 'lastPaidDate', label: 'Last Paid Date' },
@@ -202,7 +200,6 @@ export default function PaymentsPage() {
         }}
         onSuccess={handlePayoutSuccess}
         preselectedSupplierId={selectedSupplierId}
-        module="CAB"
       />
     </div>
   );

@@ -20,7 +20,6 @@ interface ProcessPayoutsModalProps {
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
   preselectedSupplierId?: string;
-  module?: string;
 }
 
 export function ProcessPayoutsModal({
@@ -28,7 +27,6 @@ export function ProcessPayoutsModal({
   onOpenChange,
   onSuccess,
   preselectedSupplierId,
-  module,
 }: ProcessPayoutsModalProps) {
   const [supplierId, setSupplierId] = useState(preselectedSupplierId || '');
   const [amount, setAmount] = useState('');
@@ -81,7 +79,7 @@ export function ProcessPayoutsModal({
     const fetchBalance = async () => {
       setLoadingBalance(true);
       try {
-        const bal = await paymentService.getSettledBalance(supplierId, module);
+        const bal = await paymentService.getSettledBalance(supplierId);
         setBalance(bal);
         setAmount(bal.availableToPayout.toString());
       } catch {
@@ -102,7 +100,6 @@ export function ProcessPayoutsModal({
         supplierId,
         supplierName: selectedSupplier.companyName,
         amount: numAmount,
-        module,
       });
       toast.success(
         `Payout of €${numAmount.toFixed(2)} transferred to ${selectedSupplier.companyName}`,
@@ -110,11 +107,11 @@ export function ProcessPayoutsModal({
 
       // Mocking the receipt since the current API response only gives id and status
       // We will refresh the balance to show the remaining.
-      const newBal = await paymentService.getSettledBalance(supplierId, module);
+      const newBal = await paymentService.getSettledBalance(supplierId);
       setReceipt({
         amountSent: numAmount,
         totalCashCollected: balance?.totalCashCollected || 0,
-        remainingPendingAfterThis: newBal.totalPendingBalance,
+        remainingPendingAfterThis: Math.max(0, newBal.totalPendingBalance - newBal.availableToPayout),
         transferId: `tr_${Math.random().toString(36).substr(2, 9)}`, // Mock stripe transfer ID for UI receipt
       });
 
@@ -195,20 +192,12 @@ export function ProcessPayoutsModal({
                 <span className="text-white font-medium">{selectedSupplier?.companyName}</span>
               </div>
             </div>
-            <div className="flex gap-2 w-full mt-4">
-              <Button
-                onClick={handleCancel}
-                className="w-1/2 bg-[#374151] hover:bg-[#4B5563] text-white"
-              >
-                Close
-              </Button>
-              <Button
-                onClick={() => { setErrorDetails(null); handleConfirm(); }}
-                className="w-1/2 bg-[#FACC15] text-black hover:bg-[#E5B800]"
-              >
-                Retry
-              </Button>
-            </div>
+            <Button
+              onClick={handleCancel}
+              className="w-full bg-[#374151] hover:bg-[#4B5563] text-white mt-4"
+            >
+              Close
+            </Button>
           </div>
         ) : (
           <>
@@ -258,15 +247,9 @@ export function ProcessPayoutsModal({
               ) : balance ? (
                 <div className="p-4 bg-[#141414] border border-[#2A2A2A] rounded-md space-y-3">
                   <div className="flex justify-between text-sm">
-                    <span className="text-[#9CA3AF]">Supplier Net Earned (Total - Upfront)</span>
+                    <span className="text-[#9CA3AF]">Total Earned</span>
                     <span className="text-white">€{(balance.totalEarnedAllTime || 0).toFixed(2)}</span>
                   </div>
-                  {balance.totalMaterial !== undefined && (
-                    <div className="flex justify-between text-sm text-[#9CA3AF]">
-                      <span>Material Included</span>
-                      <span className="text-emerald-400 font-medium">€{(balance.totalMaterial || 0).toFixed(2)}</span>
-                    </div>
-                  )}
                   <div className="flex justify-between text-sm text-[#9CA3AF]">
                     <span>User Cancellation Fees</span>
                     <span className="text-white">€{(balance.totalPenaltyEarned || 0).toFixed(2)}</span>
@@ -291,7 +274,7 @@ export function ProcessPayoutsModal({
                   </div>
                   <div className="flex justify-between text-sm pt-2 border-t border-[#2A2A2A] font-semibold">
                     <span className="text-white">Remaining balance</span>
-                    <span className="text-[#FACC15]">€{balance.totalPendingBalance.toFixed(2)}</span>
+                    <span className="text-[#FACC15]">€{Math.max(0, balance.totalPendingBalance - balance.availableToPayout).toFixed(2)}</span>
                   </div>
                   <p className="text-xs text-[#6B7280]">
                     * Note: Drivers have physically collected €{balance.totalCashCollected.toFixed(2)} in cash. The Admin is not responsible for paying out cash fares.
@@ -302,7 +285,7 @@ export function ProcessPayoutsModal({
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <label className="text-sm text-[#9CA3AF]">Payout Amount (€)</label>
-                  {balance && balance.isPayable && (balance.totalPendingBalance > 0) && (
+                  {balance && balance.isPayable && (balance.totalPendingBalance - balance.availableToPayout > 0) && (
                     <button
                       type="button"
                       onClick={() => setIsCustomAmount(!isCustomAmount)}
@@ -317,16 +300,16 @@ export function ProcessPayoutsModal({
                   step="0.01"
                   disabled={!balance || !balance.isPayable || (!isCustomAmount && balance.availableToPayout > 0)}
                   min="0.01"
-                  max={balance ? balance.totalPendingBalance + balance.availableToPayout : undefined}
+                  max={balance ? balance.totalPendingBalance : undefined}
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   readOnly={!isCustomAmount}
                   placeholder="0.00"
-                  className={`w-full h-10 rounded-md border ${balance && Number(amount) > (balance.totalPendingBalance + balance.availableToPayout) ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20' : 'border-[#2A2A2A] focus:border-[#FACC15] focus:ring-[#FACC15]/20'} bg-[#141414] px-3 text-sm text-white placeholder:text-[#6B7280] focus:outline-none focus:ring-1 ${!isCustomAmount ? 'cursor-not-allowed opacity-80' : ''}`}
+                  className={`w-full h-10 rounded-md border ${balance && Number(amount) > balance.totalPendingBalance ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20' : 'border-[#2A2A2A] focus:border-[#FACC15] focus:ring-[#FACC15]/20'} bg-[#141414] px-3 text-sm text-white placeholder:text-[#6B7280] focus:outline-none focus:ring-1 ${!isCustomAmount ? 'cursor-not-allowed opacity-80' : ''}`}
                 />
-                {balance && Number(amount) > (balance.totalPendingBalance + balance.availableToPayout) && (
+                {balance && Number(amount) > balance.totalPendingBalance && (
                   <p className="text-xs text-red-400 mt-1">
-                    Amount cannot exceed total available funds (€{(balance.totalPendingBalance + balance.availableToPayout).toFixed(2)})
+                    Amount cannot exceed total available funds (€{balance.totalPendingBalance.toFixed(2)})
                   </p>
                 )}
               </div>
@@ -348,7 +331,7 @@ export function ProcessPayoutsModal({
                   !balance ||
                   !balance.isPayable ||
                   Number(amount) <= 0 ||
-                  Number(amount) > (balance.totalPendingBalance + balance.availableToPayout)
+                  Number(amount) > balance.totalPendingBalance
                 }
                 className="bg-[#FACC15] text-black hover:bg-[#E5B800] disabled:opacity-40 disabled:cursor-not-allowed"
               >
