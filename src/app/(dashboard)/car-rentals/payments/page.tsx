@@ -7,9 +7,9 @@ import { sanitizeSearchQuery } from '@/lib/sanitize';
 import { Button } from '@/components/ui/button';
 import { PaymentKpiCards } from '@/components/payments/payment-kpi-cards';
 import { PaymentTabs, type PaymentTab } from '@/components/payments/payment-tabs';
-import { PaymentTable } from '@/components/payments/payment-table';
-import { ProcessPayoutsModal } from '@/components/payments/process-payouts-modal';
-import { SettlementTable } from '@/components/payments/settlement-table';
+import { CarRentalPaymentTable } from '@/components/car-rentals/payments/car-rental-payment-table';
+import { CarRentalPayoutModal } from '@/components/car-rentals/payments/car-rental-payout-modal';
+import { CarRentalSettlementTable } from '@/components/car-rentals/payments/car-rental-settlement-table';
 import { useCarRentalTransactions, useCarRentalPaymentKpis, useCarRentalSettlements } from '@/hooks/use-car-rental-payments';
 import type { TransactionFilterParams, TransactionType, SettlementListItem } from '@/services/admin/payment.types';
 import { toast } from 'sonner';
@@ -31,6 +31,7 @@ export default function PaymentsPage() {
   const [payoutLimit, setPayoutLimit] = useState(20);
   const [payoutOpen, setPayoutOpen] = useState(false);
   const [selectedSupplierId, setSelectedSupplierId] = useState<string | undefined>(undefined);
+  const [selectedSupplierName, setSelectedSupplierName] = useState<string | undefined>(undefined);
   const [status, setStatus] = useState<string>('ALL');
 
   useEffect(() => {
@@ -140,6 +141,7 @@ export default function PaymentsPage() {
 
   const handlePaySupplier = (supplier: SettlementListItem) => {
     setSelectedSupplierId(supplier.id);
+    setSelectedSupplierName(supplier.companyName);
     setPayoutOpen(true);
   };
 
@@ -172,7 +174,7 @@ export default function PaymentsPage() {
       {/* Table */}
       <div className="rounded-lg border border-[#2A2A2A] bg-[#141414]">
         {currentTab === 'settlement' ? (
-          <SettlementTable
+          <CarRentalSettlementTable
             data={settlementData}
             loading={settlementLoading}
             page={page}
@@ -182,7 +184,7 @@ export default function PaymentsPage() {
             onPaySupplier={handlePaySupplier}
           />
         ) : (
-          <PaymentTable
+          <CarRentalPaymentTable
             data={data}
             loading={loading}
             page={page}
@@ -194,15 +196,18 @@ export default function PaymentsPage() {
       </div>
 
       {/* Process Payouts Modal */}
-      <ProcessPayoutsModal
+      <CarRentalPayoutModal
         open={payoutOpen}
         onOpenChange={(open) => {
           setPayoutOpen(open);
-          if (!open) setSelectedSupplierId(undefined);
+          if (!open) {
+            setSelectedSupplierId(undefined);
+            setSelectedSupplierName(undefined);
+          }
         }}
         onSuccess={handlePayoutSuccess}
         preselectedSupplierId={selectedSupplierId}
-        module="RENTAL"
+        preselectedSupplierName={selectedSupplierName}
       />
     </div>
   );

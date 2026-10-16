@@ -47,4 +47,11 @@ export const quickServicesPaymentService = {
     });
     return data;
   },
+
+  async getSettledBalance(supplierId: string): Promise<import('./payment.types').SettledBalanceResponse> {
+    const { data } = await apiClient.get<import('./payment.types').SettledBalanceResponse>(`/admin/suppliers/${supplierId}/settled-balance`, {
+      params: { module: 'QUICK_SERVICES' },
+    });
+    return data;
+  },
 };

@@ -26,15 +26,13 @@ export const paymentService = {
     }
   },
 
-  async triggerPayout(payload: TriggerPayoutPayload & { module?: string }): Promise<{ id: string; status: string }> {
+  async triggerPayout(payload: TriggerPayoutPayload): Promise<{ id: string; status: string }> {
     const { data } = await apiClient.post<{ id: string; status: string }>('/admin/payouts', payload);
     return data;
   },
 
-  async getSettledBalance(supplierId: string, module?: string): Promise<SettledBalanceResponse> {
-    const { data } = await apiClient.get<SettledBalanceResponse>(`/admin/suppliers/${supplierId}/settled-balance`, {
-      params: { module }
-    });
+  async getSettledBalance(supplierId: string): Promise<SettledBalanceResponse> {
+    const { data } = await apiClient.get<SettledBalanceResponse>(`/admin/suppliers/${supplierId}/settled-balance`);
     return data;
   },
 

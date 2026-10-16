@@ -43,7 +43,14 @@ export const bikeRentalPaymentService = {
   async triggerPayout(payload: TriggerPayoutPayload): Promise<{ id: string; status: string }> {
     const { data } = await apiClient.post<{ id: string; status: string }>('/admin/payouts', {
       ...payload,
-      module: 'RENTAL',
+      module: 'BIKE_RENTAL',
+    });
+    return data;
+  },
+
+  async getSettledBalance(supplierId: string): Promise<import('./payment.types').SettledBalanceResponse> {
+    const { data } = await apiClient.get<import('./payment.types').SettledBalanceResponse>(`/admin/suppliers/${supplierId}/settled-balance`, {
+      params: { module: 'BIKE_RENTAL' },
     });
     return data;
   },

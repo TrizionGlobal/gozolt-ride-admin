@@ -47,7 +47,7 @@ export function KpiGrid({ kpis, isLoading }: KpiGridProps) {
       value: kpis ? formatNumber(kpis.todayRevenue) : '0',
       icon: Euro,
       prefix: '€',
-      href: '/payments-settlements',
+      href: '/payments',
     },
     {
       label: 'Today Rides',
@@ -72,7 +72,7 @@ export function KpiGrid({ kpis, isLoading }: KpiGridProps) {
       value: kpis ? formatNumber(kpis.tipRevenue) : '0',
       icon: Heart,
       prefix: '€',
-      href: '/payments-settlements?tab=tip',
+      href: '/payments?tab=tip',
     },
   ];
 
