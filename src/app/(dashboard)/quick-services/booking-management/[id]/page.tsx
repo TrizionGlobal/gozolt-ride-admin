@@ -210,7 +210,7 @@ export default function AdminQuickServiceBookingDetailsPage() {
               </div>
               <div className="flex flex-col gap-1">
                 <span className="text-[#A1A1AA] text-xs">Scheduled Time</span>
-                <span className="text-white font-medium">{formatDate(booking.bookingDate)}</span>
+                <span className="text-white font-medium">{formatDate(booking.bookingDate || (booking as any).scheduledAt)}</span>
               </div>
               <div className="flex flex-col gap-1 md:col-span-2">
                 <span className="text-[#A1A1AA] text-xs">Location</span>

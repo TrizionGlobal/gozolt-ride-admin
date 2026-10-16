@@ -93,7 +93,7 @@ export function QuickServiceBookingTable({
       title: 'Booking Date',
       render: (row) => (
         <span className="text-sm text-white">
-          {new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(row.bookingDate))}
+          {new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(row.bookingDate || (row as any).scheduledAt))}
         </span>
       ),
     },
