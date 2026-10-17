@@ -6,7 +6,8 @@ import { ArrowLeft } from 'lucide-react';
 import { getCarRentalBookingDetails } from '@/hooks/use-admin-car-rentals';
 
 const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString('en-US', {
+  if (!dateString) return 'N/A';
+  return new Date(dateString.replace('Z', '')).toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
     year: 'numeric',

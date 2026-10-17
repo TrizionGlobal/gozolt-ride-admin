@@ -70,13 +70,19 @@ export function QuickServiceBookingTable({
     {
       key: 'user',
       title: 'User Name',
-      render: (row) => (
-        <div>
-          <p className="text-sm font-medium text-white">{row.userName || `${row.user?.firstName} ${row.user?.lastName}`}</p>
-          <p className="text-xs text-gray-500">{row.userEmail || row.user?.email}</p>
-          <p className="text-xs text-gray-500">{row.userPhone || row.user?.phone || 'N/A'}</p>
-        </div>
-      ),
+      render: (row) => {
+        const userName = row.userName || (row.user ? `${row.user.firstName || ''} ${row.user.lastName || ''}`.trim() : '') || 'User';
+        const userEmail = row.userEmail || row.user?.email || 'N/A';
+        const userPhone = row.userPhone || row.user?.phone || 'N/A';
+
+        return (
+          <div>
+            <p className="text-sm font-medium text-white">{userName}</p>
+            <p className="text-xs text-gray-500">{userEmail}</p>
+            <p className="text-xs text-gray-500">{userPhone}</p>
+          </div>
+        );
+      },
     },
     {
       key: 'service',
@@ -93,7 +99,14 @@ export function QuickServiceBookingTable({
       title: 'Booking Date',
       render: (row) => (
         <span className="text-sm text-white">
-          {new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(row.bookingDate || (row as any).scheduledAt))}
+          {(() => {
+            const raw = row.bookingDate || (row as any).scheduledAt;
+            if (!raw) return 'N/A';
+            const clean = typeof raw === 'string' ? raw.replace('Z', '') : raw;
+            const d = new Date(clean);
+            if (isNaN(d.getTime())) return 'N/A';
+            return new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(d);
+          })()}
         </span>
       ),
     },

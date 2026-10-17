@@ -9,7 +9,11 @@ import { getExpertVisitName, getQuickServiceHourlyRate } from '@/lib/quick-servi
 import { filterSuppliersForQuickService } from '@/lib/quick-services';
 
 const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString('en-US', {
+  if (!dateString) return 'N/A';
+  const clean = typeof dateString === 'string' ? dateString.replace('Z', '') : dateString;
+  const d = new Date(clean);
+  if (isNaN(d.getTime())) return 'N/A';
+  return d.toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
@@ -165,7 +169,9 @@ export default function AdminQuickServiceBookingDetailsPage() {
               <div className="space-y-3">
                 <div className="flex flex-col">
                   <span className="text-[#A1A1AA] text-xs">Name</span>
-                  <span className="text-white font-medium">{booking.userName || `${booking.user?.firstName} ${booking.user?.lastName}`}</span>
+                  <span className="text-white font-medium">
+                    {booking.userName || (booking.user ? `${booking.user.firstName || ''} ${booking.user.lastName || ''}`.trim() : '') || 'Customer'}
+                  </span>
                 </div>
                 <div className="flex flex-col">
                   <span className="text-[#A1A1AA] text-xs">Email</span>

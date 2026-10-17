@@ -17,7 +17,8 @@ interface CarRentalBookingTableProps {
 }
 
 function formatCustomDate(dateString: string) {
-  const date = new Date(dateString);
+  if (!dateString) return 'N/A';
+  const date = new Date(dateString.replace('Z', ''));
   const day = date.getDate().toString().padStart(2, '0');
   const month = date.toLocaleString('en-US', { month: 'short' });
   const year = date.getFullYear();

@@ -98,6 +98,25 @@
     @apply bg-background text-foreground;
     font-family: var(--font-geist-sans), 'Inter', system-ui, -apple-system, sans-serif;
   }
+
+  /* Dark theme native select styling */
+  select {
+    color-scheme: dark;
+  }
+
+  select option {
+    background-color: #18181B !important;
+    color: #FFFFFF !important;
+  }
+
+  select option:disabled {
+    color: #71717A !important;
+  }
+
+  select option:checked {
+    background-color: #27272A !important;
+    color: #FACC15 !important;
+  }
 }
 
 /* Custom scrollbar for dark theme */

@@ -6,7 +6,8 @@ import { ArrowLeft } from 'lucide-react';
 import { getBikeRentalBookingDetails } from '@/hooks/use-admin-bike-rentals';
 
 const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString('en-US', {
+  if (!dateString) return 'N/A';
+  return new Date(dateString.replace('Z', '')).toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
