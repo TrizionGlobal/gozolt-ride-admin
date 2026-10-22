@@ -20,7 +20,7 @@ function formatCustomDate(dateString: string) {
   if (!dateString) return 'N/A';
   const date = new Date(dateString.replace('Z', ''));
   const day = date.getDate().toString().padStart(2, '0');
-  const month = date.toLocaleString('en-US', { month: 'short' });
+  const month = date.toLocaleString('en-GB', { month: 'short' });
   const year = date.getFullYear();
   let hours = date.getHours();
   const minutes = date.getMinutes().toString().padStart(2, '0');

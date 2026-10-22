@@ -9,6 +9,7 @@ import { useActiveSuppliers } from '@/hooks/use-admin-quick-services';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { filterSuppliersForQuickService } from '@/lib/quick-services';
+import { formatDateTime } from '@/lib/utils';
 
 interface QuickServiceBookingTableProps {
   data: any[];
@@ -99,14 +100,7 @@ export function QuickServiceBookingTable({
       title: 'Booking Date',
       render: (row) => (
         <span className="text-sm text-white">
-          {(() => {
-            const raw = row.bookingDate || (row as any).scheduledAt;
-            if (!raw) return 'N/A';
-            const clean = typeof raw === 'string' ? raw.replace('Z', '') : raw;
-            const d = new Date(clean);
-            if (isNaN(d.getTime())) return 'N/A';
-            return new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(d);
-          })()}
+          {formatDateTime(row.bookingDate || (row as any).scheduledAt)}
         </span>
       ),
     },

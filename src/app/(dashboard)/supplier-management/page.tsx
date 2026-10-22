@@ -26,7 +26,9 @@ export default function SupplierManagementPage() {
     ? 'CAR_RENTAL' 
     : pathname.includes('/bike-rentals') 
       ? 'BIKE_RENTAL' 
-      : 'CAB';
+      : pathname.includes('/airport-transfers')
+        ? 'AIRPORT_TRANSFER'
+        : 'CAB';
 
   // Tab state — managed locally, no URL changes (avoids Next.js RSC refetch on tab switch)
   const [activeTab, setActiveTab] = useState<SupplierTab>('all');
