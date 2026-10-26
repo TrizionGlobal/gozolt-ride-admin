@@ -77,7 +77,7 @@ export default function AirportTransfersDashboardPage() {
         <DashboardCard
           label="Pending Assignment"
           value={loading ? '—' : String(stats?.pendingAssignment ?? 0)}
-          description="Awaiting chauffeur dispatch"
+          description="Awaiting driver dispatch"
         />
       </div>
 

@@ -30,7 +30,7 @@ const TYPE_OPTIONS = [
   { value: VehicleType.PRIME, label: 'Prime' },
   { value: VehicleType.PREMIUM_XL, label: 'Premium XL' },
   { value: VehicleType.VAN, label: 'Van' },
-  { value: VehicleType.CHAUFFEUR, label: 'Chauffeur' },
+  { value: VehicleType.CHAUFFEUR, label: 'Driver' },
 ];
 
 export function VehicleFiltersPopover({

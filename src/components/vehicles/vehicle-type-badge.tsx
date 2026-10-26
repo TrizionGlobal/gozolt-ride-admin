@@ -11,7 +11,7 @@ const VEHICLE_TYPE_DISPLAY: Record<VehicleType, string> = {
   PRIME: 'Prime',
   PREMIUM_XL: 'Premium XL',
   VAN: 'Van',
-  CHAUFFEUR: 'Chauffeur',
+  CHAUFFEUR: 'Driver',
 };
 
 const VEHICLE_TYPE_COLORS: Record<VehicleType, string> = {

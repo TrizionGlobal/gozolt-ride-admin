@@ -141,7 +141,7 @@ export function getRideTypeDisplay(type: VehicleType) {
     PRIME: { label: 'Prime', className: 'bg-amber-900/50 text-amber-400 border-amber-700/30' },
     PREMIUM_XL: { label: 'Premium XL', className: 'bg-blue-900/50 text-blue-300 border-blue-700/30' },
     VAN: { label: 'Van', className: 'bg-indigo-900/50 text-indigo-300 border-indigo-700/30' },
-    CHAUFFEUR: { label: 'Chauffeur', className: 'bg-zinc-800/50 text-zinc-300 border-zinc-700/30' },
+    CHAUFFEUR: { label: 'Driver', className: 'bg-zinc-800/50 text-zinc-300 border-zinc-700/30' },
   };
   return map[type] ?? { label: type, className: 'bg-gray-500/20 text-gray-400 border-gray-500/30' };
 }
