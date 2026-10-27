@@ -65,14 +65,18 @@ export function SupplierTableRow({
         {supplier.vatNumber || '—'}
       </TableCell>
       <TableCell>
-        {tier && (
+        {tier ? (
           <span
             className={cn(
               'inline-flex items-center rounded-sm px-2 py-0.5 text-xs font-medium',
-              TIER_COLORS[tier],
+              (TIER_COLORS as any)[tier] || 'bg-emerald-900/50 text-emerald-400 border border-emerald-800',
             )}
           >
-            {TIER_DISPLAY[tier]}
+            {(TIER_DISPLAY as any)[tier] || (typeof tier === 'string' ? tier.charAt(0).toUpperCase() + tier.slice(1).toLowerCase() : 'Standard')}
+          </span>
+        ) : (
+          <span className="inline-flex items-center rounded-sm px-2 py-0.5 text-xs font-medium bg-[#2A2A2A] text-[#9CA3AF] border border-[#3A3A3A]">
+            Not Subscribed
           </span>
         )}
       </TableCell>

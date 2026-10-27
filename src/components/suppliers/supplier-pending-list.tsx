@@ -73,9 +73,10 @@ export function SupplierPendingList({
       title: 'Subscription Tier',
       render: (row) => {
         const tier = row.subscription?.tier;
-        return tier ? (
+        const displayName = tier ? (TIER_DISPLAY as any)[tier] || (typeof tier === 'string' ? tier.charAt(0).toUpperCase() + tier.slice(1).toLowerCase() : 'Standard') : null;
+        return displayName ? (
           <span className="inline-flex items-center rounded-sm px-2 py-0.5 text-xs font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20">
-            {TIER_DISPLAY[tier]}
+            {displayName}
           </span>
         ) : (
           <span className="inline-flex items-center rounded-sm px-2 py-0.5 text-xs font-medium bg-[#2A2A2A] text-[#9CA3AF] border border-[#3A3A3A]">
