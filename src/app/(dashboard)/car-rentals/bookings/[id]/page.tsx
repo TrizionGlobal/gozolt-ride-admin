@@ -4,17 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import { getCarRentalBookingDetails } from '@/hooks/use-admin-car-rentals';
-
-const formatDate = (dateString: string) => {
-  if (!dateString) return 'N/A';
-  return new Date(dateString.replace('Z', '')).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-};
+import { formatDateTime as formatDate } from '@/lib/utils';
 
 export default function AdminCarRentalBookingDetailsPage() {
   const params = useParams();

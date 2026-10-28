@@ -48,7 +48,7 @@ export const VEHICLE_TYPE_DISPLAY: Record<string, string> = {
   PRIME: 'Prime',
   PREMIUM_XL: 'Premium XL',
   VAN: 'Van',
-  CHAUFFEUR: 'Chauffeur',
+  CHAUFFEUR: 'Driver',
 };
 
 // --- Fare config table columns ---

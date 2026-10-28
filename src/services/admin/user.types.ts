@@ -90,7 +90,7 @@ export const PREFERRED_VEHICLE_DISPLAY: Record<VehicleType, { name: string; year
   PRIME: { name: 'Prime', year: '2022+', color: 'bg-amber-500' },
   PREMIUM_XL: { name: 'Premium XL', year: '2018+', color: 'bg-purple-500' },
   VAN: { name: 'Van', year: '2018+', color: 'bg-indigo-500' },
-  CHAUFFEUR: { name: 'Chauffeur', year: '2022+', color: 'bg-slate-800' },
+  CHAUFFEUR: { name: 'Driver', year: '2022+', color: 'bg-slate-800' },
 };
 
 // --- Status display utility ---

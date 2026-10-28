@@ -107,12 +107,14 @@ export type SupplierListResponse = PaginatedResponse<SupplierListItem>;
 // --- Display mappings ---
 export const TIER_DISPLAY: Record<SubscriptionTier, string> = {
   STARTER: 'Standard',
+  GROWTH: 'Growth',
   PROFESSIONAL: 'Professional',
   ENTERPRISE: 'Premium',
 };
 
 export const TIER_COLORS: Record<SubscriptionTier, string> = {
   STARTER: 'bg-yellow-900/50 text-yellow-400 border border-yellow-800',
+  GROWTH: 'bg-emerald-900/50 text-emerald-400 border border-emerald-800',
   PROFESSIONAL: 'bg-blue-900/50 text-blue-400 border border-blue-800',
   ENTERPRISE: 'bg-purple-900/50 text-purple-400 border border-purple-800',
 };

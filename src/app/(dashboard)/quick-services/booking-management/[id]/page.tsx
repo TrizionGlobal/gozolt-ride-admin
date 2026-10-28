@@ -7,20 +7,7 @@ import { getQuickServiceBookingDetails, useActiveSuppliers } from '@/hooks/use-a
 import { apiClient as adminApi } from '@/lib/api-client';
 import { getExpertVisitName, getQuickServiceHourlyRate } from '@/lib/quick-services-pricing';
 import { filterSuppliersForQuickService } from '@/lib/quick-services';
-
-const formatDate = (dateString: string) => {
-  if (!dateString) return 'N/A';
-  const clean = typeof dateString === 'string' ? dateString.replace('Z', '') : dateString;
-  const d = new Date(clean);
-  if (isNaN(d.getTime())) return 'N/A';
-  return d.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-};
+import { formatDateTime as formatDate } from '@/lib/utils';
 
 export default function AdminQuickServiceBookingDetailsPage() {
   const params = useParams();

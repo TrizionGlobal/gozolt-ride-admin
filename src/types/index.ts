@@ -95,6 +95,7 @@ export enum PaymentMethod {
 
 export enum SubscriptionTier {
   STARTER = 'STARTER',
+  GROWTH = 'GROWTH',
   PROFESSIONAL = 'PROFESSIONAL',
   ENTERPRISE = 'ENTERPRISE',
 }

@@ -10,11 +10,11 @@ interface AuditLogTableRowProps {
 
 function formatTimestamp(iso: string): string {
   const d = new Date(iso);
-  return d.toLocaleDateString('en-US', {
-    year: 'numeric',
+  return d.toLocaleDateString('en-GB', {
+    day: '2-digit',
     month: 'short',
-    day: 'numeric',
-  }) + ' ' + d.toLocaleTimeString('en-US', {
+    year: 'numeric',
+  }) + ' ' + d.toLocaleTimeString('en-GB', {
     hour: '2-digit',
     minute: '2-digit',
     hour12: true,

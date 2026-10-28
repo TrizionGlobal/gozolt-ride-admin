@@ -51,6 +51,14 @@ export const ROUTES = {
 
   AIRPORT_TRANSFERS_DASHBOARD:
     '/airport-transfers/dashboard',
+  AIRPORT_TRANSFERS_SUPPLIERS:
+    '/airport-transfers/supplier-management',
+  AIRPORT_TRANSFERS_VEHICLES:
+    '/airport-transfers/vehicles',
+  AIRPORT_TRANSFERS_BOOKINGS:
+    '/airport-transfers/bookings',
+  AIRPORT_TRANSFERS_PAYMENTS:
+    '/airport-transfers/payments',
 
   QUICK_SERVICES_DASHBOARD:
     '/quick-services/dashboard',
@@ -109,6 +117,26 @@ export const AIRPORT_TRANSFER_SIDEBAR_ITEMS = [
     label: 'Dashboard',
     href: ROUTES.AIRPORT_TRANSFERS_DASHBOARD,
     icon: LayoutDashboard,
+  },
+  {
+    label: 'Supplier Management',
+    href: ROUTES.AIRPORT_TRANSFERS_SUPPLIERS,
+    icon: Building2,
+  },
+  {
+    label: 'Vehicle Approvals',
+    href: ROUTES.AIRPORT_TRANSFERS_VEHICLES,
+    icon: Car,
+  },
+  {
+    label: 'Booking Oversight',
+    href: ROUTES.AIRPORT_TRANSFERS_BOOKINGS,
+    icon: FileText,
+  },
+  {
+    label: 'Payments & Settlements',
+    href: ROUTES.AIRPORT_TRANSFERS_PAYMENTS,
+    icon: CreditCard,
   },
 ] as const;
 

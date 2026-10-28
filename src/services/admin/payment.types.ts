@@ -22,6 +22,23 @@ export interface UnifiedTransaction {
   details?: Record<string, any>;
 }
 
+// --- Itemized booking for settlement audit ---
+export interface SettlementBookingItem {
+  id: string;
+  bookingReference: string;
+  pickupLocation: string;
+  dropoffLocation: string;
+  pickupDateTime: string | null;
+  createdAt: string;
+  status: string;
+  paymentStatus: string;
+  grossAmount: number;
+  commissionRate: number;
+  commissionAmount: number;
+  netAmount: number;
+  isInCycle: boolean;
+}
+
 // --- Settled balance response ---
 export interface SettledBalanceResponse {
   availableToPayout: number;
@@ -33,9 +50,27 @@ export interface SettledBalanceResponse {
   totalPendingBalance: number;
   lastPaidDate: string | null;
   nextSettlementDate: string;
+  cycleStart?: string;
+  cycleEnd?: string;
+  isCycleDue?: boolean;
   isPayable: boolean;
+  commissionRate?: number;
+  completedRidesCount?: number;
+  completedRidesGross?: number;
+  completedRidesCommission?: number;
+  completedRidesNet?: number;
+  cancelledRidesCount?: number;
+  cancelledRefundedTotal?: number;
+  inProgressRidesCount?: number;
+  cycleSettlementAmount?: number;
+  supplierBankName?: string | null;
+  supplierAccountHolder?: string | null;
+  supplierAccountNumber?: string | null;
+  bookings?: SettlementBookingItem[];
   totalMaterial?: number;
   totalGrossEarned?: number;
+  totalCancellations?: number;
+  totalRefunds?: number;
 }
 
 // --- Filter params for unified transactions ---
@@ -71,6 +106,14 @@ export interface SettlementListItem {
   id: string;
   companyName: string;
   email: string;
+  commissionRate?: number;
+  completedRidesCount?: number;
+  completedRidesGross?: number;
+  completedRidesCommission?: number;
+  completedRidesNet?: number;
+  cancelledRidesCount?: number;
+  cancelledRefundedTotal?: number;
+  inProgressRidesCount?: number;
   totalSettledEarned: number;
   totalPenaltyEarned: number;
   totalAlreadyPaid: number;
@@ -79,6 +122,9 @@ export interface SettlementListItem {
   totalPendingBalance: number;
   lastPaidDate: string | null;
   nextSettlementDate: string;
+  cycleStart?: string;
+  cycleEnd?: string;
+  isCycleDue?: boolean;
   isPayable: boolean;
   totalGrossEarned?: number;
   totalCancellations?: number;
@@ -86,6 +132,9 @@ export interface SettlementListItem {
   totalCashCollected?: number;
   totalMaterial?: number;
   totalServiceCharge?: number;
+  supplierBankName?: string | null;
+  supplierAccountHolder?: string | null;
+  supplierAccountNumber?: string | null;
 }
 
 export type SettlementListResponse = PaginatedResponse<SettlementListItem>;

@@ -19,7 +19,7 @@ function formatDate(isoStr: string | null | undefined): string {
   if (!isoStr) return '—';
   const date = new Date(isoStr);
   const day = date.getDate().toString().padStart(2, '0');
-  const month = date.toLocaleString('en-US', { month: 'short' });
+  const month = date.toLocaleString('en-GB', { month: 'short' });
   const year = date.getFullYear();
   return `${day}-${month}-${year}`;
 }
