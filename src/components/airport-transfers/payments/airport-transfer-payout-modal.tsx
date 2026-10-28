@@ -71,7 +71,12 @@ export function AirportTransferPayoutModal({
 
   useEffect(() => {
     if (balance && !isCustomAmount) {
-      setAmount(balance.availableToPayout > 0 ? balance.availableToPayout.toFixed(2) : '');
+      const defaultAmt = balance.availableToPayout > 0
+        ? balance.availableToPayout
+        : balance.totalPendingBalance > 0
+          ? balance.totalPendingBalance
+          : 0;
+      setAmount(defaultAmt > 0 ? defaultAmt.toFixed(2) : '');
     }
   }, [isCustomAmount, balance]);
 
@@ -87,7 +92,12 @@ export function AirportTransferPayoutModal({
       try {
         const bal = await airportTransferPaymentService.getSettledBalance(supplierId);
         setBalance(bal);
-        setAmount(bal.availableToPayout.toString());
+        const defaultAmt = bal.availableToPayout > 0
+          ? bal.availableToPayout
+          : bal.totalPendingBalance > 0
+            ? bal.totalPendingBalance
+            : 0;
+        setAmount(defaultAmt > 0 ? defaultAmt.toFixed(2) : '');
       } catch {
         toast.error('Failed to load settled balance for this supplier.');
       } finally {
@@ -319,8 +329,7 @@ export function AirportTransferPayoutModal({
                 <div className="flex justify-between items-center">
                   <label className="text-sm text-[#9CA3AF]">Payout Amount (€)</label>
                   {balance &&
-                    balance.isPayable &&
-                    balance.totalPendingBalance > 0 && (
+                    (balance.totalPendingBalance > 0 || balance.availableToPayout > 0) && (
                       <button
                         type="button"
                         onClick={() => setIsCustomAmount(!isCustomAmount)}
@@ -335,17 +344,17 @@ export function AirportTransferPayoutModal({
                   step="0.01"
                   disabled={
                     !balance ||
-                    !balance.isPayable ||
-                    (!isCustomAmount && balance.availableToPayout > 0)
+                    (balance.totalPendingBalance <= 0 && balance.availableToPayout <= 0) ||
+                    (!isCustomAmount && (balance.availableToPayout > 0 || balance.totalPendingBalance > 0))
                   }
                   min="0.01"
-                  max={balance ? balance.totalPendingBalance : undefined}
+                  max={balance ? Math.max(balance.totalPendingBalance, balance.availableToPayout) : undefined}
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   readOnly={!isCustomAmount}
                   placeholder="0.00"
                   className={`w-full h-10 rounded-md border ${
-                    balance && Number(amount) > balance.totalPendingBalance
+                    balance && Number(amount) > Math.max(balance.totalPendingBalance, balance.availableToPayout)
                       ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20'
                       : 'border-[#2A2A2A] focus:border-[#FCD223] focus:ring-[#FCD223]/20'
                   } bg-[#141414] px-3 text-sm text-white placeholder:text-[#6B7280] focus:outline-none focus:ring-1 ${
@@ -369,19 +378,16 @@ export function AirportTransferPayoutModal({
                   !amount ||
                   submitting ||
                   !balance ||
-                  !balance.isPayable ||
                   Number(amount) <= 0 ||
-                  Number(amount) > balance.totalPendingBalance
+                  Number(amount) > Math.max(balance.totalPendingBalance, balance.availableToPayout)
                 }
-                className="bg-[#FCD223] text-black hover:bg-[#E5B800] disabled:opacity-40 disabled:cursor-not-allowed"
+                className="bg-[#FCD223] text-black hover:bg-[#E5B800] font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 {submitting ? (
                   <span className="flex items-center gap-2">
                     <Loader2 className="h-4 w-4 animate-spin" />
                     Processing...
                   </span>
-                ) : !balance?.isPayable ? (
-                  'Not Payable Yet'
                 ) : (
                   'Confirm Payout'
                 )}

@@ -27,23 +27,28 @@ export function AirportTransferSettlementTable({
       key: 'companyName',
       title: 'Company Name',
       dataIndex: 'companyName',
-      render: (row) => <span className="text-white text-sm font-medium">{row.companyName}</span>,
+      render: (row) => (
+        <div className="flex flex-col">
+          <span className="text-white text-sm font-semibold">{row.companyName}</span>
+          <span className="text-xs text-[#6B7280]">{row.email}</span>
+        </div>
+      ),
     },
     {
-      key: 'totalEarnedAllTime',
-      title: 'Total Earned',
+      key: 'completedRides',
+      title: 'Completed Rides',
       render: (row) => (
-        <span className="text-white text-sm">
-          &euro;{Number(row.totalEarnedAllTime || 0).toFixed(2)}
+        <span className="text-white text-sm font-medium">
+          &euro;{Number(row.completedRidesNet ?? row.totalEarnedAllTime ?? 0).toFixed(2)}
         </span>
       ),
     },
     {
-      key: 'penaltyEarned',
-      title: 'Cancellation Fees',
+      key: 'cancelledRefunded',
+      title: 'Cancelled / Refunded',
       render: (row) => (
-        <span className="text-white text-sm">
-          &euro;{Number(row.totalPenaltyEarned || 0).toFixed(2)}
+        <span className="text-white text-sm font-medium">
+          &euro;{Number(row.cancelledRefundedTotal ?? row.totalCancellations ?? 0).toFixed(2)}
         </span>
       ),
     },
@@ -51,7 +56,7 @@ export function AirportTransferSettlementTable({
       key: 'totalAlreadyPaid',
       title: 'Total Paid Out',
       render: (row) => (
-        <span className="text-white text-sm">
+        <span className="text-[#D1D5DB] text-sm font-medium">
           &euro;{Number(row.totalAlreadyPaid || 0).toFixed(2)}
         </span>
       ),
@@ -60,12 +65,8 @@ export function AirportTransferSettlementTable({
       key: 'remainingBalance',
       title: 'Remaining Balance',
       render: (row) => (
-        <span className="text-[#FCD223] font-medium text-sm">
-          &euro;
-          {Math.max(
-            0,
-            Number(row.totalPendingBalance || 0) - Number(row.availableToPayout || 0)
-          ).toFixed(2)}
+        <span className="text-[#FCD223] font-bold text-sm">
+          &euro;{Number(row.totalPendingBalance || 0).toFixed(2)}
         </span>
       ),
     },
@@ -81,23 +82,26 @@ export function AirportTransferSettlementTable({
     {
       key: 'nextSettlementDate',
       title: 'Next Settlement Date',
-      render: (row) => (
-        <span
-          className={
-            row.isPayable ? 'text-green-400 font-medium text-sm' : 'text-[#9CA3AF] text-sm'
-          }
-        >
-          {row.nextSettlementDate
-            ? new Date(row.nextSettlementDate).toLocaleDateString()
-            : 'Invalid Date'}
-        </span>
-      ),
+      render: (row) => {
+        const isDue = row.isCycleDue || row.isPayable;
+        return (
+          <span
+            className={
+              isDue ? 'text-green-400 font-medium text-sm' : 'text-[#9CA3AF] text-sm'
+            }
+          >
+            {row.nextSettlementDate
+              ? new Date(row.nextSettlementDate).toLocaleDateString()
+              : 'Invalid Date'}
+          </span>
+        );
+      },
     },
     {
       key: '9DaySettlement',
       title: '9-Day Settlement',
       render: (row) => (
-        <span className="text-white font-semibold text-sm">
+        <span className="text-white font-bold text-sm">
           &euro;{Number(row.availableToPayout || 0).toFixed(2)}
         </span>
       ),
@@ -106,22 +110,28 @@ export function AirportTransferSettlementTable({
       key: 'action',
       title: 'Action',
       className: 'text-center',
-      render: (row) => (
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onPaySupplier(row);
-          }}
-          disabled={!row.isPayable || row.availableToPayout <= 0}
-          className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-            row.isPayable && row.availableToPayout > 0
-              ? 'bg-[#FCD223] text-black hover:bg-[#E5B800] shadow-sm'
-              : 'bg-[#2A2A2A] text-[#6B7280] cursor-not-allowed'
-          }`}
-        >
-          Pay Settlement
-        </button>
-      ),
+      render: (row) => {
+        const canPay =
+          (row.isPayable && row.availableToPayout > 0) ||
+          Number(row.totalPendingBalance || 0) > 0;
+        return (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onPaySupplier(row);
+            }}
+            disabled={!canPay}
+            className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${
+              canPay
+                ? 'bg-[#FCD223] text-black hover:bg-[#E5B800] shadow-sm'
+                : 'bg-[#2A2A2A] text-[#6B7280] cursor-not-allowed'
+            }`}
+          >
+            Pay Settlement
+          </button>
+        );
+      },
     },
   ];
 
