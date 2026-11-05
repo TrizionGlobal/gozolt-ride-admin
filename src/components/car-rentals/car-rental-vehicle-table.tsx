@@ -2,7 +2,7 @@
 
 import { ServerSideTable, type ColumnDef } from '@/components/ui/server-side-table';
 import { Badge } from '@/components/ui/badge';
-import { formatStatusLabel } from '@/lib/utils';
+import { formatStatusLabel, formatRentalCategory } from '@/lib/utils';
 import type { PaginatedResponse } from '@/types';
 import type { AdminCarRentalVehicle } from '@/hooks/use-admin-car-rentals';
 
@@ -57,7 +57,7 @@ const columns: ColumnDef<AdminCarRentalVehicle>[] = [
     title: 'CATEGORY',
     render: (row) => (
       <Badge variant="outline" className="border-[#2A2A2A] bg-[#141414] text-[#A1A1AA] uppercase tracking-wider text-[10px] font-semibold">
-        {row.category.replace('_', ' ')}
+        {formatRentalCategory(row.category)}
       </Badge>
     ),
   },

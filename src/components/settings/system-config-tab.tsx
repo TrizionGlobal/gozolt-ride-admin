@@ -12,7 +12,7 @@ export function SystemConfigTab() {
     driverRegistration: true,
     forceAdmin2FA: true,
     debugMode: false,
-    supportEmail: 'support@gozolt.com',
+    supportEmail: 'support@gozolt.com.mt',
     emergencyNumber: '+1 800 555 0199',
     minIosVersion: '1.0.1',
     minAndroidVersion: '1.0.1',

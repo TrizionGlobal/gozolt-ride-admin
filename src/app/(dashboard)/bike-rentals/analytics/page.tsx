@@ -6,17 +6,17 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const CATEGORY_NAMES: Record<string, string> = {
-  GO_5P: 'Go - 5P',
-  'GO - 5P': 'Go - 5P',
-  PREMIUM_5P: 'Premium - 5P',
-  'PREMIUM - 5P': 'Premium - 5P',
+  GO_5P: 'GO - 5P',
+  'GO - 5P': 'GO - 5P',
+  PREMIUM_5P: 'PREMIUM - 5P',
+  'PREMIUM - 5P': 'PREMIUM - 5P',
   SUV_7P: 'SUV - 7P',
   'SUV - 7P': 'SUV - 7P',
-  VAN_8P: 'Van - 8P & Above',
-  VAN_8P_ABOVE: 'Van - 8P & Above',
-  'VAN - 8P & ABOVE': 'Van - 8P & Above',
-  ELECTRIC_5P: 'Electric - 5P',
-  'ELECTRIC - 5P': 'Electric - 5P',
+  VAN_8P: 'VAN - 8P & ABOVE',
+  VAN_8P_ABOVE: 'VAN - 8P & ABOVE',
+  'VAN - 8P & ABOVE': 'VAN - 8P & ABOVE',
+  ELECTRIC_5P: 'ELECTRIC - 5P',
+  'ELECTRIC - 5P': 'ELECTRIC - 5P',
 };
 
 function formatCategoryName(cat: string): string {

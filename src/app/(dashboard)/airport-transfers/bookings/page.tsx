@@ -27,6 +27,7 @@ import { ServerSideTable, type ColumnDef } from '@/components/ui/server-side-tab
 import { useDebounce } from '@/hooks/use-debounce';
 import { apiClient } from '@/lib/api-client';
 import { formatDateTime, formatStatusLabel } from '@/lib/utils';
+import { TransferBookingDetailsModal } from '@/components/airport-transfers/TransferBookingDetailsModal';
 
 export interface AdminBooking {
   id: string;
@@ -101,6 +102,15 @@ export interface AdminBooking {
     email?: string;
     phone?: string;
   } | null;
+  tasks?: Array<{
+    id: string;
+    assignedToName: string;
+    assignedToEmail?: string;
+    tripLeg?: string;
+    isUsed?: boolean;
+    selfAssigned?: boolean;
+    createdAt?: string;
+  }>;
 }
 
 const HISTORY_TABS = [
@@ -184,14 +194,14 @@ export default function AdminAirportTransferBookingsPage() {
       className: 'w-[155px] min-w-[145px]',
       render: (row) => (
         <div className="flex flex-col gap-1 py-0.5">
-          <span className="font-mono font-bold text-xs text-[#FCD223] tracking-wide">
+          <span className="font-mono font-bold text-xs text-white tracking-wide">
             {row.bookingReference}
           </span>
           <div>
             <span
               className={`inline-block text-[10px] px-2 py-0.5 rounded font-semibold border ${row.transferType === 'ROUND_TRIP'
-                  ? 'bg-indigo-500/15 text-indigo-400 border-indigo-500/30'
-                  : 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
+                ? 'bg-indigo-500/15 text-indigo-400 border-indigo-500/30'
+                : 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
                 }`}
             >
               {row.transferType === 'ROUND_TRIP' ? 'ROUND TRIP' : 'ONE WAY'}
@@ -291,10 +301,10 @@ export default function AdminAirportTransferBookingsPage() {
       render: (row) => (
         <div className="space-y-1 py-0.5">
           <div className="font-bold text-[#FCD223] text-sm leading-tight">
-            {row.currency || 'EUR'} {Number(row.grandTotal || 0).toFixed(2)}
+            {'€'} {Number(row.grandTotal || 0).toFixed(2)}
           </div>
-          <div className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">
-            <span className={row.paymentStatus === 'PAID' ? 'text-emerald-400' : 'text-gray-400'}>
+          <div className="text-[10px] text-gray-400 font-semibold tracking-wider">
+            <span className="text-gray-400">
               {row.paymentStatus || 'PAID'}
             </span>
             <span className="text-gray-600 mx-1">•</span>
@@ -354,7 +364,7 @@ export default function AdminAirportTransferBookingsPage() {
             }}
             className="px-3 py-1.5 rounded-lg bg-[#222222] text-white hover:bg-[#2E2E2E] hover:text-[#FCD223] text-xs font-medium inline-flex items-center gap-1.5 transition-colors border border-[#333333]"
           >
-            <Eye className="h-3.5 w-3.5 text-[#FCD223]" /> Details
+            View Details
           </button>
         </div>
       ),
@@ -408,8 +418,8 @@ export default function AdminAirportTransferBookingsPage() {
               key={tab.id}
               onClick={() => handleTabChange(tab.id)}
               className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors ${isActive
-                  ? 'bg-[#FCD223] text-black shadow-sm'
-                  : 'bg-[#141414] text-gray-400 hover:text-white border border-[#2A2A2A]'
+                ? 'bg-[#FCD223] text-black shadow-sm'
+                : 'bg-[#141414] text-gray-400 hover:text-white border border-[#2A2A2A]'
                 }`}
             >
               {tab.label}
@@ -437,339 +447,12 @@ export default function AdminAirportTransferBookingsPage() {
         />
       </div>
 
-      {/* Dynamic Details Modal */}
-      {selectedBooking && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 overflow-y-auto">
-          <div className="w-full max-w-3xl rounded-2xl border border-[#27272A] bg-[#121212] p-6 shadow-2xl my-8 text-gray-300">
-            {/* Modal Header */}
-            <div className="flex items-start justify-between border-b border-[#27272A] pb-4">
-              <div>
-                <div className="flex items-center gap-2.5 flex-wrap">
-                  <span className="font-mono text-sm font-bold text-[#FCD223] bg-[#FCD223]/10 px-3 py-1 rounded-lg border border-[#FCD223]/20">
-                    {selectedBooking.bookingReference}
-                  </span>
-                  <span
-                    className={`text-xs px-2.5 py-1 rounded-lg font-semibold border ${selectedBooking.transferType === 'ROUND_TRIP'
-                        ? 'bg-indigo-500/15 text-indigo-400 border-indigo-500/30'
-                        : 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
-                      }`}
-                  >
-                    {selectedBooking.transferType === 'ROUND_TRIP' ? 'ROUND TRIP' : 'ONE WAY'}
-                  </span>
-                  {selectedBooking.flightNumber && (
-                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                      <Plane className="h-3.5 w-3.5" /> Outbound Flight {selectedBooking.flightNumber}
-                    </span>
-                  )}
-                  {selectedBooking.returnFlightNumber && (
-                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-lg bg-purple-500/10 text-purple-400 border border-purple-500/20">
-                      <Plane className="h-3.5 w-3.5" /> Return Flight {selectedBooking.returnFlightNumber}
-                    </span>
-                  )}
-                </div>
-                <p className="text-xs text-gray-500 mt-2 flex items-center gap-3">
-                  <span>Created: {formatDateTime(selectedBooking.createdAt)}</span>
-                  <span>•</span>
-                  <span>Updated: {formatDateTime(selectedBooking.updatedAt)}</span>
-                </p>
-              </div>
-              <button
-                onClick={() => setSelectedBooking(null)}
-                className="rounded-lg p-1.5 text-gray-400 hover:text-white hover:bg-[#27272A] transition-colors"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-
-            {/* Modal Body */}
-            <div className="space-y-4 py-4 text-sm max-h-[70vh] overflow-y-auto pr-1">
-              {/* Status & PIN Banner */}
-              <div className="bg-[#181818] p-4 rounded-xl border border-[#2A2A2A] flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <span className="text-xs text-gray-400 font-semibold uppercase block mb-1">
-                    Booking Status
-                  </span>
-                  {selectedBooking.transferType === 'ROUND_TRIP' ? (
-                    <div className="flex items-center gap-2">
-                      <span
-                        className={`px-2.5 py-1 rounded-md text-xs font-semibold border ${getStatusStyle(
-                          selectedBooking.status
-                        )}`}
-                      >
-                        🛫 Out: {formatStatusLabel(selectedBooking.status)}
-                      </span>
-                      <span
-                        className={`px-2.5 py-1 rounded-md text-xs font-semibold border ${getStatusStyle(
-                          selectedBooking.returnStatus || selectedBooking.status
-                        )}`}
-                      >
-                        🛬 Ret: {formatStatusLabel(selectedBooking.returnStatus || selectedBooking.status)}
-                      </span>
-                    </div>
-                  ) : (
-                    <span
-                      className={`inline-block px-3 py-1 rounded-md text-xs font-semibold border ${getStatusStyle(
-                        selectedBooking.status
-                      )}`}
-                    >
-                      {formatStatusLabel(selectedBooking.status)}
-                    </span>
-                  )}
-                </div>
-
-                {/* Verification PINs */}
-                <div className="flex items-center gap-2 flex-wrap">
-                  {selectedBooking.verificationPin && (
-                    <div className="flex items-center gap-2 bg-[#222] px-3 py-1.5 rounded-lg border border-[#333]">
-                      <Key className="h-3.5 w-3.5 text-[#FCD223]" />
-                      <span className="text-xs text-gray-400">Ride PIN:</span>
-                      <span className="font-mono font-bold text-sm text-[#FCD223] tracking-wider">
-                        {selectedBooking.verificationPin}
-                      </span>
-                    </div>
-                  )}
-                  {selectedBooking.returnVerificationPin && (
-                    <div className="flex items-center gap-2 bg-[#222] px-3 py-1.5 rounded-lg border border-[#333]">
-                      <Key className="h-3.5 w-3.5 text-purple-400" />
-                      <span className="text-xs text-gray-400">Return PIN:</span>
-                      <span className="font-mono font-bold text-sm text-purple-400 tracking-wider">
-                        {selectedBooking.returnVerificationPin}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Journey Itinerary Card */}
-              <div className="bg-[#181818] p-4 rounded-xl border border-[#2A2A2A] space-y-4">
-                {/* Outbound */}
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="text-xs text-[#FCD223] uppercase font-bold tracking-wider flex items-center gap-1.5">
-                      <span>🛫</span> Outbound Journey
-                    </p>
-                    <div className="flex items-center gap-2">
-                      {selectedBooking.flightNumber && (
-                        <span className="text-xs font-semibold text-blue-400">
-                          Flight: {selectedBooking.flightNumber}
-                        </span>
-                      )}
-                      {selectedBooking.distanceKm ? (
-                        <span className="text-[11px] text-gray-400 bg-[#222] px-2 py-0.5 rounded">
-                          {selectedBooking.distanceKm} km
-                        </span>
-                      ) : null}
-                      {selectedBooking.durationMinutes ? (
-                        <span className="text-[11px] text-gray-400 bg-[#222] px-2 py-0.5 rounded">
-                          ~{selectedBooking.durationMinutes} mins
-                        </span>
-                      ) : null}
-                    </div>
-                  </div>
-
-                  <div className="space-y-2.5 pl-3 border-l-2 border-emerald-500/50">
-                    <div>
-                      <span className="text-[11px] text-emerald-400 font-semibold flex items-center gap-1">
-                        <MapPin className="h-3 w-3" /> Pickup Location:
-                      </span>
-                      <p className="text-white text-xs mt-0.5 font-medium">{selectedBooking.pickupLocation}</p>
-                      <p className="text-[11px] text-[#FCD223] mt-0.5 flex items-center gap-1">
-                        <Clock className="h-3 w-3" /> {formatDateTime(selectedBooking.pickupDateTime)}
-                      </p>
-                    </div>
-                    <div>
-                      <span className="text-[11px] text-red-400 font-semibold flex items-center gap-1">
-                        <MapPin className="h-3 w-3" /> Drop-off Location:
-                      </span>
-                      <p className="text-white text-xs mt-0.5 font-medium">{selectedBooking.dropoffLocation}</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Return (if Round Trip) */}
-                {selectedBooking.transferType === 'ROUND_TRIP' && (
-                  <div className="pt-3 border-t border-[#2A2A2A]">
-                    <div className="flex items-center justify-between mb-2">
-                      <p className="text-xs text-purple-400 uppercase font-bold tracking-wider flex items-center gap-1.5">
-                        <span>🛬</span> Return Journey
-                      </p>
-                      {selectedBooking.returnFlightNumber && (
-                        <span className="text-xs font-semibold text-purple-400">
-                          Flight: {selectedBooking.returnFlightNumber}
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="space-y-2.5 pl-3 border-l-2 border-purple-500/50">
-                      <div>
-                        <span className="text-[11px] text-purple-400 font-semibold flex items-center gap-1">
-                          <MapPin className="h-3 w-3" /> Pickup Location:
-                        </span>
-                        <p className="text-white text-xs mt-0.5 font-medium">{selectedBooking.dropoffLocation}</p>
-                        <p className="text-[11px] text-purple-400 mt-0.5 flex items-center gap-1">
-                          <Clock className="h-3 w-3" />{' '}
-                          {selectedBooking.returnDateTime
-                            ? formatDateTime(selectedBooking.returnDateTime)
-                            : 'N/A'}
-                        </p>
-                      </div>
-                      <div>
-                        <span className="text-[11px] text-red-400 font-semibold flex items-center gap-1">
-                          <MapPin className="h-3 w-3" /> Drop-off Location:
-                        </span>
-                        <p className="text-white text-xs mt-0.5 font-medium">{selectedBooking.pickupLocation}</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Passenger & Supplier Grids */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Passenger Info */}
-                <div className="bg-[#181818] p-4 rounded-xl border border-[#2A2A2A]">
-                  <p className="text-xs text-[#FCD223] uppercase font-bold tracking-wider mb-2 flex items-center gap-1.5">
-                    <Users className="h-3.5 w-3.5" /> Passenger Details
-                  </p>
-                  <p className="text-white font-medium text-sm">{selectedBooking.leadPassengerName}</p>
-                  <p className="text-xs text-gray-400 mt-1 font-mono">{selectedBooking.leadPassengerPhone}</p>
-                  {selectedBooking.leadPassengerEmail && (
-                    <p className="text-xs text-gray-400 mt-0.5">{selectedBooking.leadPassengerEmail}</p>
-                  )}
-                  {selectedBooking.user && (
-                    <p className="text-[11px] text-gray-500 mt-1">
-                      Account: {selectedBooking.user.firstName} {selectedBooking.user.lastName} ({selectedBooking.user.email})
-                    </p>
-                  )}
-
-                  <div className="mt-3 pt-3 border-t border-[#2A2A2A] grid grid-cols-2 gap-2 text-xs">
-                    <div>
-                      <span className="text-gray-500 block text-[11px]">Party:</span>
-                      <span className="text-white font-medium">
-                        {selectedBooking.adults || 1} Adults · {selectedBooking.children || 0} Children
-                        {selectedBooking.infants ? ` · ${selectedBooking.infants} Infants` : ''}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-gray-500 block text-[11px]">Luggage:</span>
-                      <span className="text-white font-medium">
-                        {selectedBooking.standardLuggage || 0} Std · {selectedBooking.largeLuggage || 0} Large
-                      </span>
-                    </div>
-                  </div>
-
-                  {selectedBooking.specialRequests && (
-                    <div className="mt-3 pt-2 border-t border-[#2A2A2A] text-xs">
-                      <span className="text-[#FCD223] font-semibold block text-[11px]">Special Requests:</span>
-                      <p className="text-gray-300 italic mt-0.5">{selectedBooking.specialRequests}</p>
-                    </div>
-                  )}
-
-                  {selectedBooking.cancellationReason && (
-                    <div className="mt-3 pt-2 border-t border-red-500/20 text-xs text-red-400">
-                      <span className="font-semibold block text-[11px]">Cancellation Reason:</span>
-                      <p className="italic mt-0.5">{selectedBooking.cancellationReason}</p>
-                    </div>
-                  )}
-                </div>
-
-                {/* Fleet & Driver Info */}
-                <div className="bg-[#181818] p-4 rounded-xl border border-[#2A2A2A]">
-                  <p className="text-xs text-[#FCD223] uppercase font-bold tracking-wider mb-2 flex items-center gap-1.5">
-                    <Car className="h-3.5 w-3.5" /> Supplier & Fleet
-                  </p>
-                  <p className="text-white font-medium text-sm">
-                    {selectedBooking.supplier?.companyName || 'Independent Supplier'}
-                  </p>
-                  {selectedBooking.supplier?.phone && (
-                    <p className="text-xs text-gray-400 mt-0.5">{selectedBooking.supplier.phone}</p>
-                  )}
-
-                  <div className="mt-3 pt-3 border-t border-[#2A2A2A] space-y-1.5 text-xs">
-                    <div>
-                      <span className="text-gray-500 text-[11px] block">Vehicle:</span>
-                      <p className="text-white font-medium">
-                        {selectedBooking.vehicle
-                          ? `${selectedBooking.vehicle.make} ${selectedBooking.vehicle.model}`
-                          : 'Not assigned'}
-                        {selectedBooking.vehicle?.registrationNo
-                          ? ` • Reg: ${selectedBooking.vehicle.registrationNo}`
-                          : ''}
-                      </p>
-                      {selectedBooking.vehicle?.vehicleType && (
-                        <span className="text-[10px] text-gray-400">
-                          Class: {selectedBooking.vehicle.vehicleType}
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="pt-1.5">
-                      <span className="text-gray-500 text-[11px] block">Assigned Driver:</span>
-                      {selectedBooking.driver ? (
-                        <p className="text-white font-medium">
-                          {selectedBooking.driver.firstName} {selectedBooking.driver.lastName}
-                          {selectedBooking.driver.phone ? ` (${selectedBooking.driver.phone})` : ''}
-                        </p>
-                      ) : (
-                        <p className="text-yellow-400/80 italic">Unassigned</p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Tariff & Payment Audit */}
-              <div className="bg-[#181818] p-4 rounded-xl border border-[#2A2A2A] flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-                <div className="space-y-1">
-                  <p className="text-xs text-gray-400 uppercase font-semibold flex items-center gap-1.5">
-                    <CreditCard className="h-3.5 w-3.5 text-[#FCD223]" /> Payment Details
-                  </p>
-                  <p className="text-white font-medium text-xs">
-                    Status:{' '}
-                    <span className="text-emerald-400 font-semibold">
-                      {selectedBooking.paymentStatus || 'PAID'}
-                    </span>{' '}
-                    via {selectedBooking.paymentMethod || 'CARD'}
-                  </p>
-                  {selectedBooking.stripePaymentIntentId && (
-                    <p className="text-[11px] text-gray-500 font-mono">
-                      Stripe Ref: {selectedBooking.stripePaymentIntentId}
-                    </p>
-                  )}
-                  {Number(selectedBooking.basePrice || 0) > 0 && (
-                    <div className="flex gap-3 text-[11px] text-gray-400 mt-1">
-                      <span>Base: {selectedBooking.currency || 'EUR'} {Number(selectedBooking.basePrice).toFixed(2)}</span>
-                      {Number(selectedBooking.extrasFee || 0) > 0 && (
-                        <span>Extras: +{Number(selectedBooking.extrasFee).toFixed(2)}</span>
-                      )}
-                      {Number(selectedBooking.discountAmount || 0) > 0 && (
-                        <span>Discount: -{Number(selectedBooking.discountAmount).toFixed(2)}</span>
-                      )}
-                    </div>
-                  )}
-                </div>
-
-                <div className="text-left sm:text-right border-t sm:border-t-0 pt-2 sm:pt-0 border-[#2A2A2A]">
-                  <p className="text-xs text-gray-400 uppercase font-semibold">Total Fare</p>
-                  <p className="text-2xl font-bold text-[#FCD223]">
-                    {selectedBooking.currency || 'EUR'} {Number(selectedBooking.grandTotal || 0).toFixed(2)}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Modal Footer */}
-            <div className="border-t border-[#27272A] pt-4 flex justify-end">
-              <button
-                onClick={() => setSelectedBooking(null)}
-                className="px-4 py-2 rounded-xl bg-[#27272A] text-white hover:bg-[#3F3F46] text-xs font-semibold transition-colors"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Structured Details Modal (Matching Supplier Portal Design) */}
+      <TransferBookingDetailsModal
+        booking={selectedBooking}
+        isOpen={!!selectedBooking}
+        onClose={() => setSelectedBooking(null)}
+      />
     </div>
   );
 }

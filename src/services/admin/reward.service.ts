@@ -14,6 +14,7 @@ export const rewardService = {
         silverThreshold: 0,
         goldThreshold: 0,
         platinumThreshold: 0,
+        minRedeemCoins: 200,
       };
     }
   },

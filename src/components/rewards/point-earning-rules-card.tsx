@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Pencil, X, Save } from 'lucide-react';
+import { Pencil, X, Save, Coins } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { RewardFieldRow } from './reward-field-row';
 import { POINT_EARNING_FIELDS } from '@/services/admin/reward.types';
@@ -21,7 +21,7 @@ export function PointEarningRulesCard({ config, saving, onSave }: PointEarningRu
   const handleEdit = () => {
     const values: Record<string, number> = {};
     POINT_EARNING_FIELDS.forEach((f) => {
-      values[f.key] = config[f.key];
+      values[f.key] = (config[f.key as keyof RewardConfig] as number) ?? 0;
     });
     setEditValues(values);
     setIsEditing(true);
@@ -35,7 +35,8 @@ export function PointEarningRulesCard({ config, saving, onSave }: PointEarningRu
   const handleSave = async () => {
     const payload: UpdateRewardConfigPayload = {};
     POINT_EARNING_FIELDS.forEach((f) => {
-      if (editValues[f.key] !== config[f.key]) {
+      const orig = (config[f.key as keyof RewardConfig] as number) ?? 0;
+      if (editValues[f.key] !== undefined && editValues[f.key] !== orig) {
         (payload as Record<string, number>)[f.key] = editValues[f.key];
       }
     });
@@ -47,7 +48,7 @@ export function PointEarningRulesCard({ config, saving, onSave }: PointEarningRu
 
     const success = await onSave(payload);
     if (success) {
-      toast.success('Point earning rules updated successfully');
+      toast.success('Coin earning rules updated successfully');
       setIsEditing(false);
       setEditValues({});
     }
@@ -56,7 +57,10 @@ export function PointEarningRulesCard({ config, saving, onSave }: PointEarningRu
   return (
     <div className="rounded-lg border-2 border-dashed border-[#FACC15]/60 bg-[#141414] p-5">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-base font-semibold text-white">Point Earning Rules</h3>
+        <div className="flex items-center gap-2">
+          <Coins className="h-4 w-4 text-[#FACC15]" />
+          <h3 className="text-base font-semibold text-white">GoCoins Earning Rules</h3>
+        </div>
         {isEditing ? (
           <div className="flex items-center gap-2">
             <Button
@@ -92,17 +96,22 @@ export function PointEarningRulesCard({ config, saving, onSave }: PointEarningRu
       </div>
 
       <div>
-        {POINT_EARNING_FIELDS.map((field) => (
-          <RewardFieldRow
-            key={field.key}
-            label={field.label}
-            value={isEditing ? editValues[field.key] ?? config[field.key] : config[field.key]}
-            unit={field.unit}
-            step={field.step}
-            isEditing={isEditing}
-            onChange={(v) => setEditValues((prev) => ({ ...prev, [field.key]: v }))}
-          />
-        ))}
+        {POINT_EARNING_FIELDS.map((field) => {
+          const origValue = (config[field.key as keyof RewardConfig] as number) ?? 0;
+          const displayValue = isEditing ? editValues[field.key] ?? origValue : origValue;
+          return (
+            <RewardFieldRow
+              key={field.key}
+              label={field.label}
+              value={displayValue}
+              unit={field.unit}
+              step={field.step}
+              readOnly={field.readOnly}
+              isEditing={isEditing}
+              onChange={(v) => setEditValues((prev) => ({ ...prev, [field.key]: v }))}
+            />
+          );
+        })}
       </div>
     </div>
   );

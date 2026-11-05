@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Pencil, X, Save } from 'lucide-react';
+import { Pencil, X, Save, Award } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TIER_THRESHOLD_FIELDS } from '@/services/admin/reward.types';
 import type { RewardConfig, UpdateRewardConfigPayload } from '@/services/admin/reward.types';
@@ -20,7 +20,7 @@ export function TierThresholdsCard({ config, saving, onSave }: TierThresholdsCar
   const handleEdit = () => {
     const values: Record<string, number> = {};
     TIER_THRESHOLD_FIELDS.forEach((f) => {
-      values[f.key] = config[f.key];
+      values[f.key] = (config[f.key as keyof RewardConfig] as number) ?? 0;
     });
     setEditValues(values);
     setIsEditing(true);
@@ -34,7 +34,9 @@ export function TierThresholdsCard({ config, saving, onSave }: TierThresholdsCar
   const handleSave = async () => {
     const payload: UpdateRewardConfigPayload = {};
     TIER_THRESHOLD_FIELDS.forEach((f) => {
-      if (editValues[f.key] !== config[f.key]) {
+      if (f.readOnly) return;
+      const orig = (config[f.key as keyof RewardConfig] as number) ?? 0;
+      if (editValues[f.key] !== undefined && editValues[f.key] !== orig) {
         (payload as Record<string, number>)[f.key] = editValues[f.key];
       }
     });
@@ -55,7 +57,10 @@ export function TierThresholdsCard({ config, saving, onSave }: TierThresholdsCar
   return (
     <div className="rounded-lg border-2 border-dashed border-[#FACC15]/60 bg-[#141414] p-5">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-base font-semibold text-white">Tier Thresholds</h3>
+        <div className="flex items-center gap-2">
+          <Award className="h-4 w-4 text-[#FACC15]" />
+          <h3 className="text-base font-semibold text-white">Tier Thresholds (Completed Rides)</h3>
+        </div>
         {isEditing ? (
           <div className="flex items-center gap-2">
             <Button
@@ -92,7 +97,8 @@ export function TierThresholdsCard({ config, saving, onSave }: TierThresholdsCar
 
       <div>
         {TIER_THRESHOLD_FIELDS.map((field) => {
-          const value = isEditing ? editValues[field.key] ?? config[field.key] : config[field.key];
+          const origValue = (config[field.key as keyof RewardConfig] as number) ?? 0;
+          const value = isEditing && !field.readOnly ? editValues[field.key] ?? origValue : origValue;
           return (
             <div
               key={field.key}
@@ -108,7 +114,7 @@ export function TierThresholdsCard({ config, saving, onSave }: TierThresholdsCar
                 </span>
               </div>
               <div className="flex items-center gap-1.5">
-                {isEditing ? (
+                {isEditing && !field.readOnly ? (
                   <>
                     <input
                       type="number"
@@ -123,7 +129,7 @@ export function TierThresholdsCard({ config, saving, onSave }: TierThresholdsCar
                       }
                       className="w-20 h-8 rounded-md border border-[#2A2A2A] bg-[#0A0A0A] px-2 text-sm text-white text-right focus:border-[#FACC15] focus:outline-none focus:ring-1 focus:ring-[#FACC15]/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     />
-                    <span className="text-xs text-[#6B7280] w-10">{field.unit}</span>
+                    <span className="text-xs text-[#6B7280] w-12">{field.unit}</span>
                   </>
                 ) : (
                   <span className="text-sm font-medium text-white">

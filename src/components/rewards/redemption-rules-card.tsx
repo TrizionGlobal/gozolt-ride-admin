@@ -97,7 +97,7 @@ export function PointEarningRulesCard({ config, saving, onSave }: PointEarningRu
           <RewardFieldRow
             key={field.key}
             label={field.label}
-            value={isEditing ? editValues[field.key] : (config[field.key as keyof RewardConfig] ?? 0)}
+            value={isEditing ? editValues[field.key] : Number(config[field.key as keyof RewardConfig] ?? 0)}
             unit={field.unit}
             step={field.step}
             isEditing={isEditing}

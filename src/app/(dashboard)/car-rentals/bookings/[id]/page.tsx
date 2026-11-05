@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import { getCarRentalBookingDetails } from '@/hooks/use-admin-car-rentals';
-import { formatDateTime as formatDate } from '@/lib/utils';
+import { formatDateTime as formatDate, formatRentalCategory } from '@/lib/utils';
 
 export default function AdminCarRentalBookingDetailsPage() {
   const params = useParams();
@@ -94,7 +94,7 @@ export default function AdminCarRentalBookingDetailsPage() {
         <div className="flex justify-between items-start bg-[#111111] p-6 rounded-xl border border-[#27272A]">
           <div>
             <h3 className="text-xl font-semibold text-white">{booking.vehicle?.name}</h3>
-            <p className="text-sm text-[#A1A1AA] mt-1">Vehicle ID: CR-{booking.vehicle?.id.substring(0, 8).toUpperCase()} | Category: {booking.vehicle?.category?.split('_').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')}</p>
+            <p className="text-sm text-[#A1A1AA] mt-1">Vehicle ID: CR-{booking.vehicle?.id.substring(0, 8).toUpperCase()} | Category: {formatRentalCategory(booking.vehicle?.category)}</p>
             {booking.vehicle?.supplier && (
               <p className="text-sm text-[#A1A1AA] mt-1">Supplier: <span className="font-medium text-white">{booking.vehicle.supplier.companyName}</span></p>
             )}

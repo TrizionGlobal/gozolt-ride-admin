@@ -3,6 +3,7 @@
 import { useRewards } from '@/hooks/use-rewards';
 import { PointEarningRulesCard } from '@/components/rewards/point-earning-rules-card';
 import { TierThresholdsCard } from '@/components/rewards/tier-thresholds-card';
+import { MembershipTiersTable } from '@/components/rewards/membership-tiers-table';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function RewardsPage() {
@@ -13,9 +14,9 @@ export default function RewardsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Rewards</h1>
+          <h1 className="text-2xl font-bold text-white">Rewards Management</h1>
           <p className="text-sm text-[#6B7280] mt-1">
-            Configure loyalty points and membership tiers
+            Configure GoCoins loyalty rules, membership tier thresholds, and redemption rates
           </p>
         </div>
         <div className="flex items-center gap-2 rounded-full bg-[#22C55E]/10 px-3 py-1.5">
@@ -24,7 +25,14 @@ export default function RewardsPage() {
         </div>
       </div>
 
-      {/* Cards */}
+      {/* Membership Tiers & Rules Matrix Table */}
+      {loading || !config ? (
+        <Skeleton className="h-80 w-full rounded-xl bg-[#1A1A1A]" />
+      ) : (
+        <MembershipTiersTable config={config} />
+      )}
+
+      {/* Config Cards: Earning Rules & Tier Thresholds */}
       {loading || !config ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Skeleton className="h-56 rounded-lg bg-[#1A1A1A]" />
