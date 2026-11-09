@@ -16,6 +16,7 @@ import {
   Download,
   Calendar,
   Eye,
+  Star,
 } from 'lucide-react';
 import {
   Dialog,
@@ -83,6 +84,12 @@ export function QuickServicesSupplierDetailDrawer({ supplierId, open, onOpenChan
                 <span>{supplier.email}</span>
                 <span className="text-[#FACC15]">{supplier.subscription ? TIER_DISPLAY[supplier.subscription.tier] : '---'}</span>
                 <span>{STATUS_DISPLAY[supplier.status]}</span>
+                {supplier.rating !== undefined && supplier.rating !== null && (
+                  <span className="flex items-center gap-1 text-[#FACC15] font-medium">
+                    <Star className="h-3.5 w-3.5 fill-[#FACC15]" />
+                    {supplier.rating > 0 ? Number(supplier.rating).toFixed(1) : '0.0'}
+                  </span>
+                )}
               </span>
             ) : (
               'Loading supplier details...'

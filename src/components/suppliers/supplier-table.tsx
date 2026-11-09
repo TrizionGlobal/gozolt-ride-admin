@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Switch } from '@/components/ui/switch';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Star } from 'lucide-react';
 import { ServerSideTable, type ColumnDef } from '@/components/ui/server-side-table';
 import { SupplierStatusBadge } from './supplier-status-badge';
 import { SupplierActionsMenu } from './supplier-actions-menu';
@@ -25,6 +25,8 @@ interface SupplierTableProps {
   onReject: (id: string) => void;
   onSuspend: (id: string) => void;
   onChangeCommission?: (id: string) => void;
+  showRating?: boolean;
+  serviceType?: string;
 }
 
 export function SupplierTable({
@@ -39,10 +41,18 @@ export function SupplierTable({
   onReject,
   onSuspend,
   onChangeCommission,
+  showRating = false,
+  serviceType,
 }: SupplierTableProps) {
   const [selectedSupplierId, setSelectedSupplierId] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [updatingBankDetailsId, setUpdatingBankDetailsId] = useState<string | null>(null);
+
+  const isRental = serviceType === 'CAR_RENTAL' || serviceType === 'BIKE_RENTAL';
+  const isAirportTransfer = serviceType === 'AIRPORT_TRANSFER';
+  const showVehicles = !isAirportTransfer;
+  const showDrivers = !isRental;
+  const showCancellationAndRevenue = !isRental && !isAirportTransfer;
 
   const handleViewDetail = (id: string) => {
     setSelectedSupplierId(id);
@@ -87,30 +97,63 @@ export function SupplierTable({
       title: 'Status',
       render: (row) => <SupplierStatusBadge status={row.status} />,
     },
-    {
-      key: 'vehicles',
-      title: 'Vehicles',
-      render: (row) => <span className="text-sm text-[#9CA3AF]">{row._count.vehicles}</span>,
-    },
-    {
-      key: 'drivers',
-      title: 'Drivers',
-      render: (row) => <span className="text-sm text-[#9CA3AF]">{row._count.drivers}</span>,
-    },
-    {
-      key: 'penalties',
-      title: 'Cancellation Fees',
-      render: (row) => (
-        <span className="text-sm text-[#9CA3AF]">&euro;{Number(row.userCancellationFees || 0).toFixed(2)}</span>
-      ),
-    },
-    {
-      key: 'revenue',
-      title: 'Revenue',
-      render: (row) => (
-        <span className="text-sm text-white">€{(row.totalRevenue ?? 0).toLocaleString()}</span>
-      ),
-    },
+    ...(showRating
+      ? [
+        {
+          key: 'rating',
+          title: 'Rating',
+          render: (row: SupplierListItem) => (
+            <span className="inline-flex items-center gap-1.5 text-sm font-medium text-white">
+              <Star
+                className={cn(
+                  'h-3.5 w-3.5',
+                  (row.rating ?? 0) > 0
+                    ? 'fill-[#FACC15] text-[#FACC15]'
+                    : 'fill-[#FACC15]/40 text-[#FACC15]/40',
+                )}
+              />
+              {(row.rating ?? 0) > 0 ? Number(row.rating).toFixed(1) : '0.0'}
+            </span>
+          ),
+        },
+      ]
+      : []),
+    ...(showVehicles
+      ? [
+        {
+          key: 'vehicles',
+          title: 'Vehicles',
+          render: (row: SupplierListItem) => <span className="text-sm text-[#9CA3AF]">{row._count.vehicles}</span>,
+        },
+      ]
+      : []),
+    ...(showDrivers
+      ? [
+        {
+          key: 'drivers',
+          title: 'Drivers',
+          render: (row: SupplierListItem) => <span className="text-sm text-[#9CA3AF]">{row._count.drivers}</span>,
+        },
+      ]
+      : []),
+    ...(showCancellationAndRevenue
+      ? [
+        {
+          key: 'penalties',
+          title: 'Cancellation Fees',
+          render: (row: SupplierListItem) => (
+            <span className="text-sm text-[#9CA3AF]">&euro;{Number(row.userCancellationFees || 0).toFixed(2)}</span>
+          ),
+        },
+        {
+          key: 'revenue',
+          title: 'Revenue',
+          render: (row: SupplierListItem) => (
+            <span className="text-sm text-white">€{(row.totalRevenue ?? 0).toLocaleString()}</span>
+          ),
+        },
+      ]
+      : []),
     {
       key: 'editBankDetails',
       title: 'Edit Bank Details',

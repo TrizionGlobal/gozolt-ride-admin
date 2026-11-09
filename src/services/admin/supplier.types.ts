@@ -37,6 +37,8 @@ export interface SupplierListItem {
   };
   totalRevenue?: number;
   quickServicesOffered?: { category: string; services: string[] }[] | null;
+  rating?: number | null;
+  ratingCount?: number;
 }
 
 // --- Supplier detail (from GET /admin/suppliers/:id) ---

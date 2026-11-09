@@ -164,6 +164,8 @@ export default function SupplierManagementPage() {
             onApprove={handleApprove}
             onReject={handleReject}
             onSuspend={handleSuspend}
+            showRating={serviceType !== 'CAB'}
+            serviceType={serviceType}
           />
         )}
       </div>

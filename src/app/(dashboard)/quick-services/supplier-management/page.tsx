@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { Building2, CreditCard, UserPlus, CheckCircle2, Search, Filter, MoreVertical, ShieldCheck, Clock, MapPin, Check } from 'lucide-react';
+import { Building2, CreditCard, UserPlus, CheckCircle2, Search, Filter, MoreVertical, ShieldCheck, Clock, MapPin, Check, Star } from 'lucide-react';
 import { useSuppliers } from '@/hooks/use-suppliers';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -178,13 +178,6 @@ export default function QuickServicesSupplierManagementPage() {
                         <span className="text-sm font-medium text-white">
                           {row.quickServicesOffered.reduce((acc, cat) => acc + (cat.services?.length || 0), 0)} Services
                         </span>
-                        <Badge
-                          variant="outline"
-                          className="bg-[#1A1A1A] text-[#6B7280] border-[#2A2A2A] font-medium text-[10px] cursor-pointer hover:bg-[#2A2A2A] transition-colors"
-                          onClick={(e) => { e.stopPropagation(); setViewDetailsId(row.id); }}
-                        >
-                          View Catalog
-                        </Badge>
                       </div>
                     ) : (
                       <span className="text-xs text-[#6B7280]">No services configured</span>
@@ -222,6 +215,23 @@ export default function QuickServicesSupplierManagementPage() {
                 key: 'status',
                 title: 'Status',
                 render: (row) => <SupplierStatusBadge status={row.status} />,
+              },
+              {
+                key: 'rating',
+                title: 'Rating',
+                render: (row) => (
+                  <span className="inline-flex items-center gap-1.5 text-sm font-medium text-white">
+                    <Star
+                      className={cn(
+                        'h-3.5 w-3.5',
+                        (row.rating ?? 0) > 0
+                          ? 'fill-[#FACC15] text-[#FACC15]'
+                          : 'fill-[#FACC15]/40 text-[#FACC15]/40',
+                      )}
+                    />
+                    {(row.rating ?? 0) > 0 ? Number(row.rating).toFixed(1) : '0.0'}
+                  </span>
+                ),
               },
               {
                 key: 'date',
