@@ -22,13 +22,19 @@ export const pricingService = {
     return data;
   },
 
-  async getVatSettings(): Promise<{ vatPercentage: number; updatedAt?: string }> {
-    const { data } = await apiClient.get<{ vatPercentage: number; updatedAt?: string }>('/admin/pricing-vat');
+  async getVatSettings(): Promise<{ vatPercentage: number; commissionPercentage?: number; updatedAt?: string }> {
+    const { data } = await apiClient.get<{ vatPercentage: number; commissionPercentage?: number; updatedAt?: string }>('/admin/pricing-vat');
     return data;
   },
 
-  async updateVatSettings(vatPercentage: number): Promise<{ vatPercentage: number; updatedAt?: string }> {
-    const { data } = await apiClient.patch<{ vatPercentage: number; updatedAt?: string }>('/admin/pricing-vat', { vatPercentage });
+  async updateVatSettings(
+    vatPercentage: number,
+    commissionPercentage?: number,
+  ): Promise<{ vatPercentage: number; commissionPercentage?: number; updatedAt?: string }> {
+    const { data } = await apiClient.patch<{ vatPercentage: number; commissionPercentage?: number; updatedAt?: string }>(
+      '/admin/pricing-vat',
+      { vatPercentage, commissionPercentage },
+    );
     return data;
   },
 };

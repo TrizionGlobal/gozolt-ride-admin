@@ -55,6 +55,9 @@ export interface SettledBalanceResponse {
   isCycleDue?: boolean;
   isPayable: boolean;
   commissionRate?: number;
+  commissionDeducted?: number;
+  operatingModel?: 'SUBSCRIPTION' | 'COMMISSION';
+  totalCustomerAmountSettled?: number;
   completedRidesCount?: number;
   completedRidesGross?: number;
   completedRidesCommission?: number;
@@ -106,7 +109,6 @@ export interface SettlementListItem {
   id: string;
   companyName: string;
   email: string;
-  commissionRate?: number;
   completedRidesCount?: number;
   completedRidesGross?: number;
   completedRidesCommission?: number;
@@ -126,6 +128,9 @@ export interface SettlementListItem {
   cycleEnd?: string;
   isCycleDue?: boolean;
   isPayable: boolean;
+  commissionRate?: number;
+  commissionDeducted?: number;
+  operatingModel?: 'SUBSCRIPTION' | 'COMMISSION';
   totalGrossEarned?: number;
   totalCancellations?: number;
   totalRefunds?: number;
