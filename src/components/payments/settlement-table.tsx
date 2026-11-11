@@ -19,8 +19,20 @@ export function SettlementTable({ data, loading, page, limit, onPageChange, onLi
       key: 'companyName',
       title: 'Company Name',
       dataIndex: 'companyName',
-      render: (row) => <span className="text-white text-sm">{row.companyName}</span>
-
+      render: (row) => (
+        <div className="flex flex-col">
+          <span className="text-white text-sm font-medium">{row.companyName}</span>
+          {row.operatingModel === 'SUBSCRIPTION' ? (
+            <span className="inline-flex items-center w-fit mt-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              Subscription (0% Comm.)
+            </span>
+          ) : (
+            <span className="inline-flex items-center w-fit mt-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-[#FACC15]/10 text-[#FACC15] border border-[#FACC15]/20">
+              Commission ({row.commissionRate ?? 9}%)
+            </span>
+          )}
+        </div>
+      ),
     },
     {
       key: 'totalEarnedAllTime',
@@ -59,7 +71,21 @@ export function SettlementTable({ data, loading, page, limit, onPageChange, onLi
     {
       key: '9DaySettlement',
       title: '9-Day Settlement',
-      render: (row) => <span className="text-white text-sm">&euro;{Number(row.availableToPayout || 0).toFixed(2)}</span>,
+      render: (row) => (
+        <div className="flex flex-col">
+          <span className="text-white text-sm font-semibold">&euro;{Number(row.availableToPayout || 0).toFixed(2)}</span>
+          {row.operatingModel === 'COMMISSION' && Boolean(row.commissionDeducted && row.commissionDeducted > 0) && (
+            <span className="text-[11px] text-[#9CA3AF]">
+              (-&euro;{Number(row.commissionDeducted).toFixed(2)} comm.)
+            </span>
+          )}
+          {row.operatingModel === 'SUBSCRIPTION' && (
+            <span className="text-[11px] text-emerald-400/80">
+              0% comm.
+            </span>
+          )}
+        </div>
+      ),
     },
     {
       key: 'action',

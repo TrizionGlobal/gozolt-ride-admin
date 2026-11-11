@@ -1,15 +1,17 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Pencil, X, Save, Percent, ShieldCheck, Info } from 'lucide-react';
+import { Pencil, X, Save, Percent, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { pricingService } from '@/services/admin/pricing.service';
 import { toast } from 'sonner';
 
 export function VatCommissionCard() {
   const [vatRate, setVatRate] = useState<number>(10.0);
+  const [commissionRate, setCommissionRate] = useState<number>(9.0);
   const [isEditing, setIsEditing] = useState(false);
-  const [inputValue, setInputValue] = useState<string>('10.00');
+  const [vatInputValue, setVatInputValue] = useState<string>('10.00');
+  const [commissionInputValue, setCommissionInputValue] = useState<string>('9.00');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -18,14 +20,21 @@ export function VatCommissionCard() {
     pricingService
       .getVatSettings()
       .then((data) => {
-        if (mounted && data?.vatPercentage !== undefined) {
-          const rate = Number(data.vatPercentage);
-          setVatRate(rate);
-          setInputValue(rate.toFixed(2));
+        if (mounted) {
+          if (data?.vatPercentage !== undefined) {
+            const vRate = Number(data.vatPercentage);
+            setVatRate(vRate);
+            setVatInputValue(vRate.toFixed(2));
+          }
+          if (data?.commissionPercentage !== undefined) {
+            const cRate = Number(data.commissionPercentage);
+            setCommissionRate(cRate);
+            setCommissionInputValue(cRate.toFixed(2));
+          }
         }
       })
       .catch((err) => {
-        console.error('Failed to load VAT settings:', err);
+        console.error('Failed to load VAT/Commission settings:', err);
       })
       .finally(() => {
         if (mounted) setLoading(false);
@@ -37,32 +46,43 @@ export function VatCommissionCard() {
   }, []);
 
   const handleEdit = () => {
-    setInputValue(vatRate.toFixed(2));
+    setVatInputValue(vatRate.toFixed(2));
+    setCommissionInputValue(commissionRate.toFixed(2));
     setIsEditing(true);
   };
 
   const handleCancel = () => {
-    setInputValue(vatRate.toFixed(2));
+    setVatInputValue(vatRate.toFixed(2));
+    setCommissionInputValue(commissionRate.toFixed(2));
     setIsEditing(false);
   };
 
   const handleSave = async () => {
-    const num = parseFloat(inputValue);
-    if (isNaN(num) || num < 0 || num > 100) {
+    const vatNum = parseFloat(vatInputValue);
+    if (isNaN(vatNum) || vatNum < 0 || vatNum > 100) {
       toast.error('VAT percentage must be between 0% and 100%');
+      return;
+    }
+
+    const commissionNum = parseFloat(commissionInputValue);
+    if (isNaN(commissionNum) || commissionNum < 0 || commissionNum > 100) {
+      toast.error('Cab commission percentage must be between 0% and 100%');
       return;
     }
 
     setSaving(true);
     try {
-      const res = await pricingService.updateVatSettings(num);
-      const updatedRate = Number(res?.vatPercentage ?? num);
-      setVatRate(updatedRate);
-      setInputValue(updatedRate.toFixed(2));
+      const res = await pricingService.updateVatSettings(vatNum, commissionNum);
+      const updatedVat = Number(res?.vatPercentage ?? vatNum);
+      const updatedCommission = Number(res?.commissionPercentage ?? commissionNum);
+      setVatRate(updatedVat);
+      setCommissionRate(updatedCommission);
+      setVatInputValue(updatedVat.toFixed(2));
+      setCommissionInputValue(updatedCommission.toFixed(2));
       setIsEditing(false);
-      toast.success('VAT Commission percentage updated successfully');
+      toast.success('VAT and Commission percentages updated successfully');
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || err?.message || 'Failed to update VAT rate');
+      toast.error(err?.response?.data?.message || err?.message || 'Failed to update settings');
     } finally {
       setSaving(false);
     }
@@ -80,7 +100,7 @@ export function VatCommissionCard() {
             </h3>
           </div>
           <p className="text-xs text-[#9CA3AF] mt-0.5">
-            Decide the VAT percentage commission applied to Cabs, Car Rentals, Bike Rentals, and Airport Transfers
+            Configure platform VAT rate across all services and dynamic cab commission rate for suppliers on the commission model
           </p>
         </div>
 
@@ -120,14 +140,15 @@ export function VatCommissionCard() {
       </div>
 
       {/* Content */}
-      <div className="space-y-4">
+      <div className="space-y-3">
+        {/* VAT Commission Rate */}
         <div className="flex items-center justify-between py-3 px-3.5 rounded-lg bg-[#1A1A1A] border border-[#27272A]">
           <div>
             <span className="text-sm font-medium text-white block">
-              VAT Commission Rate
+              VAT Commission Rate (All Services)
             </span>
             <span className="text-xs text-[#6B7280]">
-              Charged on booking subtotal and deposited into Admin Stripe account
+              Charged on booking subtotal (Cabs, Car Rentals, Bike Rentals, Airport Transfers) and deposited into Admin Stripe account
             </span>
           </div>
 
@@ -139,8 +160,8 @@ export function VatCommissionCard() {
                   step="0.01"
                   min="0"
                   max="100"
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
+                  value={vatInputValue}
+                  onChange={(e) => setVatInputValue(e.target.value)}
                   className="w-24 px-2 py-1 bg-[#141414] border border-[#FACC15] rounded text-white text-sm text-right focus:outline-none"
                   autoFocus
                 />
@@ -154,13 +175,47 @@ export function VatCommissionCard() {
           </div>
         </div>
 
+        {/* Cab Commission Rate */}
+        <div className="flex items-center justify-between py-3 px-3.5 rounded-lg bg-[#1A1A1A] border border-[#27272A]">
+          <div>
+            <span className="text-sm font-medium text-white block">
+              Cab Commission Rate (Commission Model)
+            </span>
+            <span className="text-xs text-[#6B7280]">
+              Deducted during 9-day settlement from Total Amount Paid by Customer (Ride Fare + VAT) when supplier is on Commission Model
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {isEditing ? (
+              <div className="flex items-center gap-1.5">
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  max="100"
+                  value={commissionInputValue}
+                  onChange={(e) => setCommissionInputValue(e.target.value)}
+                  className="w-24 px-2 py-1 bg-[#141414] border border-[#FACC15] rounded text-white text-sm text-right focus:outline-none"
+                />
+                <span className="text-sm font-bold text-[#FACC15]">%</span>
+              </div>
+            ) : (
+              <span className="text-base font-bold text-[#FACC15]">
+                {loading ? '...' : `${commissionRate.toFixed(2)} %`}
+              </span>
+            )}
+          </div>
+        </div>
+
         {/* Notice Info Box */}
         <div className="flex items-start gap-2.5 p-3 rounded-lg bg-[#FACC15]/5 border border-[#FACC15]/20 text-xs text-[#D1D5DB]">
           <Info className="h-4 w-4 text-[#FACC15] shrink-0 mt-0.5" />
           <div className="space-y-1">
-            <p className="font-medium text-white">Platform Revenue Rule</p>
+            <p className="font-medium text-white">Platform Revenue & Settlement Rules</p>
             <p className="text-[#9CA3AF] leading-relaxed">
-              The VAT amount is complete platform commission for Gozolt Admin. It is automatically excluded from supplier fare earnings and 9-day settlement payouts.
+              • <strong className="text-white">Platform VAT:</strong> Automatically excluded from supplier ride fare earnings and withheld by Gozolt Admin.<br />
+              • <strong className="text-white">Cab Commission:</strong> When a supplier chooses the Commission Model (€0/mo), the platform deducts this percentage from the <span className="text-white font-medium">Total Amount Paid by Customer</span> (Fare + VAT) during the 9-day settlement. Suppliers on a Subscription Plan pay 0% platform commission.
             </p>
           </div>
         </div>

@@ -166,6 +166,12 @@ export function ProcessPayoutsModal({
                 <span className="text-[#9CA3AF]">Driver Cash Kept</span>
                 <span className="text-red-400 font-medium">€{receipt.totalCashCollected.toFixed(2)}</span>
               </div>
+              {balance?.commissionDeducted && balance.commissionDeducted > 0 ? (
+                <div className="flex justify-between">
+                  <span className="text-[#9CA3AF]">Platform Commission Kept ({balance.commissionRate}%)</span>
+                  <span className="text-[#FACC15] font-medium">€{balance.commissionDeducted.toFixed(2)}</span>
+                </div>
+              ) : null}
               <div className="flex justify-between pt-2 border-t border-[#2A2A2A]">
                 <span className="text-[#9CA3AF]">Remaining balance</span>
                 <span className="text-[#FACC15] font-bold">€{receipt.remainingPendingAfterThis.toFixed(2)}</span>
@@ -247,6 +253,14 @@ export function ProcessPayoutsModal({
               ) : balance ? (
                 <div className="p-4 bg-[#141414] border border-[#2A2A2A] rounded-md space-y-3">
                   <div className="flex justify-between text-sm">
+                    <span className="text-[#9CA3AF]">Operating Model</span>
+                    <span className={balance.operatingModel === 'SUBSCRIPTION' ? 'text-emerald-400 font-medium' : 'text-[#FACC15] font-medium'}>
+                      {balance.operatingModel === 'SUBSCRIPTION'
+                        ? 'Subscription (0% Commission)'
+                        : `Commission Model (${balance.commissionRate ?? 9}%)`}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm">
                     <span className="text-[#9CA3AF]">Total Earned</span>
                     <span className="text-white">€{(balance.totalEarnedAllTime || 0).toFixed(2)}</span>
                   </div>
@@ -258,6 +272,12 @@ export function ProcessPayoutsModal({
                     <span className="text-[#9CA3AF]">Total Paid Out</span>
                     <span className="text-white">- €{(balance.totalAlreadyPaid || 0).toFixed(2)}</span>
                   </div>
+                  {balance.operatingModel === 'COMMISSION' && (balance.commissionDeducted ?? 0) > 0 && (
+                    <div className="flex justify-between text-sm text-[#9CA3AF]">
+                      <span>Platform Commission ({balance.commissionRate}% of total cust. paid €{balance.totalCustomerAmountSettled?.toFixed(2)})</span>
+                      <span className="text-[#FACC15] font-medium">- €{(balance.commissionDeducted ?? 0).toFixed(2)}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between text-sm text-[#9CA3AF]">
                     <span>Last Paid Date</span>
                     <span className="text-white">{balance.lastPaidDate ? new Date(balance.lastPaidDate).toLocaleDateString() : 'Never'}</span>
@@ -269,8 +289,8 @@ export function ProcessPayoutsModal({
                     </span>
                   </div>
                   <div className="flex justify-between text-sm border-t border-[#2A2A2A] pt-2">
-                    <span className="text-[#9CA3AF]">9-Day Settlement</span>
-                    <span className="text-white">€{balance.availableToPayout.toFixed(2)}</span>
+                    <span className="text-[#9CA3AF]">9-Day Settlement Payout</span>
+                    <span className="text-white font-semibold">€{balance.availableToPayout.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-sm pt-2 border-t border-[#2A2A2A] font-semibold">
                     <span className="text-white">Remaining balance</span>
