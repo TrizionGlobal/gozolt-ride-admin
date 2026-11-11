@@ -3,6 +3,7 @@
 import { usePricing } from '@/hooks/use-pricing';
 import { FareRulesCard } from '@/components/pricing/fare-rules-card';
 import { CancellationPolicyCard } from '@/components/pricing/cancellation-policy-card';
+import { VatCommissionCard } from '@/components/pricing/vat-commission-card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { VehicleType } from '@/types';
 import { PREFERRED_VEHICLE_DISPLAY } from '@/services/admin/user.types';
@@ -79,6 +80,11 @@ export default function PricingRulesPage() {
           <CancellationPolicyCard rule={currentRule} saving={saving} onSave={updateRule} />
         </div>
       )}
+
+      {/* VAT Commission Module for Rentals & Transfers */}
+      <div className="pt-2">
+        <VatCommissionCard />
+      </div>
     </div>
   );
 }

@@ -81,7 +81,7 @@ export default function QuickServicesSupplierManagementPage() {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <SummaryCard
           title="Total Suppliers"
           value={totalSuppliers}
@@ -103,6 +103,7 @@ export default function QuickServicesSupplierManagementPage() {
           color="amber"
           isLoading={loading}
         />
+        {/*
         <SummaryCard
           title="With Subscription"
           value={subscribedSuppliers}
@@ -117,6 +118,7 @@ export default function QuickServicesSupplierManagementPage() {
           color="blue"
           isLoading={loading}
         />
+        */}
       </div>
 
       {/* Table Section */}
@@ -185,6 +187,7 @@ export default function QuickServicesSupplierManagementPage() {
                   </div>
                 ),
               },
+              /*
               {
                 key: 'tier',
                 title: 'Subscription Tier',
@@ -201,6 +204,7 @@ export default function QuickServicesSupplierManagementPage() {
                   );
                 },
               },
+              */
               {
                 key: 'region',
                 title: 'Region',

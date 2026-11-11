@@ -74,6 +74,7 @@ export function SupplierTable({
         <span className="text-sm text-[#9CA3AF] font-mono">{row.vatNumber || '—'}</span>
       ),
     },
+    /*
     {
       key: 'tier',
       title: 'Subscription Tier',
@@ -92,6 +93,7 @@ export function SupplierTable({
         );
       },
     },
+    */
     {
       key: 'status',
       title: 'Status',

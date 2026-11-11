@@ -64,6 +64,7 @@ export function SupplierTableRow({
       <TableCell className="text-sm text-[#9CA3AF] font-mono">
         {supplier.vatNumber || '—'}
       </TableCell>
+      {/*
       <TableCell>
         {tier ? (
           <span
@@ -80,6 +81,7 @@ export function SupplierTableRow({
           </span>
         )}
       </TableCell>
+      */}
       <TableCell>
         <SupplierStatusBadge status={supplier.status} />
       </TableCell>

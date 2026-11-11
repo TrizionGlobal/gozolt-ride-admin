@@ -16,7 +16,10 @@ async function handler(
   const devAuthenticated = request.cookies.get(DEV_COOKIE_NAME)?.value;
 
   // Allow unauthenticated requests for specific paths like login/register
-  const isPublicRoute = backendPath.startsWith('auth/admin/login') || backendPath.startsWith('auth/refresh');
+  const isPublicRoute =
+    backendPath.startsWith('auth/admin/login') ||
+    backendPath.startsWith('auth/refresh') ||
+    backendPath === 'admin/pricing-vat';
 
   // Require authentication (allow dev bypass)
   if (!isPublicRoute && !token && !devAuthenticated) {

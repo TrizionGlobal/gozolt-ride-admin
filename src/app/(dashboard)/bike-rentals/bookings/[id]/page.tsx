@@ -35,7 +35,7 @@ export default function AdminBikeRentalBookingDetailsPage() {
     else if (ext?.status === 'REJECTED') s = 'Ext. Rejected';
     else if (s === 'ACTIVE') s = 'On Rent';
     else if (s === 'CANCELLED') s = 'User Cancelled';
-    
+
     return s.replace(/_/g, ' ').split(' ').map((word: string) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
   };
 
@@ -108,7 +108,7 @@ export default function AdminBikeRentalBookingDetailsPage() {
 
         {/* Grid Details */}
         <div className="grid grid-cols-2 gap-6">
-          
+
           {/* Customer Details */}
           <div className="space-y-4">
             <h4 className="font-semibold text-white text-lg">Customer Details</h4>
@@ -146,7 +146,7 @@ export default function AdminBikeRentalBookingDetailsPage() {
                 return (
                   <>
                     <div className="flex justify-between"><span className="text-[#A1A1AA]">Bike Rate:</span> <span className="font-medium">€{bikeRate.toFixed(2)}</span></div>
-                    
+
                     {booking.isFlexible && (
                       <div className="flex justify-between"><span className="text-[#A1A1AA]">Stay Flexible:</span> <span className="font-medium">€{Number(booking.flexibleTotal || 0).toFixed(2)}</span></div>
                     )}
@@ -154,7 +154,7 @@ export default function AdminBikeRentalBookingDetailsPage() {
                     {/* Protection Package */}
                     {booking.selectedPackage && (
                       <div className="flex justify-between">
-                        <span className="text-[#A1A1AA]">{booking.selectedPackage.name || 'Protection Package'}:</span> 
+                        <span className="text-[#A1A1AA]">{booking.selectedPackage.name || 'Protection Package'}:</span>
                         <span className="font-medium">€{Number(booking.packagesTotal || 0).toFixed(2)}</span>
                       </div>
                     )}
@@ -163,13 +163,13 @@ export default function AdminBikeRentalBookingDetailsPage() {
                     {(() => {
                       const fee = Number(booking.deliveryFee || 0);
                       if (fee <= 0) return null;
-                      
+
                       const pickup = booking.pickupLocation || 'Self Pickup';
                       const dropoff = booking.dropoffLocation || pickup;
-                      
+
                       const hasCustomPickup = pickup !== 'Self Pickup';
                       const hasCustomDropoff = dropoff !== 'Self Pickup' && dropoff !== pickup;
-                      
+
                       if (hasCustomPickup && hasCustomDropoff) {
                         return (
                           <>
@@ -186,19 +186,33 @@ export default function AdminBikeRentalBookingDetailsPage() {
                       }
                     })()}
                     {Number(booking.taxes) > 0 && (
-                      <div className="flex justify-between"><span className="text-[#A1A1AA]">Taxes:</span> <span className="font-medium">€{Number(booking.taxes || 0).toFixed(2)}</span></div>
+                      <>
+                        <div className="flex justify-between"><span className="text-[#A1A1AA]">VAT Charges:</span> <span className="font-medium text-[#FACC15]">€{Number(booking.taxes || 0).toFixed(2)}</span></div>
+                        <div className="flex justify-between"><span className="text-[#A1A1AA]">Supplier Net Fare:</span> <span className="font-medium text-emerald-400">€{Math.max(0, Number(booking.grandTotal || 0) - Number(booking.taxes || 0)).toFixed(2)}</span></div>
+                      </>
+                    )}
+
+                    {Number(booking.walletAmountUsed) > 0 && (
+                      <div className="flex justify-between"><span className="text-[#A1A1AA]">GoCoins Discount:</span> <span className="font-medium text-emerald-400">-€{Number(booking.walletAmountUsed || 0).toFixed(2)}</span></div>
                     )}
 
                     <div className="flex justify-between font-bold pt-3 border-t border-[#27272A]">
-                      <span className="text-white">Grand Total:</span> 
+                      <span className="text-white">Grand Total:</span>
                       <span className="text-[#FACC15]">€{Number(booking.grandTotal || 0).toFixed(2)}</span>
                     </div>
+
+                    {Number(booking.walletAmountUsed) > 0 && (
+                      <div className="flex justify-between text-xs pt-1 text-[#A1A1AA]">
+                        <span>Paid by User (Stripe):</span>
+                        <span className="text-white font-medium">€{Math.max(0, Number(booking.grandTotal || 0) - Number(booking.walletAmountUsed || 0)).toFixed(2)}</span>
+                      </div>
+                    )}
                   </>
                 );
               })()}
             </div>
           </div>
-          
+
           {/* Documents */}
           <div className="col-span-2 space-y-4">
             <h4 className="font-semibold text-white text-lg">Documents</h4>
@@ -233,7 +247,7 @@ export default function AdminBikeRentalBookingDetailsPage() {
               </div>
             )}
           </div>
-          
+
           {/* Extensions */}
           {booking.extensionRequests && booking.extensionRequests.length > 0 && (
             <div className="col-span-2 space-y-4">

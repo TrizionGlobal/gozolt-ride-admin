@@ -61,9 +61,8 @@ export function RideInfoPanel({ detail }: RideInfoPanelProps) {
           return (
             <div
               key={`${row.label}-${i}`}
-              className={`flex items-center justify-between px-3 py-2.5 ${
-                i < rows.length - 1 ? 'border-b border-[#2A2A2A]' : ''
-              }`}
+              className={`flex items-center justify-between px-3 py-2.5 ${i < rows.length - 1 ? 'border-b border-[#2A2A2A]' : ''
+                }`}
             >
               <div className="flex items-center gap-2 text-[#9CA3AF]">
                 <Icon className="h-3.5 w-3.5" />
@@ -85,7 +84,13 @@ export function RideInfoPanel({ detail }: RideInfoPanelProps) {
           {(detail.waitTimeFee ?? 0) > 0 && <FareRow label="Wait Time" value={detail.waitTimeFee!} />}
           {(detail.bookingFee ?? 0) > 0 && <FareRow label="Booking Fee" value={detail.bookingFee!} />}
           {detail.surgeMultiplier > 1 && <FareRow label={`Surge ×${detail.surgeMultiplier}`} value={null} badge={`${detail.surgeMultiplier}x`} />}
+          {detail.payment?.platformFee != null && Number(detail.payment.platformFee) > 0 && (
+            <FareRow label="VAT Charges" value={Number(detail.payment.platformFee)} />
+          )}
           <FareRow label="Total Fare" value={detail.actualFare ?? detail.estimatedFare} bold />
+          {detail.payment?.supplierAmount != null && Number(detail.payment.supplierAmount) > 0 && (
+            <FareRow label="Supplier Net Fare" value={Number(detail.payment.supplierAmount)} green />
+          )}
           {detail.tip && <FareRow label="Tip" value={detail.tip.amount} green />}
         </div>
       </div>

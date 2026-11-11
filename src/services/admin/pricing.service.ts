@@ -21,4 +21,14 @@ export const pricingService = {
     const { data } = await apiClient.patch<PricingRule>(`/admin/pricing/${id}`, payload);
     return data;
   },
+
+  async getVatSettings(): Promise<{ vatPercentage: number; updatedAt?: string }> {
+    const { data } = await apiClient.get<{ vatPercentage: number; updatedAt?: string }>('/admin/pricing-vat');
+    return data;
+  },
+
+  async updateVatSettings(vatPercentage: number): Promise<{ vatPercentage: number; updatedAt?: string }> {
+    const { data } = await apiClient.patch<{ vatPercentage: number; updatedAt?: string }>('/admin/pricing-vat', { vatPercentage });
+    return data;
+  },
 };

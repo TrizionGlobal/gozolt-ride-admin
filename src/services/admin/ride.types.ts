@@ -72,6 +72,8 @@ export interface RideDetail extends RideListItem {
   payment: {
     id: string;
     amount: number;
+    platformFee?: number;
+    supplierAmount?: number;
     method: PaymentMethod;
     status: PaymentStatus;
     refunds: Refund[];

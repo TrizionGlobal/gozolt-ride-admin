@@ -97,11 +97,13 @@ export function SupplierPendingCard({
               <CreditCard className="h-3.5 w-3.5" />
               {hasStripe ? 'Stripe Connected' : 'Stripe Not Connected'}
             </span>
+            {/*
             {tier && (
               <span className="text-[#6B7280]">
                 Selected Tier: <span className="text-white">{TIER_DISPLAY[tier]}</span>
               </span>
             )}
+            */}
           </div>
 
           {/* Action buttons */}

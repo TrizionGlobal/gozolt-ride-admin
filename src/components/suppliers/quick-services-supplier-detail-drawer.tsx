@@ -82,7 +82,7 @@ export function QuickServicesSupplierDetailDrawer({ supplierId, open, onOpenChan
             {supplier ? (
               <span className="flex items-center gap-3 flex-wrap">
                 <span>{supplier.email}</span>
-                <span className="text-[#FACC15]">{supplier.subscription ? TIER_DISPLAY[supplier.subscription.tier] : '---'}</span>
+                {/* <span className="text-[#FACC15]">{supplier.subscription ? TIER_DISPLAY[supplier.subscription.tier] : '---'}</span> */}
                 <span>{STATUS_DISPLAY[supplier.status]}</span>
                 {supplier.rating !== undefined && supplier.rating !== null && (
                   <span className="flex items-center gap-1 text-[#FACC15] font-medium">
@@ -167,7 +167,8 @@ export function QuickServicesSupplierDetailDrawer({ supplierId, open, onOpenChan
                 </div>
               </div>
 
-              {/* Subscription Details Card */}
+              {/* Subscription Details Card (Commented out - uncomment if needed in the future) */}
+              {/*
               {supplier.subscription && (
                 <div className="bg-[#0A0A0A] border border-[#2A2A2A] rounded-lg p-4">
                   <div className="flex items-center gap-2 mb-4">
@@ -200,6 +201,7 @@ export function QuickServicesSupplierDetailDrawer({ supplierId, open, onOpenChan
                   </div>
                 </div>
               )}
+              */}
 
               {/* Quick Services Offered Breakdown */}
               <div className="bg-[#0A0A0A] border border-[#2A2A2A] rounded-lg p-4 mt-4">

@@ -68,6 +68,7 @@ export function SupplierPendingList({
         </div>
       ),
     },
+    /*
     {
       key: 'tier',
       title: 'Subscription Tier',
@@ -85,6 +86,7 @@ export function SupplierPendingList({
         );
       },
     },
+    */
     {
       key: 'submitted',
       title: 'Submitted',
