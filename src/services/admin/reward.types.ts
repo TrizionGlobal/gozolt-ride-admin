@@ -22,6 +22,11 @@ export interface RewardConfig {
   goldThreshold: number;
   platinumThreshold: number;
   minRedeemCoins?: number;
+  bronzeRedemptionRate?: number;
+  silverRedemptionRate?: number;
+  goldRedemptionRate?: number;
+  platinumRedemptionRate?: number;
+  tierRedemptionRates?: Record<string, number>;
   tiers?: TierBenefitInfo[];
 }
 
@@ -35,11 +40,16 @@ export interface UpdateRewardConfigPayload {
   goldThreshold?: number;
   platinumThreshold?: number;
   minRedeemCoins?: number;
+  bronzeRedemptionRate?: number;
+  silverRedemptionRate?: number;
+  goldRedemptionRate?: number;
+  platinumRedemptionRate?: number;
+  tierRedemptionRates?: Record<string, number>;
 }
 
 // --- Field config for rendering ---
 export interface RewardFieldConfig {
-  key: keyof UpdateRewardConfigPayload;
+  key: keyof Omit<UpdateRewardConfigPayload, 'tierRedemptionRates'>;
   label: string;
   unit: string;
   step?: string;
@@ -48,17 +58,17 @@ export interface RewardFieldConfig {
 
 export const POINT_EARNING_FIELDS: RewardFieldConfig[] = [
   { key: 'pointsPerEuro', label: 'GoCoins per € Spent', unit: 'coin/€', step: '1' },
-  { key: 'euroPerPoint', label: 'Value per Coin', unit: '€', step: '0.01' },
   { key: 'minRedeemCoins', label: 'Minimum Coins to Redeem', unit: 'coins', step: '10' },
   { key: 'pointsPerRide', label: 'Base Coins per Ride', unit: 'coins', step: '1' },
 ];
 
 export interface TierFieldConfig {
-  key: keyof UpdateRewardConfigPayload;
+  key: keyof Omit<UpdateRewardConfigPayload, 'tierRedemptionRates'>;
   label: string;
   dotColor: string;
   labelColor: string;
   unit: string;
+  step?: string;
   readOnly?: boolean;
 }
 
@@ -68,7 +78,7 @@ export const TIER_THRESHOLD_FIELDS: TierFieldConfig[] = [
     label: 'Bronze (Starting Tier)',
     dotColor: '#CD7F32',
     labelColor: 'text-[#CD7F32]',
-    unit: 'rides',
+    unit: 'bookings',
     readOnly: true,
   },
   {
@@ -76,20 +86,55 @@ export const TIER_THRESHOLD_FIELDS: TierFieldConfig[] = [
     label: 'Silver',
     dotColor: '#C0C0C0',
     labelColor: 'text-[#E5E7EB]',
-    unit: 'rides',
+    unit: 'bookings',
   },
   {
     key: 'goldThreshold',
     label: 'Gold',
     dotColor: '#FACC15',
     labelColor: 'text-[#FACC15]',
-    unit: 'rides',
+    unit: 'bookings',
   },
   {
     key: 'platinumThreshold',
     label: 'Platinum',
     dotColor: '#A855F7',
     labelColor: 'text-[#C084FC]',
-    unit: 'rides',
+    unit: 'bookings',
+  },
+];
+
+export const TIER_REDEMPTION_FIELDS: TierFieldConfig[] = [
+  {
+    key: 'bronzeRedemptionRate',
+    label: 'Bronze (Starting Tier)',
+    dotColor: '#CD7F32',
+    labelColor: 'text-[#CD7F32]',
+    unit: '€ / 100 coins',
+    step: '0.5',
+  },
+  {
+    key: 'silverRedemptionRate',
+    label: 'Silver',
+    dotColor: '#C0C0C0',
+    labelColor: 'text-[#E5E7EB]',
+    unit: '€ / 100 coins',
+    step: '0.5',
+  },
+  {
+    key: 'goldRedemptionRate',
+    label: 'Gold',
+    dotColor: '#FACC15',
+    labelColor: 'text-[#FACC15]',
+    unit: '€ / 100 coins',
+    step: '0.5',
+  },
+  {
+    key: 'platinumRedemptionRate',
+    label: 'Platinum',
+    dotColor: '#A855F7',
+    labelColor: 'text-[#C084FC]',
+    unit: '€ / 100 coins',
+    step: '0.5',
   },
 ];

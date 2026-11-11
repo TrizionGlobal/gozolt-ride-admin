@@ -115,6 +115,7 @@ export interface AdminBooking {
 
 const HISTORY_TABS = [
   { id: 'all', label: 'All History', historyFilter: 'ALL' },
+  { id: 'active', label: 'Active & Pending', historyFilter: 'ACTIVE' },
   { id: 'completed', label: 'Completed', historyFilter: 'COMPLETED' },
   { id: 'cancelled', label: 'Cancelled & Refunded', historyFilter: 'CANCELLED' },
 ] as const;
@@ -124,6 +125,17 @@ function getStatusStyle(status?: string | null): string {
   switch (status) {
     case 'COMPLETED':
       return 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30';
+    case 'CONFIRMED':
+    case 'DRIVER_ASSIGNED':
+      return 'bg-blue-500/15 text-blue-400 border-blue-500/30';
+    case 'PENDING_APPROVAL':
+    case 'PENDING_PAYMENT':
+      return 'bg-amber-500/15 text-amber-400 border-amber-500/30';
+    case 'EN_ROUTE_TO_PICKUP':
+    case 'ARRIVED_AT_AIRPORT':
+    case 'PASSENGER_MET':
+    case 'IN_TRANSIT':
+      return 'bg-purple-500/15 text-purple-400 border-purple-500/30';
     case 'CANCELLED':
     case 'REFUNDED':
       return 'bg-red-500/15 text-red-400 border-red-500/30';

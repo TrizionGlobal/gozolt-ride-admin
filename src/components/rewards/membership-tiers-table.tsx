@@ -1,8 +1,9 @@
 'use client';
 
-import React from 'react';
-import { Award, CheckCircle2, ShieldCheck, Sparkles, TrendingUp, Info } from 'lucide-react';
+import React, { useState } from 'react';
+import { Award, Pencil, X, Save, TrendingUp } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   Table,
   TableBody,
@@ -11,81 +12,129 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import type { RewardConfig } from '@/services/admin/reward.types';
+import type { RewardConfig, UpdateRewardConfigPayload } from '@/services/admin/reward.types';
+import { toast } from 'sonner';
 
 interface MembershipTiersTableProps {
   config: RewardConfig;
+  saving?: boolean;
+  onSave?: (payload: UpdateRewardConfigPayload) => Promise<boolean | undefined>;
 }
 
-export function MembershipTiersTable({ config }: MembershipTiersTableProps) {
+export function MembershipTiersTable({ config, saving = false, onSave }: MembershipTiersTableProps) {
   const pointsPerEuro = config.pointsPerEuro ?? 1;
-  const euroPerPoint = config.euroPerPoint ?? 0.01;
-  const silverThreshold = config.silverThreshold ?? 26;
-  const goldThreshold = config.goldThreshold ?? 51;
-  const platinumThreshold = config.platinumThreshold ?? 101;
-  const minRedeemCoins = config.minRedeemCoins ?? 200;
+  const silverThreshold = config.silverThreshold ?? 101;
+  const goldThreshold = config.goldThreshold ?? 251;
+  const platinumThreshold = config.platinumThreshold ?? 501;
 
-  // Derive dynamic tier data matching the live user app rules
-  const tiers = config.tiers && config.tiers.length > 0 ? config.tiers : [
+  const bronzeRate = Number(config.bronzeRedemptionRate ?? config.tierRedemptionRates?.BRONZE ?? 1.0);
+  const silverRate = Number(config.silverRedemptionRate ?? config.tierRedemptionRates?.SILVER ?? 3.0);
+  const goldRate = Number(config.goldRedemptionRate ?? config.tierRedemptionRates?.GOLD ?? 5.0);
+  const platinumRate = Number(config.platinumRedemptionRate ?? config.tierRedemptionRates?.PLATINUM ?? 7.0);
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [editThresholds, setEditThresholds] = useState({
+    silver: silverThreshold,
+    gold: goldThreshold,
+    platinum: platinumThreshold,
+  });
+  const [editRates, setEditRates] = useState({
+    bronze: bronzeRate,
+    silver: silverRate,
+    gold: goldRate,
+    platinum: platinumRate,
+  });
+
+  const handleEditClick = () => {
+    setEditThresholds({
+      silver: silverThreshold,
+      gold: goldThreshold,
+      platinum: platinumThreshold,
+    });
+    setEditRates({
+      bronze: bronzeRate,
+      silver: silverRate,
+      gold: goldRate,
+      platinum: platinumRate,
+    });
+    setIsEditing(true);
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false);
+  };
+
+  const handleSave = async () => {
+    if (!onSave) return;
+    const payload: UpdateRewardConfigPayload = {
+      silverThreshold: editThresholds.silver,
+      goldThreshold: editThresholds.gold,
+      platinumThreshold: editThresholds.platinum,
+      bronzeRedemptionRate: editRates.bronze,
+      silverRedemptionRate: editRates.silver,
+      goldRedemptionRate: editRates.gold,
+      platinumRedemptionRate: editRates.platinum,
+    };
+
+    const success = await onSave(payload);
+    if (success) {
+      toast.success('Membership tier rules updated successfully');
+      setIsEditing(false);
+    }
+  };
+
+  const tierRows = [
     {
-      tier: 'BRONZE',
+      key: 'BRONZE',
       name: 'Bronze',
-      minRides: 0,
+      badgeLetter: 'B',
       color: '#CD7F32',
       badgeBg: 'rgba(205, 127, 50, 0.15)',
       badgeText: '#CD7F32',
-      earningRate: `Earn ${pointsPerEuro} coin for every €1 spent`,
-      redemptionRate: `100 Coins = €${(euroPerPoint * 100).toFixed(2)}`,
-      benefits: [
-        `Earn ${pointsPerEuro} coin for every €1 spent`,
-        'Bronze loyalty status',
-        `Redemption rate: 100 Coins = €${(euroPerPoint * 100).toFixed(2)}`,
-      ],
+      minBookings: 0,
+      minBookingsLabel: '0 bookings (Starting tier)',
+      isBase: true,
+      rate: bronzeRate,
+      perCoin: bronzeRate / 100,
     },
     {
-      tier: 'SILVER',
+      key: 'SILVER',
       name: 'Silver',
-      minRides: silverThreshold,
+      badgeLetter: 'S',
       color: '#C0C0C0',
       badgeBg: 'rgba(192, 192, 192, 0.15)',
       badgeText: '#E5E7EB',
-      earningRate: `Earn ${pointsPerEuro} coin for every €1 spent`,
-      redemptionRate: `100 Coins = €${(euroPerPoint * 100).toFixed(2)}`,
-      benefits: [
-        `Earn ${pointsPerEuro} coin for every €1 spent`,
-        'Silver loyalty status',
-        `Redemption rate: 100 Coins = €${(euroPerPoint * 100).toFixed(2)}`,
-      ],
+      minBookings: silverThreshold,
+      minBookingsLabel: `${silverThreshold} completed bookings`,
+      isBase: false,
+      rate: silverRate,
+      perCoin: silverRate / 100,
     },
     {
-      tier: 'GOLD',
+      key: 'GOLD',
       name: 'Gold',
-      minRides: goldThreshold,
+      badgeLetter: 'G',
       color: '#FACC15',
       badgeBg: 'rgba(250, 204, 21, 0.15)',
       badgeText: '#FACC15',
-      earningRate: `Earn ${pointsPerEuro} coin for every €1 spent`,
-      redemptionRate: `100 Coins = €${(euroPerPoint * 100).toFixed(2)}`,
-      benefits: [
-        `Earn ${pointsPerEuro} coin for every €1 spent`,
-        'Gold loyalty status',
-        `Redemption rate: 100 Coins = €${(euroPerPoint * 100).toFixed(2)}`,
-      ],
+      minBookings: goldThreshold,
+      minBookingsLabel: `${goldThreshold} completed bookings`,
+      isBase: false,
+      rate: goldRate,
+      perCoin: goldRate / 100,
     },
     {
-      tier: 'PLATINUM',
+      key: 'PLATINUM',
       name: 'Platinum',
-      minRides: platinumThreshold,
+      badgeLetter: 'P',
       color: '#A855F7',
       badgeBg: 'rgba(168, 85, 247, 0.15)',
       badgeText: '#C084FC',
-      earningRate: `Earn ${pointsPerEuro} coin for every €1 spent`,
-      redemptionRate: `100 Coins = €${(euroPerPoint * 100).toFixed(2)}`,
-      benefits: [
-        `Earn ${pointsPerEuro} coin for every €1 spent`,
-        'Platinum loyalty status',
-        `Redemption rate: 100 Coins = €${(euroPerPoint * 100).toFixed(2)}`,
-      ],
+      minBookings: platinumThreshold,
+      minBookingsLabel: `${platinumThreshold} completed bookings`,
+      isBase: false,
+      rate: platinumRate,
+      perCoin: platinumRate / 100,
     },
   ];
 
@@ -98,17 +147,49 @@ export function MembershipTiersTable({ config }: MembershipTiersTableProps) {
             <Award className="h-5 w-5 text-[#FACC15]" />
             <h2 className="text-lg font-semibold text-white">Membership Tiers & Rules Matrix</h2>
           </div>
-          <p className="text-sm text-[#9CA3AF] mt-1">
-            Live tier qualification, earning ratios, and redemption rates synchronized with the User App
+          <p className="text-xs text-[#9CA3AF] mt-1">
+            Qualifying bookings apply across all 5 services: Cabs, Car Rentals, Bike Rentals, Airport Transfers & Quick Services
           </p>
         </div>
+
         <div className="flex items-center gap-2">
+          {onSave && (
+            isEditing ? (
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleCancel}
+                  disabled={saving}
+                  className="h-8 text-xs text-[#9CA3AF] hover:text-white hover:bg-[#1A1A1A]"
+                >
+                  <X className="mr-1 h-3.5 w-3.5" />
+                  Cancel
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={handleSave}
+                  disabled={saving}
+                  className="h-8 text-xs bg-[#FACC15] text-black hover:bg-[#E5B800] font-medium"
+                >
+                  <Save className="mr-1 h-3.5 w-3.5" />
+                  {saving ? 'Saving...' : 'Save Changes'}
+                </Button>
+              </div>
+            ) : (
+              <Button
+                size="sm"
+                onClick={handleEditClick}
+                className="h-8 text-xs bg-[#FACC15] text-black hover:bg-[#E5B800] font-medium"
+              >
+                <Pencil className="mr-1 h-3.5 w-3.5" />
+                Edit Tiers
+              </Button>
+            )
+          )}
           <Badge className="bg-[#22C55E]/10 text-[#22C55E] border-transparent font-medium text-xs px-2.5 py-1">
             <span className="h-1.5 w-1.5 rounded-full bg-[#22C55E] mr-1.5 animate-pulse" />
             Live Synced
-          </Badge>
-          <Badge className="bg-[#1F1F1F] text-[#9CA3AF] border-[#2A2A2A] font-medium text-xs px-2.5 py-1">
-            4 Loyalty Tiers
           </Badge>
         </div>
       </div>
@@ -122,7 +203,7 @@ export function MembershipTiersTable({ config }: MembershipTiersTableProps) {
                 Tier Level
               </TableHead>
               <TableHead className="text-xs font-semibold uppercase tracking-wider text-[#9CA3AF] py-3.5">
-                Qualification Requirement
+                Qualifying Bookings
               </TableHead>
               <TableHead className="text-xs font-semibold uppercase tracking-wider text-[#9CA3AF] py-3.5">
                 Earning Rate
@@ -131,7 +212,7 @@ export function MembershipTiersTable({ config }: MembershipTiersTableProps) {
                 Redemption Rate
               </TableHead>
               <TableHead className="text-xs font-semibold uppercase tracking-wider text-[#9CA3AF] py-3.5">
-                Key Benefits & Perks
+                Value per Coin
               </TableHead>
               <TableHead className="text-xs font-semibold uppercase tracking-wider text-[#9CA3AF] py-3.5 text-right pr-5">
                 Status
@@ -139,11 +220,19 @@ export function MembershipTiersTable({ config }: MembershipTiersTableProps) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {tiers.map((t) => {
-              const isBase = t.minRides === 0;
+            {tierRows.map((t) => {
+              const currentRate = isEditing
+                ? t.key === 'BRONZE' ? editRates.bronze
+                  : t.key === 'SILVER' ? editRates.silver
+                  : t.key === 'GOLD' ? editRates.gold
+                  : editRates.platinum
+                : t.rate;
+
+              const currentPerCoin = currentRate / 100;
+
               return (
                 <TableRow
-                  key={t.tier}
+                  key={t.key}
                   className="border-b border-[#2A2A2A]/40 hover:bg-[#1A1A1A]/40 transition-colors"
                 >
                   {/* Tier Name & Badge */}
@@ -157,7 +246,7 @@ export function MembershipTiersTable({ config }: MembershipTiersTableProps) {
                           color: t.badgeText,
                         }}
                       >
-                        {t.name.charAt(0)}
+                        {t.badgeLetter}
                       </div>
                       <div>
                         <div className="flex items-center gap-1.5">
@@ -170,24 +259,47 @@ export function MembershipTiersTable({ config }: MembershipTiersTableProps) {
                           />
                         </div>
                         <span className="text-xs text-[#6B7280]">
-                          {isBase ? 'Default User Tier' : `Tier ${t.tier}`}
+                          {t.isBase ? 'Default User Tier' : `Tier ${t.key}`}
                         </span>
                       </div>
                     </div>
                   </TableCell>
 
-                  {/* Qualification Requirement */}
+                  {/* Qualifying Bookings */}
                   <TableCell className="py-4">
-                    <div className="flex flex-col">
-                      <span className="text-sm font-medium text-white">
-                        {isBase ? '0 completed rides' : `${t.minRides} completed rides`}
-                      </span>
-                      <span className="text-xs text-[#6B7280] mt-0.5">
-                        {isBase
-                          ? 'Activated immediately upon signup'
-                          : `Unlocks from ride #${t.minRides} onwards`}
-                      </span>
-                    </div>
+                    {isEditing && !t.isBase ? (
+                      <div className="flex items-center gap-1.5">
+                        <input
+                          type="number"
+                          step="1"
+                          min="1"
+                          value={
+                            t.key === 'SILVER'
+                              ? editThresholds.silver
+                              : t.key === 'GOLD'
+                              ? editThresholds.gold
+                              : editThresholds.platinum
+                          }
+                          onChange={(e) => {
+                            const val = parseInt(e.target.value) || 0;
+                            if (t.key === 'SILVER') setEditThresholds((p) => ({ ...p, silver: val }));
+                            if (t.key === 'GOLD') setEditThresholds((p) => ({ ...p, gold: val }));
+                            if (t.key === 'PLATINUM') setEditThresholds((p) => ({ ...p, platinum: val }));
+                          }}
+                          className="w-20 h-8 rounded-md border border-[#2A2A2A] bg-[#0A0A0A] px-2 text-sm text-white text-right focus:border-[#FACC15] focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        />
+                        <span className="text-xs text-[#9CA3AF]">bookings</span>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col">
+                        <span className="text-sm font-medium text-white">
+                          {t.isBase ? '0 bookings' : `${t.minBookings} bookings`}
+                        </span>
+                        <span className="text-xs text-[#6B7280]">
+                          {t.isBase ? 'Activated on signup' : `From booking #${t.minBookings} onwards`}
+                        </span>
+                      </div>
+                    )}
                   </TableCell>
 
                   {/* Earning Rate */}
@@ -198,45 +310,46 @@ export function MembershipTiersTable({ config }: MembershipTiersTableProps) {
                         {pointsPerEuro} {pointsPerEuro === 1 ? 'GoCoin' : 'GoCoins'} / €1
                       </span>
                     </div>
-                    <span className="text-xs text-[#6B7280]">
-                      Applicable on all 5 services
-                    </span>
+                    <span className="text-xs text-[#6B7280]">All 5 services</span>
                   </TableCell>
 
                   {/* Redemption Rate */}
                   <TableCell className="py-4">
-                    <div className="flex flex-col">
-                      <span className="text-sm font-medium text-[#22C55E]">
-                        100 Coins = €{(euroPerPoint * 100).toFixed(2)}
-                      </span>
-                      <span className="text-xs text-[#6B7280] mt-0.5">
-                        Flat rate across all tiers
-                      </span>
-                    </div>
+                    {isEditing ? (
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-sm text-[#22C55E] font-semibold">€</span>
+                        <input
+                          type="number"
+                          step="0.5"
+                          min="0.1"
+                          value={currentRate}
+                          onChange={(e) => {
+                            const val = parseFloat(e.target.value) || 0;
+                            if (t.key === 'BRONZE') setEditRates((p) => ({ ...p, bronze: val }));
+                            if (t.key === 'SILVER') setEditRates((p) => ({ ...p, silver: val }));
+                            if (t.key === 'GOLD') setEditRates((p) => ({ ...p, gold: val }));
+                            if (t.key === 'PLATINUM') setEditRates((p) => ({ ...p, platinum: val }));
+                          }}
+                          className="w-20 h-8 rounded-md border border-[#2A2A2A] bg-[#0A0A0A] px-2 text-sm text-white text-right focus:border-[#22C55E] focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        />
+                        <span className="text-xs text-[#9CA3AF]">/ 100 coins</span>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col">
+                        <span className="text-sm font-semibold text-[#22C55E]">
+                          100 Coins = €{currentRate.toFixed(2)}
+                        </span>
+                        <span className="text-xs text-[#6B7280]">Tier-based rate</span>
+                      </div>
+                    )}
                   </TableCell>
 
-                  {/* Key Benefits */}
+                  {/* Value per Coin */}
                   <TableCell className="py-4">
-                    <div className="flex flex-col gap-1 max-w-md">
-                      {t.benefits && t.benefits.length > 0 ? (
-                        t.benefits.map((b, idx) => (
-                          <div key={idx} className="flex items-center gap-1.5 text-xs text-[#D1D5DB]">
-                            <CheckCircle2
-                              className="h-3.5 w-3.5 shrink-0"
-                              style={{ color: t.color }}
-                            />
-                            <span>{b}</span>
-                          </div>
-                        ))
-                      ) : (
-                        <div className="flex items-center gap-1.5 text-xs text-[#D1D5DB]">
-                          <CheckCircle2
-                            className="h-3.5 w-3.5 shrink-0 text-[#22C55E]"
-                          />
-                          <span>Earn 1 coin for every €1 spent</span>
-                        </div>
-                      )}
-                    </div>
+                    <span className="text-sm font-medium text-[#22C55E]">
+                      €{currentPerCoin.toFixed(2)}{' '}
+                      <span className="text-xs text-[#6B7280] font-normal">/ coin</span>
+                    </span>
                   </TableCell>
 
                   {/* Status */}
@@ -251,32 +364,6 @@ export function MembershipTiersTable({ config }: MembershipTiersTableProps) {
           </TableBody>
         </Table>
       </div>
-
-      {/* Program Summary Footer */}
-      <div className="p-4 bg-[#0F0F0F] border-t border-[#2A2A2A] grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-[#9CA3AF]">
-        <div className="flex items-start gap-2.5">
-          <Sparkles className="h-4 w-4 text-[#FACC15] shrink-0 mt-0.5" />
-          <div>
-            <span className="font-semibold text-white block mb-0.5">Universal Earning</span>
-            <span>Earns 1 GoCoin per €1 spent across Cabs, Car Rentals, Bike Rentals, Airport Transfers & Quick Services.</span>
-          </div>
-        </div>
-        <div className="flex items-start gap-2.5">
-          <ShieldCheck className="h-4 w-4 text-[#22C55E] shrink-0 mt-0.5" />
-          <div>
-            <span className="font-semibold text-white block mb-0.5">Transparent Redemption</span>
-            <span>Default rate is 100 GoCoins = €1.00 wallet credit. Minimum redemption threshold is {minRedeemCoins} GoCoins.</span>
-          </div>
-        </div>
-        <div className="flex items-start gap-2.5">
-          <Info className="h-4 w-4 text-[#60A5FA] shrink-0 mt-0.5" />
-          <div>
-            <span className="font-semibold text-white block mb-0.5">Activity & Expiry</span>
-            <span>Tiers upgrade automatically after reaching qualifying rides. Coins expire after 6 months of account inactivity.</span>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
-

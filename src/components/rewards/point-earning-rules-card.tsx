@@ -55,7 +55,7 @@ export function PointEarningRulesCard({ config, saving, onSave }: PointEarningRu
   };
 
   return (
-    <div className="rounded-lg border-2 border-dashed border-[#FACC15]/60 bg-[#141414] p-5">
+    <div className="rounded-xl border border-[#2A2A2A] bg-[#141414] p-5 shadow-sm">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <Coins className="h-4 w-4 text-[#FACC15]" />

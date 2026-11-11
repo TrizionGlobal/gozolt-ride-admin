@@ -1,8 +1,7 @@
 'use client';
 
 import { useRewards } from '@/hooks/use-rewards';
-import { PointEarningRulesCard } from '@/components/rewards/point-earning-rules-card';
-import { TierThresholdsCard } from '@/components/rewards/tier-thresholds-card';
+import { GoCoinsRulesHeader } from '@/components/rewards/gocoins-rules-header';
 import { MembershipTiersTable } from '@/components/rewards/membership-tiers-table';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -25,24 +24,18 @@ export default function RewardsPage() {
         </div>
       </div>
 
-      {/* Membership Tiers & Rules Matrix Table */}
+      {/* 1. GoCoins Platform Rules (Earning, Min Redemption & Base Bonus) */}
+      {loading || !config ? (
+        <Skeleton className="h-40 w-full rounded-xl bg-[#1A1A1A]" />
+      ) : (
+        <GoCoinsRulesHeader config={config} saving={saving} onSave={updateConfig} />
+      )}
+
+      {/* 2. Membership Tiers & Rules Matrix Table (with inline editing for thresholds & rates) */}
       {loading || !config ? (
         <Skeleton className="h-80 w-full rounded-xl bg-[#1A1A1A]" />
       ) : (
-        <MembershipTiersTable config={config} />
-      )}
-
-      {/* Config Cards: Earning Rules & Tier Thresholds */}
-      {loading || !config ? (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Skeleton className="h-56 rounded-lg bg-[#1A1A1A]" />
-          <Skeleton className="h-56 rounded-lg bg-[#1A1A1A]" />
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-          <PointEarningRulesCard config={config} saving={saving} onSave={updateConfig} />
-          <TierThresholdsCard config={config} saving={saving} onSave={updateConfig} />
-        </div>
+        <MembershipTiersTable config={config} saving={saving} onSave={updateConfig} />
       )}
     </div>
   );
